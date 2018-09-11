@@ -90,4 +90,10 @@ public class AppTest
         System.out.println(LogXUtils.getLogXHeaderValue());
     }
 
+    @Test
+    public void hashCheck(){
+        LogXContext.initialize(null);
+        assertTrue(LogXContext.hashService().hash("valid name", null).equals("4277d967dc8434b5b1c59d7e7087760a"));
+    }
+
 }
