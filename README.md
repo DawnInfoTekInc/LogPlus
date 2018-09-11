@@ -33,7 +33,8 @@ This framework provides features which can be used in different purposes.
     > - txpath (transaction path)
     
 3. http header, for the purpose of passing traceable field to different tier set logx value into header with key and value,
-eg. connection = url.openConnection(); connection.setRequestProperty(LogXUtils.getLogXHeaderName(), LogXUtils.getLogXHeaderValue());
+> eg. connection = url.openConnection(); 
+> connection.setRequestProperty(LogXUtils.getLogXHeaderName(), LogXUtils.getLogXHeaderValue());
 
 ## License
 
