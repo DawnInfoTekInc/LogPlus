@@ -14,7 +14,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	public void startCheckPoint(String checkName) {
 		
 		MDC.put(checkName, String.valueOf(System.currentTimeMillis()));
-
 	}
 
 	@Override

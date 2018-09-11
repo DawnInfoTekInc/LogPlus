@@ -323,7 +323,7 @@ public class LogXFilter implements Filter {
 		}
 		return "";
 	}
-	
+
 	protected void prepareSysFields() {
 		MDC.put(LogXConstants.PROCESS_ID, processId);
 		MDC.put(LogXConstants.SERVICE_NAME, LogXUtils.getLogProperty(LogXConstants.SERVICE_NAME, ""));

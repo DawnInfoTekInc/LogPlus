@@ -247,7 +247,6 @@ public class Configuration implements Component {
 		}
 			
 		return result;
-		
 	}
 	
 	private static TransactionPathMappingRule createRule(String ruleName, String rule) {
@@ -286,7 +285,6 @@ public class Configuration implements Component {
 		}
 		
 		return result;
-		
 	}
 	
 	private static class TransactionPathMappingRule {

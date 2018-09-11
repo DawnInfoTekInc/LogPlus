@@ -47,27 +47,47 @@ public class LogXContext {
 		instance.components.put(LogXConstants.C_NAME_HASH, getComponent(LogXConstants.C_NAME_HASH));
 		instance.components.put(LogXConstants.C_NAME_MASK, getComponent(LogXConstants.C_NAME_MASK));		
 	}
-	
+
+	/**
+	 * get configuration instance
+	 * @return
+	 */
 	public static Configuration configuration() {
 		return instance.configuration;
 	}
-	
+
+	/**
+	 * get checkPoint service
+	 * @return
+	 */
 	public static CheckPointService checkPointService() {
 		return (CheckPointService) instance.components.get(LogXConstants.C_NAME_CP);
 	}
-	
+
+	/**
+	 * get event service
+	 * @return
+	 */
 	public static EventService eventService() {
 		return (EventService) instance.components.get(LogXConstants.C_NAME_EVT);
 	}
-	
+
+	/**
+	 * get hash service
+	 * @return
+	 */
 	public static HashService hashService() {
 		return (HashService) instance.components.get(LogXConstants.C_NAME_HASH);		
 	}
-	
+
+	/**
+	 * get mask service
+	 * @return
+	 */
 	public static MaskService maskService() {
 		return (MaskService) instance.components.get(LogXConstants.C_NAME_MASK);
 	}
-	
+
 	private static Component getComponent(String componentName) {
 		
 		String impl = instance.configuration.getConfigurationValue(LogXConstants.C_NAME_PREFIX + componentName); 		

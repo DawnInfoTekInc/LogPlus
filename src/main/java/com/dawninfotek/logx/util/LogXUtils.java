@@ -59,25 +59,29 @@ public class LogXUtils implements LogXConstants {
 		return defaultValue;
 	}
 
+	/**
+	 * answer field names
+	 * @return
+	 */
 	public static String[] getLogXFieldNames() {
 		return getLogProperties(LogXConstants.FIELDS_NAME, null);
 	}
 
 	/**
-	 * Answer the value of AQA Trace Header Name
+	 * Answer the Trace Header Name
 	 * 
 	 * @param
-	 * @return string AQA header name
+	 * @return string header name
 	 */
 	public static String getLogXHeaderName() {
 		return getLogProperty(LogXConstants.HEADER_NAME, "AQALogX");
 	}
 
 	/**
-	 * Answer the value of AQA Trace Header Name
+	 * Answer the value of Trace Header Name
 	 * 
 	 * @param
-	 * @return string AQA header name
+	 * @return string header value
 	 */
 	public static String getLogXHeaderValue() {
 		
@@ -122,9 +126,9 @@ public class LogXUtils implements LogXConstants {
 	}	
 
 	/**
-	 * Answer the value of AQA Trace Header
+	 * Answer the value of Trace Header
 	 * 
-	 * @return string AQA header value
+	 * @return string header value
 	 */
 	public static String[] getLogXHeaderInclues() {
 		return getLogProperties(LogXConstants.HEADER_INCLUDES, null);
@@ -144,7 +148,7 @@ public class LogXUtils implements LogXConstants {
 	}
 
 	/***
-	 * private text message format
+	 * text message format
 	 * 
 	 * @param givenLogger
 	 * @param message
@@ -168,6 +172,11 @@ public class LogXUtils implements LogXConstants {
 
 	}
 
+	/**
+	 * encode a string with base64
+	 * @param source
+	 * @return
+	 */
 	public static String encode(String source) {
 
 		if (source == null) {
@@ -178,6 +187,11 @@ public class LogXUtils implements LogXConstants {
 
 	}
 
+	/**
+	 * decode a string with base64 decode
+	 * @param source
+	 * @return
+	 */
 	public static String decode(String source) {
 
 		if (source == null) {

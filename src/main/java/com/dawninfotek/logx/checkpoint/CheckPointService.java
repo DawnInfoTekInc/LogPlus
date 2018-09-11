@@ -18,12 +18,12 @@ public interface CheckPointService extends Component {
 	 * @param checkName
 	 * @param logger
 	 */
-	public void endCheckPoint(String checkName, Object logger);
+	void endCheckPoint(String checkName, Object logger);
 	
 	/**
 	 * Answer the current checkpoint name
 	 * @return
 	 */
-	public String getCurrentCheckPoint();
+	String getCurrentCheckPoint();
 
 }
