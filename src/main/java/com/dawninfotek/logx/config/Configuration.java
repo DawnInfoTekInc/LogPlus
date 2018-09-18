@@ -57,12 +57,12 @@ public class Configuration implements Component {
 					
 					propFile = new FileInputStream(ns[1]);
 				}
-				Properties properties = new Properties();
+				override = new Properties();
 				if (propFile == null) {
 					throw new FileNotFoundException("file path setting error");
 				}
 
-				properties.load(propFile);
+				override.load(propFile);
 
 			} catch (IOException e) {
 				logger.error(e.getMessage());
