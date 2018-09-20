@@ -176,6 +176,8 @@ public class LogXFilter implements Filter {
 				fieldValue = getSessionId(httpRequest);
 			} else if (value.startsWith(LogXConstants.SESSION)) {
 				fieldValue = getSession(httpRequest, key, value);
+			} else if (value.startsWith(LogXConstants.REMOTEADDR)){
+				fieldValue = getRemoteAddr(httpRequest);
 			} else if (value.isEmpty()) {
 				fieldValue = "";
 				logger.warn("value must not be empty, keyword: " + key + " value: " + value);
@@ -274,6 +276,19 @@ public class LogXFilter implements Filter {
 			return res;
 		} else
 			return "";
+	}
+
+	/**
+	 * get ip from remote
+	 * @param httpRequest
+	 * @return
+	 */
+	private String getRemoteAddr(HttpServletRequest httpRequest){
+		String ip = httpRequest.getRemoteAddr();
+		if(ip == null){
+			ip = "";
+		}
+		return ip;
 	}
 
 	/***
