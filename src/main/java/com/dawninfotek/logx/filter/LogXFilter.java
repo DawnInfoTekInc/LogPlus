@@ -284,7 +284,40 @@ public class LogXFilter implements Filter {
 	 * @return
 	 */
 	private String getRemoteAddr(HttpServletRequest httpRequest){
-		String ip = httpRequest.getRemoteAddr();
+		String ip = httpRequest.getHeader("X-Forwarded-For");  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("Proxy-Client-IP");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("WL-Proxy-Client-IP");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_X_FORWARDED_FOR");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_X_FORWARDED");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_X_CLUSTER_CLIENT_IP");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_CLIENT_IP");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_FORWARDED_FOR");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_FORWARDED");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("HTTP_VIA");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getHeader("REMOTE_ADDR");  
+	    }  
+	    if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {  
+	        ip = httpRequest.getRemoteAddr();  
+	    }
 		if(ip == null){
 			ip = "";
 		}
