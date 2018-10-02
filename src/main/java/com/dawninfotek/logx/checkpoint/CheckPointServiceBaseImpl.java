@@ -14,7 +14,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		if (checkPointName == null || checkPointName.length() == 0) {
 			checkPointName = checkName;
 		} else {
-			checkPointName = checkPointName + "\"" + checkName;
+			checkPointName = checkPointName + "::" + checkName;
 		}
 		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
 		MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
@@ -30,12 +30,14 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		if (start != null) {
 			executionTime = end - Long.parseLong(start);
 		}
-		if (checkPointName != null && checkPointName.contains("\"")) {
+		if (checkPointName != null && checkPointName.contains("::")) {
 			checkPointName = "";
 		} else {
-			int endIndex = checkPointName.lastIndexOf("\"");
+			int endIndex = checkPointName.lastIndexOf("::");
 			if(endIndex != -1) {
 				checkPointName = checkPointName.substring(0, endIndex-1);
+			}else {
+				checkPointName = "";
 			}
 		}
 
