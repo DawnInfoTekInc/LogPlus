@@ -107,7 +107,7 @@ public class LogXFilter implements Filter {
 
 				LogXContext.eventService().logServiceEventEnd(transactionPath, logger);
 
-				LogXContext.checkPointService().endCheckPoint(transactionPath, logger);
+				LogXContext.checkPointService().endCheckPoint(logger);
 			}
 			
 			removeLogXFields(httpRequest);

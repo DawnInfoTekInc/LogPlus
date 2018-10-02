@@ -43,13 +43,13 @@ public class AppTest
         }catch (InterruptedException e){
 
         }
-        LogXContext.checkPointService().endCheckPoint("subTest", logger);
+        LogXContext.checkPointService().endCheckPoint(logger);
         try {
             Thread.sleep(1000);
         }catch (InterruptedException e){
 
         }
-        LogXContext.checkPointService().endCheckPoint("testCheck", logger);
+        LogXContext.checkPointService().endCheckPoint(logger);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class AppTest
         LogXContext.initialize(null);
         MDC.put(LogXConstants.CURR_CHECKPOINT, "curr_cp");
         LogXContext.checkPointService().startCheckPoint("testCheck");
-        LogXContext.checkPointService().endCheckPoint("testCheck", logger);
+        LogXContext.checkPointService().endCheckPoint(logger);
         System.out.println(LogXUtils.getLogXHeaderValue());
     }
 
