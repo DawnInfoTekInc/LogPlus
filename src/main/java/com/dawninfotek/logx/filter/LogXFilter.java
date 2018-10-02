@@ -113,8 +113,6 @@ public class LogXFilter implements Filter {
 			removeLogXFields(httpRequest);
 			
 			removeSysFields();
-			
-			removeSysFields();
 
 		} catch (Exception e) {
 			logger.error("Error occured during processing logx functions.", e);
@@ -379,9 +377,9 @@ public class LogXFilter implements Filter {
 	}
 	
 	protected void removeSysFields() {
-		MDC.put(LogXConstants.PROCESS_ID, processId);
-		MDC.put(LogXConstants.SERVICE_NAME, LogXUtils.getLogProperty(LogXConstants.SERVICE_NAME, ""));
-		MDC.put(LogXConstants.APPLICATION_NAME, LogXUtils.getLogProperty(LogXConstants.APPLICATION_NAME, ""));		
+		MDC.remove(LogXConstants.PROCESS_ID);
+		MDC.remove(LogXConstants.SERVICE_NAME);
+		MDC.remove(LogXConstants.APPLICATION_NAME);		
 	}	
 	
 	protected void prepareLogXFields(HttpServletRequest httpRequest) {
