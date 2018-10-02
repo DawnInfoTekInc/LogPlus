@@ -11,6 +11,7 @@ public interface CheckPointService extends Component {
 	 */
 	void startCheckPoint(String checkName);
 
+	@Deprecated
 	/**
 	 * Ending given check point, log the performance data if the given logger
 	 * presents
@@ -19,6 +20,14 @@ public interface CheckPointService extends Component {
 	 * @param logger
 	 */
 	void endCheckPoint(String checkName, Object logger);
+	
+	/**
+	 * Ending given check point, log the performance data if the given logger
+	 * presents
+	 * 
+	 * @param logger
+	 */
+	void endCheckPoint(Object logger);
 	
 	/**
 	 * Answer the current checkpoint name

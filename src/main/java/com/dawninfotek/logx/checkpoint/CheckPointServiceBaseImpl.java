@@ -8,32 +8,39 @@ import com.dawninfotek.logx.util.LogXUtils;
 
 public class CheckPointServiceBaseImpl implements CheckPointService {
 
-	private boolean currCheckpointSet = false;
-
 	@Override
 	public void startCheckPoint(String checkName) {
-		
-		MDC.put(checkName, String.valueOf(System.currentTimeMillis()));
+		String checkPointName = MDC.get(LogXConstants.CURR_CHECKPOINT);
+		if (checkPointName == null || checkPointName.length() == 0) {
+			checkPointName = checkName;
+		} else {
+			checkPointName = checkPointName + "\"" + checkName;
+		}
+		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
+		MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
 	}
 
 	@Override
-	public void endCheckPoint(String checkName, Object logger) {
+	public void endCheckPoint(Object logger) {
 		long executionTime = 0;
 		long end = System.currentTimeMillis();
-		String start = MDC.get(checkName);
+		String checkPointName = MDC.get(LogXConstants.CURR_CHECKPOINT);
+		String checkName = checkPointName;
+		String start = MDC.get(checkPointName);
 		if (start != null) {
 			executionTime = end - Long.parseLong(start);
 		}
-		String checkPointName = MDC.get(LogXConstants.CURR_CHECKPOINT);
-		if (checkPointName == null) {
-			checkPointName = checkName;
+		if (checkPointName != null && checkPointName.contains("\"")) {
+			checkPointName = "";
 		} else {
-			checkPointName = checkPointName + "_" + checkName;
+			int endIndex = checkPointName.lastIndexOf("\"");
+			if(endIndex != -1) {
+				checkPointName = checkPointName.substring(0, endIndex-1);
+			}
 		}
-		if(!currCheckpointSet){
-			MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
-			currCheckpointSet = true;
-		}
+
+		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
+		
 		String transPath = MDC.get(LogXConstants.TRANSACTION_PATH);
 		String path = MDC.get(LogXConstants.PATH);
 
@@ -58,6 +65,12 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	@Override
 	public String getCurrentCheckPoint() {
 		return MDC.get(CURR_CHECKPOINT);
+	}
+
+	@Override
+	public void endCheckPoint(String checkName, Object logger) {
+		// TODO Auto-generated method stub
+		
 	}
 
 
