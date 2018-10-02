@@ -196,7 +196,7 @@ public class Configuration implements Component {
 		if(lastMatch != null) {
 			result = lastMatch.getTxPathName();
 		}else {
-			result = request.getPathInfo();
+			result = request.getRequestURI().substring(request.getContextPath().length());
 		}
 		
 		return result;
@@ -208,7 +208,7 @@ public class Configuration implements Component {
 		//First, the 'method' and path must be match
 		if(request.getMethod().equalsIgnoreCase(rule.getMethod())) {
 			//method match
-			if(request.getServletPath().startsWith(rule.getReqPath())){
+			if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(rule.getReqPath())){
 				//path match
 				if(rule.getLength() == 2) {
 					result = true;
