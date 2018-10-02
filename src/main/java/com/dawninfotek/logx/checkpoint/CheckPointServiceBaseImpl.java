@@ -54,7 +54,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			p = path;
 		}
 
-		String message = String.format(LogXUtils.getLogProperty(LogXConstants.LOG_MSG_PFM_METRIC, ""), checkPointName, executionTime, p);
+		String message = String.format(LogXUtils.getLogProperty(LogXConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
 
 		LogXUtils.logTextMessage(logger, message);
 
