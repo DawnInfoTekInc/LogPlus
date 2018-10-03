@@ -59,8 +59,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		LogXUtils.logTextMessage(logger, message);
 
 		MDC.remove(checkName);
-		MDC.remove(LogXConstants.TRANSACTION_PATH);
-		MDC.remove(LogXConstants.PATH);
 
 	}
 

@@ -411,7 +411,8 @@ public class LogXFilter implements Filter {
 		}
 		
 		MDC.remove(LogXUtils.getLogXHeaderName());
-		MDC.remove("path");
+		MDC.remove(LogXConstants.TRANSACTION_PATH);
+		MDC.remove(LogXConstants.PATH);
 		
 	}
 

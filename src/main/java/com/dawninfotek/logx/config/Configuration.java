@@ -206,7 +206,7 @@ public class Configuration implements Component {
 		
 		boolean result = false;
 		//First, the 'method' and path must be match
-		if(request.getMethod().equalsIgnoreCase(rule.getMethod())) {
+		if(rule.getMethod() == null || rule.getMethod().length() ==0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
 			//method match
 			if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(rule.getReqPath())){
 				//path match
