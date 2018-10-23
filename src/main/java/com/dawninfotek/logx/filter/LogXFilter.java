@@ -67,6 +67,9 @@ public class LogXFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		// to trace all the headers
 		if (logger.isTraceEnabled()) {
+			logger.trace("request servlet path: " + httpRequest.getServletPath());
+			logger.trace("request context path: " + httpRequest.getContextPath());
+			logger.trace("request path info: " + httpRequest.getPathInfo());
 			@SuppressWarnings("rawtypes")
 			Enumeration names = httpRequest.getHeaderNames();
 			StringBuilder sb = new StringBuilder();

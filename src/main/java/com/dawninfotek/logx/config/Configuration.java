@@ -208,42 +208,46 @@ public class Configuration implements Component {
 		//First, the 'method' and path must be match
 		if(rule.getMethod() == null || rule.getMethod().length() ==0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
 			//method match
-			if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(rule.getReqPath())){
-				//path match
-				if(rule.getLength() == 2) {
-					result = true;
-				}else {
-					//more verification required
-					int c = rule.getLength() - 2;
-					
-					if(rule.getHeaderName() != null) {
-						
-						//checking header
-						
-						String hValue = request.getHeader(rule.getHeaderName());
-						if(hValue != null && hValue.equals(rule.getHeaderValue())) {
-							c--;
-						}						
-					}
-					
-					if(c == 0) {
+			String[] uris = rule.getReqPath().split(",");
+			for(String uri : uris) {
+				if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(uri)){
+					//path match
+					if(rule.getLength() == 2) {
 						result = true;
+						break;
 					}else {
-						if(rule.getParameterName() != null) {
-							//checking parameter
-							String pValue = request.getParameter(rule.getParameterName());
-							if(pValue != null && pValue.equals(rule.getParameterValue())) {
+						//more verification required
+						int c = rule.getLength() - 2;
+						
+						if(rule.getHeaderName() != null) {
+							
+							//checking header
+							
+							String hValue = request.getHeader(rule.getHeaderName());
+							if(hValue != null && hValue.equals(rule.getHeaderValue())) {
 								c--;
-								if(c == 0) {
-									result = true;
+							}						
+						}
+						
+						if(c == 0) {
+							result = true;
+							break;
+						}else {
+							if(rule.getParameterName() != null) {
+								//checking parameter
+								String pValue = request.getParameter(rule.getParameterName());
+								if(pValue != null && pValue.equals(rule.getParameterValue())) {
+									c--;
+									if(c == 0) {
+										result = true;
+										break;
+									}
 								}
 							}
-						}
-					}					
-					
+						}					
+					}
 				}
-			}	
-			
+			}
 		}
 			
 		return result;
@@ -258,14 +262,22 @@ public class Configuration implements Component {
 		String[] items = StringUtils.split(rule, "::");
 		
 		//the method and the path must be defined in the rules
-		if(items.length < 2) {
+		if(items.length < 1) {
 			logger.warn("The rule under key {} is not in well format, please verify ...", ruleName);
 			return null;
 		}
 		
-		result.setMethod(items[0]);
-		result.setReqPath(items[1]);
-		result.setLength(items.length);
+		if(items.length == 1) {
+			result.setMethod("");
+			result.setReqPath(items[0]);
+			result.setLength(items.length+1);
+		}
+		
+		if(items.length == 2) {
+			result.setMethod(items[0]);
+			result.setReqPath(items[1]);
+			result.setLength(items.length);
+		}
 		
 		if(items.length > 2) {
 			for(int i=2; i<items.length; i++) {
