@@ -262,24 +262,16 @@ public class Configuration implements Component {
 		String[] items = StringUtils.split(rule, "::");
 		
 		//the method and the path must be defined in the rules
-		if(items.length < 1) {
-			logger.warn("The rule under key {} is not in well format, please verify ...", ruleName);
-			return null;
-		}
-		
+		// length equal to 1, accept all methods. length equal to 2, accept specified method.
 		if(items.length == 1) {
 			result.setMethod("");
 			result.setReqPath(items[0]);
 			result.setLength(items.length+1);
-		}
-		
-		if(items.length == 2) {
+		} else if(items.length == 2) {
 			result.setMethod(items[0]);
 			result.setReqPath(items[1]);
 			result.setLength(items.length);
-		}
-		
-		if(items.length > 2) {
+		} else if(items.length > 2) {
 			for(int i=2; i<items.length; i++) {
 				//each one must be key value
 				String[] kv = StringUtils.split(items[i], "=");
@@ -294,6 +286,9 @@ public class Configuration implements Component {
 					}
 				}
 			}
+		} else {
+			logger.warn("The rule under key {} is not in well format, please verify ...", ruleName);
+			return null;
 		}
 		
 		return result;
