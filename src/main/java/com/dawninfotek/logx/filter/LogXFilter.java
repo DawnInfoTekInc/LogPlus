@@ -242,16 +242,21 @@ public class LogXFilter implements Filter {
 			*/
 
 			// see if hash the value is required
-			if (this.maskNames.contains(key) && !fieldValue.isEmpty()) {
+			if (this.maskNames.contains(key) && StringUtils.isNotEmpty(fieldValue)) {
 				fieldValue = LogXContext.hashService().hash(fieldValue, null);
 			}
 
-			if (key.equals(LogXConstants.UUID) && fieldValue.isEmpty()) {
+			if (key.equals(LogXConstants.UUID) && StringUtils.isEmpty(fieldValue)) {
 				//fieldValue = UUID.randomUUID().toString();
 				//use configurable resolver
-				LogXContext.resolver(LogXConstants.UUID).resolveValue(httpRequest, null);
+				fieldValue = LogXContext.resolver(LogXConstants.UUID).resolveValue(httpRequest, null);
 			}
 			
+			if(fieldValue == null) {
+				logger.debug("field value under key:" + key + " is null" );
+				//make it empty for some MDC does not allow the null value
+				fieldValue = "";
+			}
 			MDC.put(key, fieldValue);
 		}
 
