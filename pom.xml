@@ -6,7 +6,7 @@
 
   <groupId>com.dawninfotek</groupId>
   <artifactId>LogPlus</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.7.0</version>
 
   <name>logx</name>
   <url>http://www.dawninfotek.com</url>
@@ -23,8 +23,8 @@
   <dependencies>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -46,7 +46,7 @@
     <groupId>commons-codec</groupId>
     <artifactId>commons-codec</artifactId>
     	<version>1.9</version>
-  		</dependency>
+  	</dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -68,6 +68,20 @@
   </dependencies>
 
   <build>
+    <resources> 
+        <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.java</include>              
+                </includes>
+        </resource>
+        <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>                 
+                </includes>
+        </resource>
+    </resources>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
@@ -107,8 +121,11 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
-          <configuration>  
-          	<finalName>logx-1.2.0</finalName>
+          <configuration>
+             <includes>
+                <include>**/*</include>
+             </includes>      
+          	<finalName>logx-${version}</finalName>
           </configuration> 
         </plugin>
         <plugin>

@@ -6,9 +6,11 @@ import java.util.Map;
 import com.dawninfotek.logx.checkpoint.CheckPointService;
 import com.dawninfotek.logx.config.Configuration;
 import com.dawninfotek.logx.event.EventService;
+import com.dawninfotek.logx.resolver.Resolver;
 import com.dawninfotek.logx.security.HashService;
 import com.dawninfotek.logx.security.MaskService;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +44,30 @@ public class LogXContext {
 		instance = new LogXContext();
 		instance.configuration = Configuration.loadFromConfigFile(configFile);
 		//init all components
-		instance.components.put(LogXConstants.C_NAME_CP, getComponent(LogXConstants.C_NAME_CP));
-		instance.components.put(LogXConstants.C_NAME_EVT, getComponent(LogXConstants.C_NAME_EVT));
-		instance.components.put(LogXConstants.C_NAME_HASH, getComponent(LogXConstants.C_NAME_HASH));
-		instance.components.put(LogXConstants.C_NAME_MASK, getComponent(LogXConstants.C_NAME_MASK));		
+		instance.components.put(LogXConstants.C_NAME_CP, getComponent(null,LogXConstants.C_NAME_CP));
+		instance.components.put(LogXConstants.C_NAME_EVT, getComponent(null,LogXConstants.C_NAME_EVT));
+		instance.components.put(LogXConstants.C_NAME_HASH, getComponent(null,LogXConstants.C_NAME_HASH));
+		instance.components.put(LogXConstants.C_NAME_MASK, getComponent(null,LogXConstants.C_NAME_MASK));
+		//init Resolvers
+		for(String key:instance.configuration.getPropertyMap().keySet()) {			
+			String name = null;			
+			if(key.startsWith(LogXConstants.RESOLVER_PREFIX)) {
+				try {
+					name = StringUtils.removeStart(key, LogXConstants.RESOLVER_PREFIX);
+					Component c = getComponent(LogXConstants.RESOLVER_PREFIX, name);
+					if(c != null) {
+						instance.components.put(name, c);
+						if(logger.isDebugEnabled()) {
+							logger.debug("Resolver:" + c + " is created under name:" + name);
+						}
+					}
+				}catch (Exception e) {
+					logger.error("Fail to init Resolver ...", e);
+				}
+			}		
+			
+		}
+		
 	}
 
 	/**
@@ -54,6 +76,10 @@ public class LogXContext {
 	 */
 	public static Configuration configuration() {
 		return instance.configuration;
+	}
+	
+	public static Resolver resolver(String resolverName) {		
+		return (Resolver) instance.components.get(resolverName);
 	}
 
 	/**
@@ -88,9 +114,17 @@ public class LogXContext {
 		return (MaskService) instance.components.get(LogXConstants.C_NAME_MASK);
 	}
 
-	private static Component getComponent(String componentName) {
+	private static Component getComponent(String prefix, String componentName) {
 		
-		String impl = instance.configuration.getConfigurationValue(LogXConstants.C_NAME_PREFIX + componentName); 		
+		String impl = null;	
+		
+		if(prefix == null) {
+			//default
+			impl = instance.configuration.getConfigurationValue(LogXConstants.C_NAME_PREFIX + componentName);
+		 
+		}else {
+			impl = instance.configuration.getConfigurationValue(prefix + componentName);
+		}
 		
 		Component result = null;
 		
