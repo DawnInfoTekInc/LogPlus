@@ -11,6 +11,7 @@ public interface LogXConstants {
 	public static final String SESSION_ID = "SESSION_ID";
 	public static final String SESSION = "SESSION";
 	public static final String REMOTEADDR = "REMOTEADDR";
+	public static final String URL_MAPPINGS = "logx.filter.urlmappings";	
 	
     public static final String MASK_NAME = "userName";
     public static final String UUID = "uuid";
@@ -33,7 +34,8 @@ public interface LogXConstants {
     public static final String TYPE_SRV = "eventType.service";
     public static final String TYPE_B = "eventType.business"; 
     
-    public static final String C_NAME_PREFIX = "component.";  
+    public static final String C_NAME_PREFIX = "component."; 
+    public static final String RESOLVER_PREFIX = "resolver.";
     //component names
     public static final String C_NAME_CP = "CheckPointService";
     public static final String C_NAME_CFG = "Configuration";    

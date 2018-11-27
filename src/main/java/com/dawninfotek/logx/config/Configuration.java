@@ -2,7 +2,6 @@ package com.dawninfotek.logx.config;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,11 +27,15 @@ public class Configuration implements Component {
 	
 	private Map<String, String> propertyMap;
 	
+	public Map<String, String> getPropertyMap() {
+		return propertyMap;
+	}
+
 	private List<TransactionPathMappingRule> txRules;
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
-		Properties override = null;
+		Properties override = new Properties();	
 		
 		if (configFile == null) {
 			logger.warn("logx configuration is not provided, use default only ...");			
@@ -57,18 +60,23 @@ public class Configuration implements Component {
 					
 					propFile = new FileInputStream(ns[1]);
 				}
-				override = new Properties();
+				
+				/**
 				if (propFile == null) {
 					throw new FileNotFoundException("file path setting error");
 				}
-
+				*/
 				override.load(propFile);
-
-			} catch (IOException e) {
-				logger.error(e.getMessage());
+			} catch (FileNotFoundException fnfe) {
+				//only say warning here
+				logger.warn("LogX properties not found, ignored:" + fnfe.getMessage());
+			} catch (Exception e) {
+				logger.error("fail to load LogX properties.", e);
 			} finally {
 				try {
-					propFile.close();
+					if(propFile != null) {
+						propFile.close();
+					}
 				} catch (Exception ignored) {
 					logger.error("Fail to close ImputStream", ignored);
 				}
