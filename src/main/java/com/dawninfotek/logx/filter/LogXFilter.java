@@ -6,6 +6,14 @@
  **************************************************************************/
 package com.dawninfotek.logx.filter;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -14,15 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,6 @@ import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.resolver.Resolver;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
-
-import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * This is the Major Filter for LogX, for using the LogX, every application

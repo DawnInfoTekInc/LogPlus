@@ -21,7 +21,12 @@ public class HostNameResolver extends AbstractResolver {
 		String result = "";	
 
 		try {
-			result = InetAddress.getLocalHost().getHostName();
+			if(parameters != null && "full".equals(parameters.get(PROCESS_ID))) {
+				result = InetAddress.getLocalHost().getCanonicalHostName();
+			}else {
+				result = InetAddress.getLocalHost().getHostName();
+			}
+			
 		} catch (UnknownHostException ignored) {
 			logger.warn("fail to get hostname", ignored);
 		}
