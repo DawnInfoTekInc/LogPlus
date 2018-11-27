@@ -3,6 +3,7 @@ package com.dawninfotek.logx.resolver.impl;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -21,7 +22,12 @@ public class SessionValueResolver extends AbstractResolver {
 			logger.warn("No Session object is defined.");
 		}else {			
 			String[] keyAndPath = ((String) parameters.get(PARAMETERS)).split("\\.", 2);
-			Object sessionObj = httpRequest.getSession().getAttribute(keyAndPath[1]);
+			Object sessionObj = null;
+			HttpSession session = httpRequest.getSession(false);
+			
+			if(session != null) {
+				sessionObj = session.getAttribute(keyAndPath[1]);
+			}
 			
 			if(sessionObj != null) {
 				if(keyAndPath.length == 1) {
