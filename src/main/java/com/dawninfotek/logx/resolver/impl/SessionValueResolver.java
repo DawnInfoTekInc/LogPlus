@@ -26,7 +26,7 @@ public class SessionValueResolver extends AbstractResolver {
 			HttpSession session = httpRequest.getSession(false);
 			
 			if(session != null) {
-				sessionObj = session.getAttribute(keyAndPath[1]);
+				sessionObj = session.getAttribute(keyAndPath[0]);
 			}
 			
 			if(sessionObj != null) {
@@ -41,7 +41,7 @@ public class SessionValueResolver extends AbstractResolver {
 				}
 								
 			}else {		
-				logger.info("Session object not found under key:" + keyAndPath[1]);				
+				logger.info("Session object not found under key:" + keyAndPath[0]);				
 								
 			}			
 		}
