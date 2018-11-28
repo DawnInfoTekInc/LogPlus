@@ -1,9 +1,9 @@
 # Log Plus
 
 LogPlus is a framework to extend current java log framework, LogPlus is based on [logback](https://logback.qos.ch/) framework.
-It's pretty cool, and extendable with most java log framework.
+It's pretty cool, and extendable with most java log frameworks.
 
-This framework provides features which can be used in different purposes.
+This framework provides features which can be used in different purposes, it currently supports logback, slf4j, log4j2, log4j1.2.17.
 
 ## features
 1. integrate with servlet, override servlet [dofilter function](https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/Filter.html) to get extra message from http request
@@ -29,6 +29,8 @@ This framework provides features which can be used in different purposes.
     > - service name
     > - logx clause (logx.header.name, logx.header.includes, logx.value.hash)
     > - message clause (message.event.begin, message.event.end, message.performance.metric)
+    > - component clause (configable components)
+    > - resolver clause (configable resolver)
     > - eventType clause (operational.connection, abnormal, transaction, business)
     > - txpath (transaction path)
     
