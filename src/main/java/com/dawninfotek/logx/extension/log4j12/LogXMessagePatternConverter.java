@@ -40,9 +40,7 @@ public final class LogXMessagePatternConverter extends LoggingEventPatternConver
 		String msg = event.getRenderedMessage();
 		
 		//remove all '\n' '\' in the message String
-		msg = msg.replaceAll("\\t", "");
-		msg = msg.replaceAll("\\r\n", "");
-		msg = msg.replaceAll("\\n", "    ");
+		msg = msg.replaceAll("\\t", "").replaceAll("\\r\n", "").replaceAll("\\n", "    ");
 		
 		toAppendTo.append(msg);
 	}

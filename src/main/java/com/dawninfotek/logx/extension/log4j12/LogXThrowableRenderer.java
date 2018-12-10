@@ -10,14 +10,11 @@ public class LogXThrowableRenderer implements ThrowableRenderer {
     @Override
     public String[] doRender(Throwable t) {
         String[] initialResult = defaultRenderer.doRender(t);
-        String line = "";
+        StringBuilder sb = new StringBuilder(); 
         for(int i = 0; i < initialResult.length; i++) {
-        	line += initialResult[i];
+        	sb.append(initialResult[i]);
         }
-        line.trim();
-
-    	String[] Result = new String[] {line};
   
-        return Result;
+        return new String[] {sb.toString()};
     }
 }
