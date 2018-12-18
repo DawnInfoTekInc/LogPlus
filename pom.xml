@@ -6,7 +6,7 @@
 
   <groupId>com.dawninfotek</groupId>
   <artifactId>LogPlus</artifactId>
-  <version>1.7.0</version>
+  <version>1.7.0-temp-3</version>
 
   <name>logx</name>
   <url>http://www.dawninfotek.com</url>
@@ -17,10 +17,16 @@
     <maven.compiler.target>1.6</maven.compiler.target>
     <slf4j.version>1.7.25</slf4j.version>
     <logback.version>1.2.3</logback.version>
+    <aspect.version>1.8.2</aspect.version>
     <jackson-annotations-version>2.4.5</jackson-annotations-version>
   </properties>
 
   <dependencies>
+     <dependency>
+     	<groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <version>1.8.2</version>
+    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -89,23 +95,23 @@
     </resources>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>aspectj-maven-plugin</artifactId>
-          <version>1.6</version>
-          <configuration>
-            <complianceLevel>1.6</complianceLevel>
-            <source>1.6</source>
-            <target>1.6</target>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>compile</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+<!--         <plugin> -->
+<!--           <groupId>org.codehaus.mojo</groupId> -->
+<!--           <artifactId>aspectj-maven-plugin</artifactId> -->
+<!--           <version>1.6</version> -->
+<!--           <configuration> -->
+<!--             <complianceLevel>1.6</complianceLevel> -->
+<!--             <source>1.6</source> -->
+<!--             <target>1.6</target> -->
+<!--           </configuration> -->
+<!--           <executions> -->
+<!--             <execution> -->
+<!--               <goals> -->
+<!--                 <goal>compile</goal> -->
+<!--               </goals> -->
+<!--             </execution> -->
+<!--           </executions> -->
+<!--         </plugin> -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <!--<version>3.0.0</version>-->
