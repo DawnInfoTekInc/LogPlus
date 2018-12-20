@@ -71,10 +71,10 @@ public class AppTest
 
     @Test
     public void muskTest(){
-        String sample = "3243asdfas1233SAEQ22";
+        String sample = "1234567890123456";
         System.out.println(LogXContext.maskService().mask(null, null));
         System.out.println(LogXContext.maskService().mask(sample, "^{8}[#]"));
-        System.out.println(LogXContext.maskService().mask(sample, "^(4-9)[N]"));
+        System.out.println(LogXContext.maskService().mask(sample, "^(4-12)[N]"));
         System.out.println(LogXContext.maskService().mask(sample, "${6}"));
         System.out.println(LogXContext.maskService().mask(sample, "^{4}[#]&(8-9)[@]&${2}[*]"));
         System.out.println(LogXContext.maskService().mask(sample, "all"));

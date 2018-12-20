@@ -1,12 +1,16 @@
 package com.dawninfotek.logx.checkpoint;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.util.LogXUtils;
 
 public class CheckPointServiceBaseImpl implements CheckPointService {
+	
+	public static final Logger logger = LoggerFactory.getLogger(CheckPointServiceBaseImpl.class);
 
 	@Override
 	public void startCheckPoint(String checkName) {
@@ -16,6 +20,11 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		} else {
 			checkPointName = checkPointName + "::" + checkName;
 		}
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("CheckPoint as name '" + checkPointName + "' is created ...");
+		}
+		
 		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
 		MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
 	}
@@ -30,6 +39,8 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		if (start != null) {
 			executionTime = end - Long.parseLong(start);
 		}
+		
+		/**
 		if (checkPointName != null && checkPointName.contains("::")) {
 			checkPointName = "";
 		} else {
@@ -40,7 +51,14 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 				checkPointName = "";
 			}
 		}
+		*/
 
+		if(StringUtils.isEmpty(checkPointName) || checkPointName.indexOf("::") < 0) {			
+			checkPointName = "";			
+		}else {			
+			checkPointName = checkPointName.substring(0, checkPointName.lastIndexOf("::") -1 );			
+		}
+		
 		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
 		
 		String transPath = MDC.get(LogXConstants.TRANSACTION_PATH);
@@ -69,7 +87,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 
 	@Override
 	public void endCheckPoint(String checkName, Object logger) {
-		// TODO Auto-generated method stub
 		
 	}
 

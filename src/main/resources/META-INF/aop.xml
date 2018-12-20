@@ -1,0 +1,8 @@
+<aspectj>
+    <aspects>
+		<aspect name="com.dawninfotek.logx.annotation.ExecutionAspect"/>
+        <weaver options="-verbose -showWeaveInfo">
+            <include within="com.dawninfotek.logx.annotation.*"/>
+        </weaver>
+    </aspects>
+</aspectj>
