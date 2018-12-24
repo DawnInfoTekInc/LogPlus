@@ -9,7 +9,9 @@ package com.dawninfotek.logx.filter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -28,6 +30,7 @@ import org.slf4j.MDC;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
+import com.dawninfotek.logx.resolver.Resolver;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
 
@@ -70,7 +73,7 @@ public class LogXFilter implements Filter {
 		}
 
 		urlMappings = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS, null);
-		if(urlMappings != null) {
+		if (urlMappings != null) {
 			antPathMatcher = new AntPathMatcher();
 		}
 	}
@@ -85,18 +88,7 @@ public class LogXFilter implements Filter {
 
 			// to trace all the headers
 			if (logger.isTraceEnabled()) {
-				logger.trace("request servlet path: " + httpRequest.getServletPath());
-				logger.trace("request context path: " + httpRequest.getContextPath());
-				logger.trace("request path info: " + httpRequest.getPathInfo());
-				@SuppressWarnings("rawtypes")
-				Enumeration names = httpRequest.getHeaderNames();
-				StringBuilder sb = new StringBuilder();
-				String name;
-				while (names.hasMoreElements()) {
-					name = (String) names.nextElement();
-					sb.append("[").append(name).append("=").append(httpRequest.getHeader(name)).append("]");
-				}
-				logger.trace("request headers:" + sb.toString());
+				traceRequest(httpRequest);
 			}
 
 			String transactionPath = null;
@@ -156,29 +148,45 @@ public class LogXFilter implements Filter {
 	 *            passed log header
 	 * @return string AQAHeader hash code
 	 */
-	private void processLogXHeader(String logXHeader) {
+	private void processLogXHeader(String logXHeader, HttpServletRequest httpRequest) {
 		String decodedHeader = LogXUtils.decode(logXHeader);
 		// StringBuilder AQAHeaderValue = new StringBuilder();
 		String[] headers = decodedHeader.split(";");
+		String key;
+		String headerValue;
 		for (String header : headers) {
-			String[] aqastrings = header.split("=", 2);
-			String key;
-			String headerValue;
+
 			logger.trace("received AQA header: " + header);
+
+			String[] aqastrings = header.split("=", 2);
+
+			key = aqastrings[0];
+
 			if (aqastrings.length <= 1) {
-				key = aqastrings[0];
 				headerValue = "";
-				MDC.put(key, headerValue);
 			} else {
-				key = aqastrings[0];
 				headerValue = aqastrings[1];
-				MDC.put(key, headerValue);
-				if (key.equals(LogXConstants.CHECKPOINT)) {
-					MDC.put(LogXConstants.CURR_CHECKPOINT, headerValue);
-				}
 			}
+
+			MDC.put(key, headerValue);
 		}
 
+		// Need to be able to create new fields which not be defined in the previous
+		// tier.
+		for (String propertyKey : this.fieldNmaes) {
+
+			key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
+
+			// need to be added
+			if (MDC.get(key) == null) {
+				String value = LogXUtils.getLogProperty(propertyKey + ".value", "");
+
+				String fieldValue = resolveFieldValue(key, value, httpRequest);
+
+				MDC.put(key, fieldValue);
+
+			}
+		}
 	}
 
 	/***
@@ -188,7 +196,67 @@ public class LogXFilter implements Filter {
 	 *            request
 	 * @return string AQAHeader hash code
 	 */
-	private void processWithoutLogXHeader(HttpServletRequest httpRequest) {}
+	private void processWithoutLogXHeader(HttpServletRequest httpRequest) {
+
+		// prepare all fields key value;
+
+		for (String propertyKey : this.fieldNmaes) {
+
+			String key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
+			String value = LogXUtils.getLogProperty(propertyKey + ".value", "");
+
+			String fieldValue = resolveFieldValue(key, value, httpRequest);
+
+			MDC.put(key, fieldValue);
+		}
+	}
+
+	private String resolveFieldValue(String key, String values, HttpServletRequest httpRequest) {
+
+		String fieldValue = null;
+
+		if (StringUtils.isEmpty(values)) {
+			fieldValue = "";
+			logger.warn("value must not be empty, keyword: " + key + " value: " + values);
+		} else {
+
+			for (String value : values.split(",")) {
+
+				String[] p = value.split("\\.", 2);
+				Resolver resolver = LogXContext.resolver(p[0]);
+
+				if (resolver != null) {
+
+					Map<String, Object> parameters = null;
+					if (p.length > 1) {
+						parameters = new HashMap<String, Object>();
+						parameters.put(Resolver.PARAMETERS, p[1]);
+					}
+					fieldValue = resolver.resolveValue(httpRequest, parameters);
+				} else {
+					logger.error("unknown property keyword: " + key + " value: " + value);
+				}
+				
+				if(StringUtils.isNotEmpty(fieldValue)) {
+					break;
+				}
+
+			}
+		}
+
+		// No null value to be returned
+		if (fieldValue == null) {
+			fieldValue = "";
+		}
+
+		// see if hash the value is required
+		if (this.maskNames.contains(key) && !fieldValue.isEmpty()) {
+			fieldValue = LogXContext.hashService().hash(fieldValue, null);
+		}
+
+		return fieldValue;
+
+	}
 
 	protected void prepareSysFields() {
 		MDC.put(LogXConstants.PROCESS_ID, processId);
@@ -207,6 +275,10 @@ public class LogXFilter implements Filter {
 		// log service begin
 		String transactionPath = LogXUtils.getTransactionPath(httpRequest);
 
+		if (logger.isTraceEnabled()) {
+			logger.trace("transactionPath is {}.", transactionPath);
+		}
+
 		MDC.put(LogXConstants.TRANSACTION_PATH, transactionPath);
 
 		String logXHeader = httpRequest.getHeader(LogXUtils.getLogXHeaderName());
@@ -214,7 +286,7 @@ public class LogXFilter implements Filter {
 		if (StringUtils.isEmpty(logXHeader)) {
 			processWithoutLogXHeader(httpRequest);
 		} else {
-			processLogXHeader(logXHeader);
+			processLogXHeader(logXHeader, httpRequest);
 		}
 
 		String path = httpRequest.getPathInfo();
@@ -243,24 +315,45 @@ public class LogXFilter implements Filter {
 	 * @return
 	 */
 	protected boolean isUrlMatch(HttpServletRequest httpRequest) {
-		
+
 		boolean result = false;
-		//see if the pattern is defined in properties
-		if(urlMappings != null) {
-			for(String pattern:urlMappings) {
-				if(antPathMatcher.match(pattern, httpRequest.getServletPath())) {
+		// see if the pattern is defined in properties
+		if (urlMappings != null) {
+			for (String pattern : urlMappings) {
+				if (antPathMatcher.match(pattern, httpRequest.getServletPath())) {
 					result = true;
 					break;
 				}
 			}
-		}else {
+		} else {
 			result = true;
 		}
-		
+
 		return result;
 	}
 
 	@Override
 	public void destroy() {
+	}
+
+	/**
+	 * Trace HTTP request
+	 * 
+	 * @param httpRequest
+	 */
+	private void traceRequest(HttpServletRequest httpRequest) {
+
+		logger.trace("request servlet path: " + httpRequest.getServletPath());
+		logger.trace("request context path: " + httpRequest.getContextPath());
+		logger.trace("request path info: " + httpRequest.getPathInfo());
+		@SuppressWarnings("rawtypes")
+		Enumeration names = httpRequest.getHeaderNames();
+		StringBuilder sb = new StringBuilder();
+		String name;
+		while (names.hasMoreElements()) {
+			name = (String) names.nextElement();
+			sb.append("[").append(name).append("=").append(httpRequest.getHeader(name)).append("]");
+		}
+		logger.trace("request headers:" + sb.toString());
 	}
 }
