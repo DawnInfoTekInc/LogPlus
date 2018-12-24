@@ -40,31 +40,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			executionTime = end - Long.parseLong(start);
 		}
 		
-		/**
-		if (checkPointName != null && checkPointName.contains("::")) {
-			checkPointName = "";
-		} else {
-			int endIndex = checkPointName.lastIndexOf("::");
-			if(endIndex != -1) {
-				checkPointName = checkPointName.substring(0, endIndex-1);
-			}else {
-				checkPointName = "";
-			}
-		}
-		*/
-
-		if(StringUtils.isEmpty(checkPointName) || checkPointName.indexOf("::") < 0) {			
-			checkPointName = "";			
-		}else {			
-			checkPointName = checkPointName.substring(0, checkPointName.lastIndexOf("::"));			
-		}
-		
-		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
-		
-		if(logger.isTraceEnabled()) {
-			logger.trace("Current CheckPoint is set to {}", checkPointName);
-		}
-		
 		String transPath = MDC.get(LogXConstants.TRANSACTION_PATH);
 		String path = MDC.get(LogXConstants.PATH);
 
@@ -79,6 +54,18 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		String message = String.format(LogXUtils.getLogProperty(LogXConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
 
 		LogXUtils.logTextMessage(aLogger, message);
+		
+		if(StringUtils.isEmpty(checkPointName) || checkPointName.indexOf("::") < 0) {			
+			checkPointName = "";			
+		}else {			
+			checkPointName = checkPointName.substring(0, checkPointName.lastIndexOf("::"));			
+		}
+		
+		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
+		
+		if(logger.isTraceEnabled()) {
+			logger.trace("Current CheckPoint is set to {}", checkPointName);
+		}
 
 		MDC.remove(checkName);
 

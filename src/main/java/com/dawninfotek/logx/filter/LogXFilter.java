@@ -56,7 +56,9 @@ public class LogXFilter implements Filter {
 	 * overridden by the definitions in web.xml or the configuration values in the
 	 * logx.properties.
 	 */
-	protected String[] urlMappings;
+	protected String[] urlMappingsIncludes;
+	protected String[] urlMappingsExcludes;
+	
 	protected AntPathMatcher antPathMatcher;
 
 	@Override
@@ -72,8 +74,9 @@ public class LogXFilter implements Filter {
 			}
 		}
 
-		urlMappings = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS, null);
-		if (urlMappings != null) {
+		urlMappingsIncludes = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS_INCLUDES, null);
+		urlMappingsExcludes = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS_EXCLUDES, null);
+		if (urlMappingsIncludes != null || urlMappingsExcludes != null) {
 			antPathMatcher = new AntPathMatcher();
 		}
 	}
@@ -315,11 +318,21 @@ public class LogXFilter implements Filter {
 	 * @return
 	 */
 	protected boolean isUrlMatch(HttpServletRequest httpRequest) {
-
+		
+		if(urlMappingsExcludes != null) {			
+			for (String pattern : urlMappingsExcludes) {
+				if (antPathMatcher.match(pattern, httpRequest.getServletPath())) {
+					return false;
+				}
+			}
+			
+		}
+		
 		boolean result = false;
+		
 		// see if the pattern is defined in properties
-		if (urlMappings != null) {
-			for (String pattern : urlMappings) {
+		if (urlMappingsIncludes != null) {
+			for (String pattern : urlMappingsIncludes) {
 				if (antPathMatcher.match(pattern, httpRequest.getServletPath())) {
 					result = true;
 					break;

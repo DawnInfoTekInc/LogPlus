@@ -11,7 +11,8 @@ public interface LogXConstants {
 	public static final String SESSION_ID = "SESSION_ID";
 	public static final String SESSION = "SESSION";
 	public static final String REMOTEADDR = "REMOTEADDR";
-	public static final String URL_MAPPINGS = "logx.filter.urlmappings";	
+	public static final String URL_MAPPINGS_INCLUDES = "logx.filter.urlmapping.includes";	
+	public static final String URL_MAPPINGS_EXCLUDES = "logx.filter.urlmapping.excludes";
 	
     public static final String MASK_NAME = "userName";
     public static final String UUID = "uuid";
