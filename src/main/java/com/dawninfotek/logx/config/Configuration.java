@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +150,12 @@ public class Configuration implements Component {
 					}
 				}
 				
-			}	
+			}
+			
+			if(!rules.isEmpty()) {
+				//sort the list
+				Collections.sort(rules);
+			}
 			
 			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
 			
@@ -214,7 +220,7 @@ public class Configuration implements Component {
 		
 		boolean result = false;
 		//First, the 'method' and path must be match
-		if(rule.getMethod() == null || rule.getMethod().length() ==0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
+		if(rule.getMethod() == null || rule.getMethod().length() == 0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
 			//method match
 			String[] uris = rule.getReqPath().split(",");
 			for(String uri : uris) {
@@ -302,7 +308,7 @@ public class Configuration implements Component {
 		return result;
 	}
 	
-	private static class TransactionPathMappingRule {
+	private static class TransactionPathMappingRule implements Comparable<TransactionPathMappingRule> {
 		
 		private String txPathName;
 		private String method;
@@ -361,6 +367,10 @@ public class Configuration implements Component {
 		}
 		public void setHeaderValue(String headerValue) {
 			this.headerValue = headerValue;
+		}
+		@Override
+		public int compareTo(TransactionPathMappingRule o) {
+			return o.getReqPath().compareTo(this.reqPath);
 		}	
 	}
 
