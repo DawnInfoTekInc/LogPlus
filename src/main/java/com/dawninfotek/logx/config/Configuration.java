@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logx.core.Component;
 import com.dawninfotek.logx.core.LogXConstants;
+import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
 
 public class Configuration implements Component {
@@ -27,6 +28,8 @@ public class Configuration implements Component {
 	public static final String LOGX_CONFIG_FILE_NAME = "logx-default.properties";
 	
 	private Map<String, String> propertyMap;
+	
+	private AntPathMatcher pathMatcher = new AntPathMatcher();
 	
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
@@ -224,7 +227,8 @@ public class Configuration implements Component {
 			//method match
 			String[] uris = rule.getReqPath().split(",");
 			for(String uri : uris) {
-				if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(uri)){
+				//if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(uri)){
+				if(isPathMatching(request, uri)){
 					//path match
 					if(rule.getLength() == 2) {
 						result = true;
@@ -265,6 +269,21 @@ public class Configuration implements Component {
 		}
 			
 		return result;
+	}
+	
+	private boolean isPathMatching(HttpServletRequest request, String urlPattern) {
+		
+		String path = request.getRequestURI().substring(request.getContextPath().length());
+		
+		if(Boolean.valueOf(LogXUtils.getLogProperty(TX_PATH_PATTERN_MATCHING, "false"))){
+			//use url pattern
+			return pathMatcher.match(urlPattern, path);
+			
+		}else {
+			//use start-with
+			return path.startsWith(urlPattern);
+			
+		}
 	}
 	
 	private static TransactionPathMappingRule createRule(String ruleName, String rule) {
@@ -370,7 +389,17 @@ public class Configuration implements Component {
 		}
 		@Override
 		public int compareTo(TransactionPathMappingRule o) {
-			return o.getReqPath().compareTo(this.reqPath);
+			
+			int s1 = this.reqPath.split("/").length;
+			
+			int s2 = o.getReqPath().split("/").length;
+			
+			if(s1 == s2) {			
+				return o.getReqPath().compareTo(this.reqPath);			
+			}else {
+				return s2 - s1;
+			}
+
 		}	
 	}
 
