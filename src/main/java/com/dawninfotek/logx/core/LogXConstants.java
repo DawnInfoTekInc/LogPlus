@@ -24,6 +24,7 @@ public interface LogXConstants {
     public static final String TRANSACTION_PATH = "transactionPath";
     public static final String PATH = "path";
     public static final String TX_PATH_PREFIX="txpath.";
+    public static final String TX_PATH_PATTERN_MATCHING="path.pattern.match";
 	public static final String CURR_CHECKPOINT = "current_checkpoint";
 	public static final String CHECKPOINT = "checkpoint";
     
