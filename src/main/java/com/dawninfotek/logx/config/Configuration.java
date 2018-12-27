@@ -37,6 +37,8 @@ public class Configuration implements Component {
 
 	private List<TransactionPathMappingRule> txRules;
 	
+	private List<LogXUtils.JsonFields> fieldsMapping;
+	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
 		Properties override = new Properties();	
@@ -92,19 +94,23 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<LogXUtils.JsonFields> fieldsMapping) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
+		this.fieldsMapping = fieldsMapping;
 	}
 
-	
 	public String getConfigurationValue(String key) {
 		return getConfigurationValueInternal(key);
 	}
 	
 	public String getTransactionPath(HttpServletRequest request) {
 		return getTransactionPathInternal(request);
+	}
+	
+	public List<LogXUtils.JsonFields> getJsonFields(){
+		return this.fieldsMapping;
 	}
 	
 	/**
@@ -143,6 +149,8 @@ public class Configuration implements Component {
 			
 			TransactionPathMappingRule rule = null;
 			
+			String[] jsonFields = null;
+			
 			for(String name:pm.keySet()) {
 				
 				if(name.startsWith(LogXConstants.TX_PATH_PREFIX)) {
@@ -151,6 +159,9 @@ public class Configuration implements Component {
 					if(rule != null) {
 						rules.add(rule);
 					}
+				}
+				if(name.equals(LogXConstants.JSON_LAYOUT_INCLUDES)) {
+					jsonFields = pm.get(name).split(",");
 				}
 				
 			}
@@ -162,8 +173,20 @@ public class Configuration implements Component {
 			
 			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
 			
+			List<LogXUtils.JsonFields> fieldsMapping = new ArrayList<LogXUtils.JsonFields>();
+			
+			LogXUtils.JsonFields fieldObj = null;
+			
+			if(jsonFields != null && jsonFields.length > 0) {
+				for(String field: jsonFields) {
+					fieldObj = createField(field);
+					if(fieldObj != null) {
+						fieldsMapping.add(fieldObj);
+					}
+				}
+			}
 			//finally, create the Configuration instance and return to caller
-			return new Configuration(pm, rules);			
+			return new Configuration(pm, rules, fieldsMapping);			
 			
 		}catch (Exception e) {
 			logger.error("LogX system failed to load config from files", e);
@@ -181,6 +204,31 @@ public class Configuration implements Component {
 			}
 		}		
 			
+	}
+	
+	private static LogXUtils.JsonFields createField(String field){
+		LogXUtils.JsonFields newField = new LogXUtils.JsonFields();
+		if(field.indexOf("[") < 0) {
+			newField.setDisplay(true);
+			newField.setName(field);
+			newField.setDisplayName(field);
+		}else {
+			String key = field.substring(0, field.indexOf("["));
+			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
+			if(custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) {
+				newField.setDisplay(true);
+				newField.setName(key);
+				newField.setDisplayName(custom[1]);
+			}else if(custom[0].equals("N") || custom[0].equals("F")) {
+				newField.setDisplay(false);
+				newField.setName(key);
+				newField.setDisplayName(key);
+			}else {
+				logger.error("unrecognized symbol " + custom[0]);
+				return null;
+			}
+		}
+		return newField;
 	}
 	
 	private String getConfigurationValueInternal(String key) {
