@@ -53,17 +53,21 @@ public class LogXJsonLayout extends JsonLayout {
 					}else if(field.startsWith(LogXConstants.MASK_NAME)) {
 						insertMap(field, getFromMDC(LogXConstants.MASK_NAME), map);
 					}else if(field.startsWith(LOGMETHOD)) {
-						insertMap(field, getFromMDC(LOGMETHOD), map);
+						String method = getFromMDC(LOGMETHOD);
+						if(method.isEmpty()) {
+							method = getMethodFromLogger(map.get(LOGGER).toString());
+						}
+						insertMap(field, method, map);
 					}else if(field.startsWith(TIMESTAMP)) {
-						updateMap(field, map.get(TIMESTAMP).toString(), map);
+						updateMap(field, TIMESTAMP, map.get(TIMESTAMP).toString(), map);
 					}else if(field.startsWith(LEVEL)) {
-						updateMap(field, map.get(LEVEL).toString(), map);
+						updateMap(field, LEVEL, map.get(LEVEL).toString(), map);
 					}else if(field.startsWith(LOGGER)) {
-						updateMap(field, map.get(LOGGER).toString(), map);
+						updateMap(field, LOGGER, map.get(LOGGER).toString(), map);
 					}else if(field.startsWith(MESSAGE)) {
-						updateMap(field, map.get(MESSAGE).toString(), map);
+						updateMap(field, MESSAGE, map.get(MESSAGE).toString(), map);
 					}else if(field.startsWith(EXCEPTION)) {
-						updateMap(field, map.get(EXCEPTION).toString(), map);
+						updateMap(field, EXCEPTION, map.get(EXCEPTION).toString(), map);
 					}else {
 						logger.warn("unexpected field: " + field);
 					}
@@ -99,24 +103,36 @@ public class LogXJsonLayout extends JsonLayout {
 		}
 		return result;
 	}
+	
+	protected String getMethodFromLogger(String value) {
+		if(value.isEmpty() || value == null) {
+			return "";
+		}
+		String[] result = value.split("\\.");
+		if(result == null) {
+			return "";
+		}
+		return result[result.length-1];
+	}
 
 	protected void insertMap(String field, String value, Map<String, Object> map) {
 		if(field.indexOf("[") < 0) {
 			add(field, true, value, map);
 		} else {
 			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
-			if(custom[0] == "" || custom[0] == "Y" || custom[0] == "T") {
+			if(custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) {
 				add(custom[1], true, value, map);
 			}
 		}
 	}
 	
-	protected void updateMap(String field, String value, Map<String, Object> map) {
+	protected void updateMap(String field, String key, String value, Map<String, Object> map) {
 		if(field.indexOf("[") > 0) {
 			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
-			if((custom[0] == "" || custom[0] == "Y" || custom[0] == "T") && !field.equals(custom[1])) {
+			if((custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) && !field.equals(custom[1])) {
 				add(custom[1], true, value, map);
-			} else if(custom[0] == "N" || custom[0] == "F") {
+				map.remove(key);
+			} else if(custom[0].equals("N") || custom[0].equals("F")) {
 				map.remove(field);
 			}
 		}
