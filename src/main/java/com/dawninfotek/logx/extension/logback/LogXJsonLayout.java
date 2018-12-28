@@ -10,7 +10,7 @@ import ch.qos.logback.contrib.json.classic.JsonLayout;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
-import com.dawninfotek.logx.util.LogXUtils;
+import com.dawninfotek.logx.config.JsonFields;
 
 public class LogXJsonLayout extends JsonLayout {
 	
@@ -24,7 +24,7 @@ public class LogXJsonLayout extends JsonLayout {
         map.remove("mdc");
         map.remove("context");
         
-        for(LogXUtils.JsonFields field: LogXContext.configuration().getJsonFields()) {
+        for(JsonFields field: LogXContext.configuration().getJsonFields()) {
     		String searchName = field.getName();
     		String key = field.getDisplayName();
     		String value = getFromMDC(searchName);

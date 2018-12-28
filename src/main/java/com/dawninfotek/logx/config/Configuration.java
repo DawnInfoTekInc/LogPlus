@@ -37,7 +37,7 @@ public class Configuration implements Component {
 
 	private List<TransactionPathMappingRule> txRules;
 	
-	private List<LogXUtils.JsonFields> fieldsMapping;
+	private List<JsonFields> fieldsMapping;
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
@@ -94,7 +94,7 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<LogXUtils.JsonFields> fieldsMapping) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonFields> fieldsMapping) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
@@ -109,7 +109,7 @@ public class Configuration implements Component {
 		return getTransactionPathInternal(request);
 	}
 	
-	public List<LogXUtils.JsonFields> getJsonFields(){
+	public List<JsonFields> getJsonFields(){
 		return this.fieldsMapping;
 	}
 	
@@ -173,9 +173,9 @@ public class Configuration implements Component {
 			
 			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
 			
-			List<LogXUtils.JsonFields> fieldsMapping = new ArrayList<LogXUtils.JsonFields>();
+			List<JsonFields> fieldsMapping = new ArrayList<JsonFields>();
 			
-			LogXUtils.JsonFields fieldObj = null;
+			JsonFields fieldObj = null;
 			
 			if(jsonFields != null && jsonFields.length > 0) {
 				for(String field: jsonFields) {
@@ -206,8 +206,8 @@ public class Configuration implements Component {
 			
 	}
 	
-	private static LogXUtils.JsonFields createField(String field){
-		LogXUtils.JsonFields newField = new LogXUtils.JsonFields();
+	private static JsonFields createField(String field){
+		JsonFields newField = new JsonFields();
 		if(field.indexOf("[") < 0) {
 			newField.setDisplay(true);
 			newField.setName(field);
