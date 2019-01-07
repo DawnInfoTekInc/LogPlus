@@ -5,6 +5,7 @@ public class JsonFields {
 	private String Name;
 	private String DisplayName;
 	private Boolean Display;
+	private String Format;
 	
 	public void setName(String name) {
 		this.Name = name;

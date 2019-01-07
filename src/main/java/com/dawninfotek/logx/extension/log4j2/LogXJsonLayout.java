@@ -2,9 +2,8 @@ package com.dawninfotek.logx.extension.log4j2;
 
 import java.nio.charset.Charset;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
@@ -33,7 +32,6 @@ public class LogXJsonLayout extends AbstractStringLayout {
 	private final Gson gson = JsonUtils.getGson();
 	
 	public String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
-	public String DefaultTimezone = "EST";
     
     protected LogXJsonLayout(Configuration config, Charset aCharset, Serializer headerSerializer, Serializer footerSerializer) {
         super(config, aCharset, headerSerializer, footerSerializer);
@@ -144,9 +142,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
     
     protected String TimestampToString(long millseconds) {
 		SimpleDateFormat formatter = new SimpleDateFormat(DefaultTimestampFormat);
-        formatter.setTimeZone(TimeZone.getTimeZone(DefaultTimezone));
-        Timestamp tsp = new Timestamp(millseconds);
-        return formatter.format(tsp);
+        return formatter.format(new Date(millseconds)).toString();
 	}
 	
 }
