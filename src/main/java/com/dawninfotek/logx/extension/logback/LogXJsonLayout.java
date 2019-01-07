@@ -25,25 +25,29 @@ public class LogXJsonLayout extends JsonLayout {
         map.remove("context");
         
         for(JsonFields field: LogXContext.configuration().getJsonFields()) {
-    		String searchName = field.getName();
-    		String key = field.getDisplayName();
-    		String value = getFromMDC(searchName);
-    		if(value.isEmpty()) {
-    			// get applicationName from context
-    			if(searchName.equals(LogXConstants.APPLICATION_NAME)) {
-    				value = getApplicationName(event);
-    			}else if(searchName.equals(LOGMETHOD)) {
-    				// get log method from logger
-    				value = getMethodFromLogger(event);
-    			}else if(map.get(searchName) != null && !key.equals(searchName)) {
-    				// change default field name
-    				value = map.get(searchName).toString();
-    				map.remove(searchName);
-    			}
-    		}
-    		// display if mandatory (no [], or [Y or T]) or value exist
-        	if(field.getDisplay() || !value.isEmpty()) { 
-    			add(key, true, value, map);
+        	try {
+        		String searchName = field.getName();
+        		String key = field.getDisplayName();
+        		String value = getFromMDC(searchName);
+        		if(value.isEmpty()) {
+        			// get applicationName from context
+        			if(searchName.equals(LogXConstants.APPLICATION_NAME)) {
+        				value = getApplicationName(event);
+        			}else if(searchName.equals(LOGMETHOD)) {
+        				// get log method from logger
+        				value = getMethodFromLogger(event);
+        			}else if(map.get(searchName) != null && !key.equals(searchName)) {
+        				// change default field name
+        				value = map.get(searchName).toString();
+        				map.remove(searchName);
+        			}
+        		}
+        		// display if mandatory (no [], or [Y or T]) or value exist
+            	if(field.getDisplay() || !value.isEmpty()) { 
+        			add(key, true, value, map);
+            	}
+        	}catch (Exception e) {
+        		logger.error(e.getMessage());
         	}
         }
         return map;
