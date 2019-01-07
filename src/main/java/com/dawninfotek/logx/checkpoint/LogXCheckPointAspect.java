@@ -19,9 +19,11 @@ import java.lang.reflect.Method;
 import org.aspectj.lang.JoinPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.dawninfotek.logx.core.LogXContext;
 
+@Component
 @Aspect
 public class LogXCheckPointAspect {
 
@@ -39,7 +41,7 @@ public class LogXCheckPointAspect {
         Object returnObject;
         try {
         	//For debug only, will be removed
-            System.out.println("ExecAspect's aroundAdvice's body is now executed Before yourMethodAround is called.");
+            //System.out.println("ExecAspect's aroundAdvice's body is now executed Before yourMethodAround is called.");
             
             LogXContext.checkPointService().startCheckPoint(getCheckPointName(joinPoint));
             
@@ -55,8 +57,8 @@ public class LogXCheckPointAspect {
             throw throwable;
         }
         finally {
-        	if(logger.isDebugEnabled()) {
-        		logger.debug("ExecAspect's aroundAdvice's body is now executed After yourMethodAround is called ==> ending checkpoint.");
+        	if(logger.isTraceEnabled()) {
+        		logger.trace("ExecAspect's aroundAdvice's body is now executed ==> ending checkpoint.");
         	}
             LogXContext.checkPointService().endCheckPoint(logger);       	
         }

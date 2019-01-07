@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logx.core.Component;
 import com.dawninfotek.logx.core.LogXConstants;
+import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
 
 public class Configuration implements Component {
@@ -27,11 +29,15 @@ public class Configuration implements Component {
 	
 	private Map<String, String> propertyMap;
 	
+	private AntPathMatcher pathMatcher = new AntPathMatcher();
+	
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
 	}
 
 	private List<TransactionPathMappingRule> txRules;
+	
+	private List<JsonFields> fieldsMapping;
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
@@ -88,19 +94,23 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonFields> fieldsMapping) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
+		this.fieldsMapping = fieldsMapping;
 	}
 
-	
 	public String getConfigurationValue(String key) {
 		return getConfigurationValueInternal(key);
 	}
 	
 	public String getTransactionPath(HttpServletRequest request) {
 		return getTransactionPathInternal(request);
+	}
+	
+	public List<JsonFields> getJsonFields(){
+		return this.fieldsMapping;
 	}
 	
 	/**
@@ -139,6 +149,8 @@ public class Configuration implements Component {
 			
 			TransactionPathMappingRule rule = null;
 			
+			String[] jsonFields = null;
+			
 			for(String name:pm.keySet()) {
 				
 				if(name.startsWith(LogXConstants.TX_PATH_PREFIX)) {
@@ -148,13 +160,33 @@ public class Configuration implements Component {
 						rules.add(rule);
 					}
 				}
+				if(name.equals(LogXConstants.JSON_LAYOUT_INCLUDES)) {
+					jsonFields = pm.get(name).split(",");
+				}
 				
-			}	
+			}
+			
+			if(!rules.isEmpty()) {
+				//sort the list
+				Collections.sort(rules);
+			}
 			
 			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
 			
+			List<JsonFields> fieldsMapping = new ArrayList<JsonFields>();
+			
+			JsonFields fieldObj = null;
+			
+			if(jsonFields != null && jsonFields.length > 0) {
+				for(String field: jsonFields) {
+					fieldObj = createField(field);
+					if(fieldObj != null) {
+						fieldsMapping.add(fieldObj);
+					}
+				}
+			}
 			//finally, create the Configuration instance and return to caller
-			return new Configuration(pm, rules);			
+			return new Configuration(pm, rules, fieldsMapping);			
 			
 		}catch (Exception e) {
 			logger.error("LogX system failed to load config from files", e);
@@ -172,6 +204,31 @@ public class Configuration implements Component {
 			}
 		}		
 			
+	}
+	
+	private static JsonFields createField(String field){
+		JsonFields newField = new JsonFields();
+		if(field.indexOf("[") < 0) {
+			newField.setDisplay(true);
+			newField.setName(field);
+			newField.setDisplayName(field);
+		}else {
+			String key = field.substring(0, field.indexOf("["));
+			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
+			if(custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) {
+				newField.setDisplay(true);
+				newField.setName(key);
+				newField.setDisplayName(custom[1]);
+			}else if(custom[0].equals("N") || custom[0].equals("F")) {
+				newField.setDisplay(false);
+				newField.setName(key);
+				newField.setDisplayName(key);
+			}else {
+				logger.error("unrecognized symbol " + custom[0]);
+				return null;
+			}
+		}
+		return newField;
 	}
 	
 	private String getConfigurationValueInternal(String key) {
@@ -214,11 +271,12 @@ public class Configuration implements Component {
 		
 		boolean result = false;
 		//First, the 'method' and path must be match
-		if(rule.getMethod() == null || rule.getMethod().length() ==0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
+		if(rule.getMethod() == null || rule.getMethod().length() == 0 || request.getMethod().equalsIgnoreCase(rule.getMethod())) {
 			//method match
 			String[] uris = rule.getReqPath().split(",");
 			for(String uri : uris) {
-				if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(uri)){
+				//if(request.getRequestURI().substring(request.getContextPath().length()).startsWith(uri)){
+				if(isPathMatching(request, uri)){
 					//path match
 					if(rule.getLength() == 2) {
 						result = true;
@@ -259,6 +317,21 @@ public class Configuration implements Component {
 		}
 			
 		return result;
+	}
+	
+	private boolean isPathMatching(HttpServletRequest request, String urlPattern) {
+		
+		String path = request.getRequestURI().substring(request.getContextPath().length());
+		
+		if(Boolean.valueOf(LogXUtils.getLogProperty(TX_PATH_PATTERN_MATCHING, "false"))){
+			//use url pattern
+			return pathMatcher.match(urlPattern, path);
+			
+		}else {
+			//use start-with
+			return path.startsWith(urlPattern);
+			
+		}
 	}
 	
 	private static TransactionPathMappingRule createRule(String ruleName, String rule) {
@@ -302,7 +375,7 @@ public class Configuration implements Component {
 		return result;
 	}
 	
-	private static class TransactionPathMappingRule {
+	private static class TransactionPathMappingRule implements Comparable<TransactionPathMappingRule> {
 		
 		private String txPathName;
 		private String method;
@@ -361,6 +434,20 @@ public class Configuration implements Component {
 		}
 		public void setHeaderValue(String headerValue) {
 			this.headerValue = headerValue;
+		}
+		@Override
+		public int compareTo(TransactionPathMappingRule o) {
+			
+			int s1 = this.reqPath.split("/").length;
+			
+			int s2 = o.getReqPath().split("/").length;
+			
+			if(s1 == s2) {			
+				return o.getReqPath().compareTo(this.reqPath);			
+			}else {
+				return s2 - s1;
+			}
+
 		}	
 	}
 
