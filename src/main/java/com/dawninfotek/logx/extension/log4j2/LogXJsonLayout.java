@@ -16,8 +16,8 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import com.google.gson.JsonObject;
-import com.dawninfotek.logx.config.JsonFields;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
+import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
 import com.google.gson.Gson;
 
@@ -44,7 +44,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
 
         JsonObject jsonObject = new JsonObject();
      // custom all fields
- 		for(JsonFields field: LogXContext.configuration().getJsonFields()) {
+ 		for(JsonField field: LogXContext.configuration().getJsonFields()) {
          	try {
          		String searchName = field.getName();
          		String key = field.getDisplayName();
@@ -53,7 +53,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
 
                 // Log default Information
          		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
-        			value = JsonFields.getTimestampValue(event.getTimeMillis(), format);
+        			value = JsonField.getTimestampValue(event.getTimeMillis(), format);
         		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
         			value = event.getLevel().name();
         		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
@@ -70,7 +70,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
     			}
          		// log custom information
         		else {
-        			value = JsonFields.getFromMDC(searchName);
+        			value = JsonField.getFromMDC(searchName);
         		}
          		
          		// shrink value to format size
@@ -98,6 +98,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
         CustomMessage customMessage = JsonUtils.generateCustomMessage(event.getMessage().getFormattedMessage());
         if (customMessage != null) {
             value = customMessage.getMessage();
+            //jsonObject.addProperty("message", customMessage.getMessage());
             // enable message key value object for JRE1.8 or later
 //            customMessage.getNewField().forEach((k, v) -> {
 //                if (v instanceof String) {
@@ -147,5 +148,4 @@ public class LogXJsonLayout extends AbstractStringLayout {
         }
         return "";
     }
-	
 }

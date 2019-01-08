@@ -14,17 +14,16 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logx.core.Component;
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
+import com.dawninfotek.logx.config.JsonField;
 
 public class Configuration implements Component {
 	
-	final static Logger logger = LoggerFactory.getLogger(Configuration.class);
+	//final static Logger logger = LoggerFactory.getLogger(Configuration.class);
 	
 	public static final String LOGX_CONFIG_FILE_NAME = "logx-default.properties";
 	
@@ -38,20 +37,23 @@ public class Configuration implements Component {
 
 	private List<TransactionPathMappingRule> txRules;
 	
-	private List<JsonFields> fieldsMapping;
+	private List<JsonField> fieldsMapping;
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
 		Properties override = new Properties();	
 		
 		if (configFile == null) {
-			logger.warn("logx configuration is not provided, use default only ...");			
+			//before logX is initialized, prevents to use logger 
+			//logger.warn("logx configuration is not provided, use default only ...");
+			System.out.println("logx configuration is not provided, use default only ...");
 		} else {
 
 			InputStream propFile = null;
 			try {
-				logger.info("property file: " + configFile);
-
+				//logger.info("property file: " + configFile);
+				System.out.println("property file: " + configFile);
+				
 				if (configFile.contains("CLASS_PATH")) {
 					String[] ns = configFile.split("=");
 					if (ns.length <= 1) {
@@ -68,24 +70,23 @@ public class Configuration implements Component {
 					propFile = new FileInputStream(ns[1]);
 				}
 				
-				/**
-				if (propFile == null) {
-					throw new FileNotFoundException("file path setting error");
-				}
-				*/
 				override.load(propFile);
+				
 			} catch (FileNotFoundException fnfe) {
 				//only say warning here
-				logger.warn("LogX properties not found, ignored:" + fnfe.getMessage());
+				//logger.warn("LogX properties not found, ignored:" + fnfe.getMessage());
+				System.out.println("LogX properties not found, ignored:" + fnfe.getMessage());
 			} catch (Exception e) {
-				logger.error("fail to load LogX properties.", e);
+				//logger.error("fail to load LogX properties.", e);
+				System.out.println("Fail to load LogX properties.");
+				e.printStackTrace();
 			} finally {
 				try {
 					if(propFile != null) {
 						propFile.close();
 					}
 				} catch (Exception ignored) {
-					logger.error("Fail to close ImputStream", ignored);
+					ignored.printStackTrace();
 				}
 			}
 
@@ -95,7 +96,7 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonFields> fieldsMapping) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonField> fieldsMapping) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
@@ -110,7 +111,7 @@ public class Configuration implements Component {
 		return getTransactionPathInternal(request);
 	}
 	
-	public List<JsonFields> getJsonFields(){
+	public List<JsonField> getJsonFields(){
 		return this.fieldsMapping;
 	}
 	
@@ -171,15 +172,15 @@ public class Configuration implements Component {
 				Collections.sort(rules);
 			}
 			
-			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
+			System.out.println("Logx system was inittialized successefully, " + pm.size() + " of properties were loaded, " + rules.size() + " of TransactionPath Mapping Rules were creared ...");
 			
-			List<JsonFields> fieldsMapping = new ArrayList<JsonFields>();
+			List<JsonField> fieldsMapping = new ArrayList<JsonField>();
 			
-			JsonFields fieldObj = null;
+			JsonField fieldObj = null;
 			
 			if(jsonFields != null && jsonFields.size() > 0) {
 				for(String field: jsonFields) {
-					fieldObj = JsonFields.createField(field);
+					fieldObj = JsonField.createField(field);
 					if(fieldObj != null) {
 						fieldsMapping.add(fieldObj);
 					}
@@ -189,7 +190,8 @@ public class Configuration implements Component {
 			return new Configuration(pm, rules, fieldsMapping);			
 			
 		}catch (Exception e) {
-			logger.error("LogX system failed to load config from files", e);
+			System.out.println("LogX system failed to load config from files");
+			e.printStackTrace();
 			throw new RuntimeException("LogX system failed to load config from files", e);
 		}finally {
 			if(propFile != null) {
@@ -198,7 +200,7 @@ public class Configuration implements Component {
 					propFile.close();
 					
 				} catch (Exception ignored) {
-					logger.error("Fail to close file ...", ignored);
+					ignored.printStackTrace();
 					
 				}
 			}
@@ -343,7 +345,7 @@ public class Configuration implements Component {
 				}
 			}
 		} else {
-			logger.warn("The rule under key {} is not in well format, please verify ...", ruleName);
+			System.out.println("The rule under key " + ruleName + " is not in well format, please verify ...");
 			return null;
 		}
 		

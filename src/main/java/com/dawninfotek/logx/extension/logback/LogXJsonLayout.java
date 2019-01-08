@@ -13,8 +13,8 @@ import ch.qos.logback.contrib.json.classic.JsonLayout;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
-import com.dawninfotek.logx.config.JsonFields;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
+import com.dawninfotek.logx.config.JsonField;
 
 public class LogXJsonLayout extends JsonLayout {
 	
@@ -48,7 +48,8 @@ public class LogXJsonLayout extends JsonLayout {
 
 	protected void addCustomDataToJsonMap(Map<String, Object> map, ILoggingEvent event) {
         // custom all fields
-		for(JsonFields field: LogXContext.configuration().getJsonFields()) {
+        
+        for(JsonField field: LogXContext.configuration().getJsonFields()) {
         	try {
         		String searchName = field.getName();
         		String key = field.getDisplayName();
@@ -57,7 +58,7 @@ public class LogXJsonLayout extends JsonLayout {
         		
                 // Log default Information
         		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
-        			value = JsonFields.getTimestampValue(event.getTimeStamp(), format);
+        			value = JsonField.getTimestampValue(event.getTimeStamp(), format);
         		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
         			value = String.valueOf(event.getLevel());
         		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
@@ -74,7 +75,7 @@ public class LogXJsonLayout extends JsonLayout {
     			}
         		// log custom information
         		else {
-            		value = JsonFields.getFromMDC(searchName);
+            		value = JsonField.getFromMDC(searchName);
             		if(value.isEmpty()) {
             			// get applicationName from context
             			if(searchName.equals(LogXConstants.APPLICATION_NAME)) {
