@@ -35,6 +35,8 @@ public class LogXContext {
 	
 	private Map<String, Component> components;
 	
+	private Map<String, String> contextParameters = new HashMap<String, String>();
+	
 	/**
 	 * Initial the Log Plus System
 	 * @param configFile
@@ -137,6 +139,15 @@ public class LogXContext {
 			logger.error("Fail to create instance for:" + componentName + ", impl class is:" + impl, e);
 		}
 		return result;
+	}
+	
+	/**
+	 * Answer the context variable value under given key
+	 * @param key
+	 * @return
+	 */
+	public static final String getContextVariable(String key) {
+		return instance.contextParameters.get(key);
 	}
 
 }
