@@ -1,6 +1,10 @@
 package com.dawninfotek.logx.config;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.MDC;
 
 public class JsonField {
 	
@@ -9,11 +13,24 @@ public class JsonField {
 	public static final String C = ":";
 	public static final String X = "X";	
 	
+	public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
+	
 	private String name;
 	private String displayName;
 	private boolean display;
 	private String format;
 	private String displayValue;
+	
+	public JsonField() {
+		
+	}
+	
+	public JsonField(String name, String displayname, Boolean display, String format){
+		this.name = name;
+		this.displayName = displayname;
+		this.display = display;
+		this.format = format;
+	}
 	
 	public JsonField cloneFromTemplate(String displayValue) {
 		JsonField clone = new JsonField();
@@ -43,8 +60,6 @@ public class JsonField {
 			
 			result = new StringBuilder().append(DQ).append(displayName).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
 		}
-		
-		
 		
 		return result;
 		
@@ -98,5 +113,52 @@ public class JsonField {
 	
 	public boolean getDisplay() {
 		return this.display;
+	}
+	
+	public static JsonField createField(String field){
+		String key = field;
+		if(key.indexOf("[") > 0) {
+			key = key.substring(0, key.indexOf("["));
+		}
+		JsonField newField = new JsonField(key, key, false, "");
+		while(field.indexOf("[") >= 0) {
+			String custom = field.substring(field.indexOf("[") + 1, field.indexOf("]"));
+			field = field.substring(field.indexOf("]")+1);
+			if(custom.startsWith("name")) {
+				newField.setDisplayName(custom.substring(custom.indexOf("=")+1));
+			}
+			if(custom.startsWith("mandatory")) {
+				if(custom.substring(custom.indexOf("=")+1).equals("true")) {
+					newField.setDisplay(true);
+				}
+			}
+			if(custom.startsWith("format")) {
+				newField.setFormat(custom.substring(custom.indexOf("=")+1));
+			}
+		}
+		return newField;
+	}
+	
+	public static String getFromMDC(String value) {
+		String result = MDC.get(value);
+		if(result == null) {
+			return "";
+		}
+		return result;
+	}
+	
+	public static String TimestampToString(long millseconds, String timeFormat) {
+		SimpleDateFormat formatter = new SimpleDateFormat(timeFormat);
+        return formatter.format(new Date(millseconds)).toString();
+	}
+	
+	public static String getTimestampValue(long millionSeconds, String format) {
+		String value = "";
+		if(format.isEmpty()) {
+			value = TimestampToString(millionSeconds, DefaultTimestampFormat);
+		} else {
+			value = TimestampToString(millionSeconds, format);
+		}
+		return value;
 	}
 }

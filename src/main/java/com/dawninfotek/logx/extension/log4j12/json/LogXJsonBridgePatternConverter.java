@@ -36,6 +36,7 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 		super(pattern);	
 		
 		//Create the Converter for LogX logging Patterns
+
 		String logXName = null;
 		String name = null;
 		for(String mapping:LOGX_RESERVED_FIELD_NAMES) {
@@ -52,7 +53,7 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 				}
 			}
 			
-		}	
+		}
 		
 	}
 

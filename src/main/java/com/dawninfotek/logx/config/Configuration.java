@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import com.dawninfotek.logx.core.Component;
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
+import com.dawninfotek.logx.config.JsonField;
 
 public class Configuration implements Component {
 	
@@ -149,7 +151,7 @@ public class Configuration implements Component {
 			
 			TransactionPathMappingRule rule = null;
 			
-			String[] jsonFields = null;
+			List<String> jsonFields = new ArrayList<String>();
 			
 			for(String name:pm.keySet()) {
 				
@@ -160,10 +162,9 @@ public class Configuration implements Component {
 						rules.add(rule);
 					}
 				}
-				if(name.equals(LogXConstants.JSON_LAYOUT_INCLUDES)) {
-					jsonFields = pm.get(name).split(",");
+				if(name.equals(LogXConstants.JSON_LAYOUT_DEFAULT) || name.equals(LogXConstants.JSON_LAYOUT_CUSTOM)) {
+					jsonFields.addAll(Arrays.asList(pm.get(name).split(",")));
 				}
-				
 			}
 			
 			if(!rules.isEmpty()) {
@@ -177,9 +178,9 @@ public class Configuration implements Component {
 			
 			JsonField fieldObj = null;
 			
-			if(jsonFields != null && jsonFields.length > 0) {
+			if(jsonFields != null && jsonFields.size() > 0) {
 				for(String field: jsonFields) {
-					fieldObj = createField(field);
+					fieldObj = JsonField.createField(field);
 					if(fieldObj != null) {
 						fieldsMapping.add(fieldObj);
 					}
@@ -205,31 +206,6 @@ public class Configuration implements Component {
 			}
 		}		
 			
-	}
-	
-	private static JsonField createField(String field){
-		JsonField newField = new JsonField();
-		if(field.indexOf("[") < 0) {
-			newField.setDisplay(true);
-			newField.setName(field);
-			newField.setDisplayName(field);
-		}else {
-			String key = field.substring(0, field.indexOf("["));
-			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
-			if(custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) {
-				newField.setDisplay(true);
-				newField.setName(key);
-				newField.setDisplayName(custom[1]);
-			}else if(custom[0].equals("N") || custom[0].equals("F")) {
-				newField.setDisplay(false);
-				newField.setName(key);
-				newField.setDisplayName(key);
-			}else {
-				System.out.println("unrecognized symbol " + custom[0]);
-				return null;
-			}
-		}
-		return newField;
 	}
 	
 	private String getConfigurationValueInternal(String key) {

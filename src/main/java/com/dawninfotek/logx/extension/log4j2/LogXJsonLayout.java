@@ -2,14 +2,10 @@ package com.dawninfotek.logx.extension.log4j2;
 
 import java.nio.charset.Charset;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
-
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
@@ -20,6 +16,7 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import com.google.gson.JsonObject;
+import com.dawninfotek.logx.config.JsonFieldsConstants;
 import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
 import com.google.gson.Gson;
@@ -30,8 +27,6 @@ public class LogXJsonLayout extends AbstractStringLayout {
 	
 	public static Logger logger = LoggerFactory.getLogger(LogXJsonLayout.class);
 	private final Gson gson = JsonUtils.getGson();
-	
-	public String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
     
     protected LogXJsonLayout(Configuration config, Charset aCharset, Serializer headerSerializer, Serializer footerSerializer) {
         super(config, aCharset, headerSerializer, footerSerializer);
@@ -48,20 +43,61 @@ public class LogXJsonLayout extends AbstractStringLayout {
     public String toSerializable(LogEvent event) {
 
         JsonObject jsonObject = new JsonObject();
+     // custom all fields
+ 		for(JsonField field: LogXContext.configuration().getJsonFields()) {
+         	try {
+         		String searchName = field.getName();
+         		String key = field.getDisplayName();
+         		String format = field.getFormat();
+         		String value = "";
 
-        // Log Information
-        jsonObject.addProperty("datetime", TimestampToString(event.getTimeMillis()));
-        jsonObject.addProperty("level", event.getLevel().name());
-        jsonObject.addProperty("thread", event.getThreadName() + " : " + event.getThreadId());
+                // Log default Information
+         		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
+        			value = JsonField.getTimestampValue(event.getTimeMillis(), format);
+        		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
+        			value = event.getLevel().name();
+        		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
+        			value = event.getThreadName() + " : " + event.getThreadId();
+        		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
+        			final StackTraceElement source = event.getSource();
+        			value = source.getClassName() + " " + source.getFileName() + ":" + source.getLineNumber();
+        		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
+        			value = getMessage(event);
+        		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
+        			value = getException(event);
+        		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
+    				value = event.getSource().getMethodName();
+    			}
+         		// log custom information
+        		else {
+        			value = JsonField.getFromMDC(searchName);
+        		}
+         		
+         		// shrink value to format size
+        		if(!format.isEmpty() && format.startsWith("X")) {
+        			int charNumber = Integer.parseInt(format.substring(1));
+        			if(charNumber < value.length()) {
+            			value = value.substring(0, charNumber);
+        			}
+        		}
+        		// display if mandatory or value exist
+            	if(field.getDisplay() || !value.isEmpty()) {
+        			jsonObject.addProperty(key, value);
+            	}
+        	}catch (Exception e) {
+        		logger.error(e.getMessage());
+        	}
+        }
 
-        final StackTraceElement source = event.getSource();
-        String logger = source.getClassName() + " " + source.getFileName() + ":" + source.getLineNumber();
-        jsonObject.addProperty("method", source.getMethodName());
-        jsonObject.addProperty("logger", logger);
-
-        // Message
+        return gson.toJson(jsonObject).concat("\r\n");
+    }
+    
+    protected String getMessage(LogEvent event) {
+    	// Message
+    	String value = "";
         CustomMessage customMessage = JsonUtils.generateCustomMessage(event.getMessage().getFormattedMessage());
         if (customMessage != null) {
+            value = customMessage.getMessage();
             //jsonObject.addProperty("message", customMessage.getMessage());
             // enable message key value object for JRE1.8 or later
 //            customMessage.getNewField().forEach((k, v) -> {
@@ -78,10 +114,13 @@ public class LogXJsonLayout extends AbstractStringLayout {
 //                }
 //            });
         } else {
-            jsonObject.addProperty("message", event.getMessage().getFormattedMessage());
+            value = event.getMessage().getFormattedMessage();
         }
-
-        // Exceptions
+        return value;
+    }
+    
+    protected String getException(LogEvent event) {
+    	// Exceptions
         if (event.getThrownProxy() != null) {
             final ThrowableProxy thrownProxy = event.getThrownProxy();
             final Throwable throwable = thrownProxy.getThrowable();
@@ -104,45 +143,9 @@ public class LogXJsonLayout extends AbstractStringLayout {
             }
             
             if(!exception.isEmpty()) {
-            	jsonObject.addProperty("exception", exception);
+            	return exception;
             }
         }
-
-        return gson.toJson(jsonObject).concat("\r\n");
+        return "";
     }
-    
-    protected JsonObject CustomFields(JsonObject jsonObject) {
-    	for(JsonField field: LogXContext.configuration().getJsonFields()) {
-        	try {
-        		String searchName = field.getName();
-        		String key = field.getDisplayName();
-        		String value = getFromMDC(searchName);
-        		if(value.isEmpty()) {
-        			// get applicationName from context
-
-        		}
-        		// display if mandatory (no [], or [Y or T]) or value exist
-            	if(field.getDisplay() || !value.isEmpty()) { 
-            		jsonObject.addProperty(key, value);
-            	}
-        	}catch (Exception e) {
-        		logger.error(e.getMessage());
-        	}
-        }
-    	return jsonObject;
-    }
-    
-    protected String getFromMDC(String value) {
-		String result = MDC.get(value);
-		if(result == null) {
-			return "";
-		}
-		return result;
-	}
-    
-    protected String TimestampToString(long millseconds) {
-		SimpleDateFormat formatter = new SimpleDateFormat(DefaultTimestampFormat);
-        return formatter.format(new Date(millseconds)).toString();
-	}
-	
 }

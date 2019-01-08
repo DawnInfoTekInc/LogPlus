@@ -133,10 +133,6 @@ public class LogXUtils implements LogXConstants {
 	public static String[] getLogXHeaderInclues() {
 		return getLogProperties(LogXConstants.HEADER_INCLUDES, null);
 	}
-	
-	public static String[] getLogXCustomJsonIncludes() {
-		return getLogProperties(LogXConstants.JSON_LAYOUT_INCLUDES, null);
-	}
 
 	/**
 	 * Answer the transaction path based on the predefined mapping Mapping possible
