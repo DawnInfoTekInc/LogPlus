@@ -20,7 +20,7 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import com.google.gson.JsonObject;
-import com.dawninfotek.logx.config.JsonFields;
+import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
 import com.google.gson.Gson;
 
@@ -62,7 +62,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
         // Message
         CustomMessage customMessage = JsonUtils.generateCustomMessage(event.getMessage().getFormattedMessage());
         if (customMessage != null) {
-            jsonObject.addProperty("message", customMessage.getMessage());
+            //jsonObject.addProperty("message", customMessage.getMessage());
             // enable message key value object for JRE1.8 or later
 //            customMessage.getNewField().forEach((k, v) -> {
 //                if (v instanceof String) {
@@ -112,7 +112,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
     }
     
     protected JsonObject CustomFields(JsonObject jsonObject) {
-    	for(JsonFields field: LogXContext.configuration().getJsonFields()) {
+    	for(JsonField field: LogXContext.configuration().getJsonFields()) {
         	try {
         		String searchName = field.getName();
         		String key = field.getDisplayName();
