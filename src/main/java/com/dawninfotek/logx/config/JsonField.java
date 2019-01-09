@@ -2,6 +2,7 @@ package com.dawninfotek.logx.config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
@@ -156,4 +157,18 @@ public class JsonField {
 		}
 		return value;
 	}
+	
+
+    public static String convertMapToJsonString(Map<String, String> map) {
+    	String jsonString = "{";
+    	for(Map.Entry<String, String> entry: map.entrySet()) {
+    		jsonString += "\"" + entry.getKey() + "\": \"" + entry.getValue() + "\", ";
+    	}
+    	// remove last comma
+    	if(!jsonString.equals("{")) {      
+    		jsonString = jsonString.substring(0, jsonString.length() - 2);
+    	}
+    	jsonString += "}";
+    	return jsonString;
+    }
 }
