@@ -182,12 +182,15 @@ public class Configuration implements Component {
 			
 			if(jsonFields != null && jsonFields.size() > 0) {
 				for(String field: jsonFields) {
-					fieldObj = JsonField.createField(field);
+					fieldObj = JsonField.fromString(field);
 					if(fieldObj != null) {
 						fieldsMapping.add(fieldObj);
 					}
 				}
 			}
+			
+			//Sort the List
+			sortJsonFields(fieldsMapping);			
 			//finally, create the Configuration instance and return to caller
 			return new Configuration(pm, rules, fieldsMapping);			
 			
@@ -208,6 +211,12 @@ public class Configuration implements Component {
 			}
 		}		
 			
+	}
+	
+	private static void sortJsonFields(List<JsonField> jsonFields) {
+		if(!jsonFields.isEmpty()) {
+			Collections.sort(jsonFields);
+		}
 	}
 	
 	private String getConfigurationValueInternal(String key) {

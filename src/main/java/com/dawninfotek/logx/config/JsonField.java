@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
-public class JsonField {
+public class JsonField implements Comparable<JsonField>{
 	
 	public static final String EMPT = "";
 	public static final String DQ = "\"";
@@ -21,7 +21,11 @@ public class JsonField {
 	private boolean display;
 	private String format;
 	private String displayValue;
-	
+	/**
+	 * default value means any position is good for this field.
+	 */
+	private int position = Integer.MAX_VALUE - 1;
+
 	public JsonField() {
 		
 	}
@@ -111,12 +115,22 @@ public class JsonField {
 		this.lable = lable;
 	}
 	
-	public static JsonField createField(String field){
+	public int getPosition() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+	
+	public static JsonField fromString(String field){
 		String key = field;
 		if(key.indexOf("[") > 0) {
 			key = key.substring(0, key.indexOf("["));
 		}
 		JsonField newField = new JsonField(key, key, false, "");
+		
+		/**
 		while(field.indexOf("[") >= 0) {
 			String custom = field.substring(field.indexOf("[") + 1, field.indexOf("]"));
 			field = field.substring(field.indexOf("]")+1);
@@ -132,6 +146,45 @@ public class JsonField {
 				newField.setFormat(custom.substring(custom.indexOf("=")+1));
 			}
 		}
+		*/
+		String[] defs = StringUtils.substringsBetween(field, "[", "]");
+		
+		if(defs!= null && defs.length > 0) {
+			
+			String name = null;
+			String value = null;
+			
+			for(String def:defs) {
+				
+				String[] nv = def.split("=");
+				name = nv[0];
+				value = nv[1];
+				if(name.equals("name")) {
+					newField.setLable(value);
+				}else if(name.equals("mandatory")) {
+					if(value.equalsIgnoreCase("true")){
+						newField.setDisplay(true);
+					}
+
+				}else if(name.equals("format")) {
+					newField.setFormat(value);					
+				}else if(name.equals("position")) {
+					if(value.equalsIgnoreCase("first")) {
+						newField.setPosition(-1);
+					}else if(value.equalsIgnoreCase("last")) {
+						newField.setPosition(Integer.MAX_VALUE);
+					}else {
+						try {
+							newField.setPosition(Integer.valueOf(value).intValue());
+						}catch (Exception ignored) {
+							//do nothing
+						}
+					}
+				}		
+				
+			}			
+		}
+		
 		return newField;
 	}
 	
@@ -171,4 +224,10 @@ public class JsonField {
     	jsonString += "}";
     	return jsonString;
     }
+
+	@Override
+	public int compareTo(JsonField arg0) {		
+		return this.position - arg0.getPosition(); 
+		
+	}
 }
