@@ -27,6 +27,8 @@ public class Configuration implements Component {
 	
 	public static final String LOGX_CONFIG_FILE_NAME = "logx-default.properties";
 	
+	public static final String logxConfigFile = "CLASS_PATH=logx.properties";
+	
 	private Map<String, String> propertyMap;
 	
 	private AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -34,7 +36,7 @@ public class Configuration implements Component {
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
 	}
-
+	
 	private List<TransactionPathMappingRule> txRules;
 	
 	private List<JsonField> fieldsMapping;

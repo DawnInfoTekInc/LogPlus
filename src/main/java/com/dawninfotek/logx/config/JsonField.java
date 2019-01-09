@@ -16,7 +16,7 @@ public class JsonField {
 	public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
 	
 	private String name;
-	private String displayName;
+	private String lable;
 	private boolean display;
 	private String format;
 	private String displayValue;
@@ -25,21 +25,16 @@ public class JsonField {
 		
 	}
 	
-	public JsonField(String name, String displayname, Boolean display, String format){
+	public JsonField(String name, String displayname, boolean display, String format){
 		this.name = name;
-		this.displayName = displayname;
+		this.lable = displayname;
 		this.display = display;
 		this.format = format;
 	}
 	
 	public JsonField cloneFromTemplate(String displayValue) {
-		JsonField clone = new JsonField();
-		clone.setDisplay(this.display);
-		clone.setName(this.name);
-		clone.setFormat(this.format);
-		clone.setDisplayName(displayName);
-		clone.setDisplayValue(displayValue);
-		
+		JsonField clone = new JsonField(this.name, this.lable, this.display, this.lable);		
+		clone.setDisplayValue(displayValue);		
 		return clone;
 	}
 	
@@ -52,13 +47,13 @@ public class JsonField {
 				
 		if(StringUtils.isEmpty(displayValue)) {			
 			if(display) {
-				result = new StringBuilder().append(DQ).append(displayName).append(DQ).append(C).append(DQ).append(DQ).toString();				
+				result = new StringBuilder().append(DQ).append(lable==null?name:lable ).append(DQ).append(C).append(DQ).append(DQ).toString();				
 			}else {
 				result = EMPT;
 			}
 		}else {
 			
-			result = new StringBuilder().append(DQ).append(displayName).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
+			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
 		}
 		
 		return result;
@@ -99,20 +94,20 @@ public class JsonField {
 		return this.name;
 	}
 	
-	public void setDisplayName(String name) {
-		this.displayName = name;
-	}
-	
-	public String getDisplayName() {
-		return this.displayName;
-	}
-	
 	public void setDisplay(boolean display) {
 		this.display = display;
 	}
 	
 	public boolean getDisplay() {
 		return this.display;
+	}
+	
+	public String getLable() {
+		return lable;
+	}
+
+	public void setLable(String lable) {
+		this.lable = lable;
 	}
 	
 	public static JsonField createField(String field){
@@ -125,7 +120,7 @@ public class JsonField {
 			String custom = field.substring(field.indexOf("[") + 1, field.indexOf("]"));
 			field = field.substring(field.indexOf("]")+1);
 			if(custom.startsWith("name")) {
-				newField.setDisplayName(custom.substring(custom.indexOf("=")+1));
+				newField.setLable(custom.substring(custom.indexOf("=")+1));
 			}
 			if(custom.startsWith("mandatory")) {
 				if(custom.substring(custom.indexOf("=")+1).equals("true")) {

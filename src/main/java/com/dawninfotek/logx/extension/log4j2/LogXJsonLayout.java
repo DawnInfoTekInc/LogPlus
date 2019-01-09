@@ -47,7 +47,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
  		for(JsonField field: LogXContext.configuration().getJsonFields()) {
          	try {
          		String searchName = field.getName();
-         		String key = field.getDisplayName();
+         		String key = field.getLable();
          		String format = field.getFormat();
          		String value = "";
 
@@ -97,7 +97,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
     	String value = "";
         CustomMessage customMessage = JsonUtils.generateCustomMessage(event.getMessage().getFormattedMessage());
         if (customMessage != null) {
-            value = customMessage.getMessage();
+            //value = customMessage.getMessage();
             //jsonObject.addProperty("message", customMessage.getMessage());
             // enable message key value object for JRE1.8 or later
 //            customMessage.getNewField().forEach((k, v) -> {
