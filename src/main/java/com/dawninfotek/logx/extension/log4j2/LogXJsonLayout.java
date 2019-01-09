@@ -47,7 +47,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
  		for(JsonField field: LogXContext.configuration().getJsonFields()) {
          	try {
          		String searchName = field.getName();
-         		String key = field.getDisplayName();
+         		String key = field.getLable();
          		String format = field.getFormat();
          		String value = "";
 

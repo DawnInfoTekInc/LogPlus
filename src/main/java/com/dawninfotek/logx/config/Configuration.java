@@ -27,6 +27,8 @@ public class Configuration implements Component {
 	
 	public static final String LOGX_CONFIG_FILE_NAME = "logx-default.properties";
 	
+	public static final String logxConfigFile = "CLASS_PATH=logx.properties";
+	
 	private Map<String, String> propertyMap;
 	
 	private AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -34,7 +36,7 @@ public class Configuration implements Component {
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
 	}
-
+	
 	private List<TransactionPathMappingRule> txRules;
 	
 	private List<JsonField> fieldsMapping;
@@ -180,12 +182,15 @@ public class Configuration implements Component {
 			
 			if(jsonFields != null && jsonFields.size() > 0) {
 				for(String field: jsonFields) {
-					fieldObj = JsonField.createField(field);
+					fieldObj = JsonField.fromString(field);
 					if(fieldObj != null) {
 						fieldsMapping.add(fieldObj);
 					}
 				}
 			}
+			
+			//Sort the List
+			sortJsonFields(fieldsMapping);			
 			//finally, create the Configuration instance and return to caller
 			return new Configuration(pm, rules, fieldsMapping);			
 			
@@ -206,6 +211,12 @@ public class Configuration implements Component {
 			}
 		}		
 			
+	}
+	
+	private static void sortJsonFields(List<JsonField> jsonFields) {
+		if(!jsonFields.isEmpty()) {
+			Collections.sort(jsonFields);
+		}
 	}
 	
 	private String getConfigurationValueInternal(String key) {

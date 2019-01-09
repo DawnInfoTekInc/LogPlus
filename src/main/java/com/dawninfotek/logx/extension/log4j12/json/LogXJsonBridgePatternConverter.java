@@ -4,10 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.pattern.DatePatternConverter;
 import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
 
 import com.dawninfotek.logx.config.JsonField;
+import com.dawninfotek.logx.config.JsonFieldsConstants;
 import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.extension.log4j12.LogXBridgePatternConverter;
 import com.dawninfotek.logx.util.LogXUtils;
@@ -18,11 +20,12 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 	
 	public static final String[] LOGX_RESERVED_FIELD_NAMES = {
 			"TIMESTAMP:Date",
-			"THREAD:Thread,",
+			"THREAD:Thread",
 			"LOGGER:Logger",
 			"LEVEL:Level",
 			"MESSAGE:Message",
-			"EXCEPTION:Throwable"		
+			"EXCEPTION:Throwable",
+			"METHOD:Method"
 	};
 
 	/**
@@ -35,10 +38,22 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 		
 		super(pattern);	
 		
+		System.out.println("LogXJsonBridgePatternConverter(final String pattern) is called ..." );
 		//Create the Converter for LogX logging Patterns
 
 		String logXName = null;
 		String name = null;
+		
+		JsonField dateField = null;
+		
+		for(JsonField af:LogXContext.configuration().getJsonFields()) {
+			if(af.getName().equals(JsonFieldsConstants.TIMESTAMP)) {
+				dateField = af;
+			}
+		}
+		
+		String dateFormat = dateField.getFormat();
+		
 		for(String mapping:LOGX_RESERVED_FIELD_NAMES) {
 			
 			String[] ls = mapping.split(":");
@@ -47,14 +62,19 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 			
 			//find the converters
 			for(LoggingEventPatternConverter p:patternConverters) {				
+				//System.out.println(p.getName() + "::" + p);				
 				if(name.equals(p.getName())){
-					logxConverters.put(logXName, p);
+					
+					if(dateFormat != null && p.getName().equals("Date")) {
+						//need to grate a new instance of dateConverter for special format
+						logxConverters.put(logXName, DatePatternConverter.newInstance(new String[] {dateFormat}));
+					}else {					
+						logxConverters.put(logXName, p);
+					}
 					break;
 				}
-			}
-			
-		}
-		
+			}			
+		}		
 	}
 
 
@@ -89,7 +109,7 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 			}else {
 				//not the reserved field
 				//get from logX field
-				logFields[i] = field.cloneFromTemplate(LogXUtils.getLogXFieldValue(field.getName()));
+				logFields[i] = field.cloneFromTemplate(LogXUtils.getLogXFieldValue(field.getName(), false));
 			}
 			
 		}		

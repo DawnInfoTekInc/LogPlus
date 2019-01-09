@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
-public class JsonField {
+public class JsonField implements Comparable<JsonField>{
 	
 	public static final String EMPT = "";
 	public static final String DQ = "\"";
@@ -17,30 +17,29 @@ public class JsonField {
 	public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
 	
 	private String name;
-	private String displayName;
+	private String lable;
 	private boolean display;
 	private String format;
 	private String displayValue;
-	
+	/**
+	 * default value means any position is good for this field.
+	 */
+	private int position = Integer.MAX_VALUE - 1;
+
 	public JsonField() {
 		
 	}
 	
-	public JsonField(String name, String displayname, Boolean display, String format){
+	public JsonField(String name, String displayname, boolean display, String format){
 		this.name = name;
-		this.displayName = displayname;
+		this.lable = displayname;
 		this.display = display;
 		this.format = format;
 	}
 	
 	public JsonField cloneFromTemplate(String displayValue) {
-		JsonField clone = new JsonField();
-		clone.setDisplay(this.display);
-		clone.setName(this.name);
-		clone.setFormat(this.format);
-		clone.setDisplayName(displayName);
-		clone.setDisplayValue(displayValue);
-		
+		JsonField clone = new JsonField(this.name, this.lable, this.display, this.lable);		
+		clone.setDisplayValue(displayValue);		
 		return clone;
 	}
 	
@@ -53,13 +52,13 @@ public class JsonField {
 				
 		if(StringUtils.isEmpty(displayValue)) {			
 			if(display) {
-				result = new StringBuilder().append(DQ).append(displayName).append(DQ).append(C).append(DQ).append(DQ).toString();				
+				result = new StringBuilder().append(DQ).append(lable==null?name:lable ).append(DQ).append(C).append(DQ).append(DQ).toString();				
 			}else {
 				result = EMPT;
 			}
 		}else {
 			
-			result = new StringBuilder().append(DQ).append(displayName).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
+			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
 		}
 		
 		return result;
@@ -100,14 +99,6 @@ public class JsonField {
 		return this.name;
 	}
 	
-	public void setDisplayName(String name) {
-		this.displayName = name;
-	}
-	
-	public String getDisplayName() {
-		return this.displayName;
-	}
-	
 	public void setDisplay(boolean display) {
 		this.display = display;
 	}
@@ -116,17 +107,35 @@ public class JsonField {
 		return this.display;
 	}
 	
-	public static JsonField createField(String field){
+	public String getLable() {
+		return lable;
+	}
+
+	public void setLable(String lable) {
+		this.lable = lable;
+	}
+	
+	public int getPosition() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+	
+	public static JsonField fromString(String field){
 		String key = field;
 		if(key.indexOf("[") > 0) {
 			key = key.substring(0, key.indexOf("["));
 		}
 		JsonField newField = new JsonField(key, key, false, "");
+		
+		/**
 		while(field.indexOf("[") >= 0) {
 			String custom = field.substring(field.indexOf("[") + 1, field.indexOf("]"));
 			field = field.substring(field.indexOf("]")+1);
 			if(custom.startsWith("name")) {
-				newField.setDisplayName(custom.substring(custom.indexOf("=")+1));
+				newField.setLable(custom.substring(custom.indexOf("=")+1));
 			}
 			if(custom.startsWith("mandatory")) {
 				if(custom.substring(custom.indexOf("=")+1).equals("true")) {
@@ -137,6 +146,45 @@ public class JsonField {
 				newField.setFormat(custom.substring(custom.indexOf("=")+1));
 			}
 		}
+		*/
+		String[] defs = StringUtils.substringsBetween(field, "[", "]");
+		
+		if(defs!= null && defs.length > 0) {
+			
+			String name = null;
+			String value = null;
+			
+			for(String def:defs) {
+				
+				String[] nv = def.split("=");
+				name = nv[0];
+				value = nv[1];
+				if(name.equals("name")) {
+					newField.setLable(value);
+				}else if(name.equals("mandatory")) {
+					if(value.equalsIgnoreCase("true")){
+						newField.setDisplay(true);
+					}
+
+				}else if(name.equals("format")) {
+					newField.setFormat(value);					
+				}else if(name.equals("position")) {
+					if(value.equalsIgnoreCase("first")) {
+						newField.setPosition(-1);
+					}else if(value.equalsIgnoreCase("last")) {
+						newField.setPosition(Integer.MAX_VALUE);
+					}else {
+						try {
+							newField.setPosition(Integer.valueOf(value).intValue());
+						}catch (Exception ignored) {
+							//do nothing
+						}
+					}
+				}		
+				
+			}			
+		}
+		
 		return newField;
 	}
 	
@@ -176,4 +224,10 @@ public class JsonField {
     	jsonString += "}";
     	return jsonString;
     }
+
+	@Override
+	public int compareTo(JsonField arg0) {		
+		return this.position - arg0.getPosition(); 
+		
+	}
 }
