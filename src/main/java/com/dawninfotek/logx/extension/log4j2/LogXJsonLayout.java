@@ -13,8 +13,6 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.apache.logging.log4j.core.config.Node;
-import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import com.dawninfotek.logx.config.JsonFieldsConstants;
@@ -22,19 +20,23 @@ import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
 
 
-@Plugin(name = "LogXJsonLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
+@Plugin(name = "LogXJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class LogXJsonLayout extends AbstractStringLayout {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public static Logger logger = LoggerFactory.getLogger(LogXJsonLayout.class);
     
-    protected LogXJsonLayout(Configuration config, Charset aCharset, Serializer headerSerializer, Serializer footerSerializer) {
-        super(config, aCharset, headerSerializer, footerSerializer);
+    protected LogXJsonLayout(Configuration config, Charset aCharset) {
+        super(aCharset);
     }
 
     @PluginFactory
     public static LogXJsonLayout createLayout(@PluginConfiguration final Configuration config,
                                                 @PluginAttribute(value = "charset", defaultString = "US-ASCII") final Charset charset) {
-        return new LogXJsonLayout(config, charset, null, null);
+        return new LogXJsonLayout(config, charset);
     }
     
     @Override
@@ -55,7 +57,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
         		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
         			value = event.getLevel().name();
         		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
-        			value = event.getThreadName() + " : " + event.getThreadId();
+        			value = event.getThreadName();
         		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
         			final StackTraceElement source = event.getSource();
         			value = source.getClassName() + " " + source.getFileName() + ":" + source.getLineNumber();
@@ -104,7 +106,7 @@ public class LogXJsonLayout extends AbstractStringLayout {
             String exception = "";
             final String exceptionsClass = throwable.getClass().getCanonicalName();
             final String exceptionsMessage = throwable.getMessage();
-            final String stackTrace = thrownProxy.getExtendedStackTraceAsString("");
+            final String stackTrace = thrownProxy.getExtendedStackTraceAsString();
             
             if (exceptionsClass != null) {
                 exception += exceptionsClass;
