@@ -1,6 +1,8 @@
 package com.dawninfotek.logx.extension.log4j2;
 
 import java.nio.charset.Charset;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
@@ -15,18 +17,15 @@ import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
-import com.google.gson.JsonObject;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
 import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
-import com.google.gson.Gson;
 
 
 @Plugin(name = "LogXJsonLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class LogXJsonLayout extends AbstractStringLayout {
 	
 	public static Logger logger = LoggerFactory.getLogger(LogXJsonLayout.class);
-	private final Gson gson = JsonUtils.getGson();
     
     protected LogXJsonLayout(Configuration config, Charset aCharset, Serializer headerSerializer, Serializer footerSerializer) {
         super(config, aCharset, headerSerializer, footerSerializer);
@@ -38,11 +37,10 @@ public class LogXJsonLayout extends AbstractStringLayout {
         return new LogXJsonLayout(config, charset, null, null);
     }
     
-
     @Override
     public String toSerializable(LogEvent event) {
 
-        JsonObject jsonObject = new JsonObject();
+    	Map<String, String> jsonObject = new LinkedHashMap<String, String>();
      // custom all fields
  		for(JsonField field: LogXContext.configuration().getJsonFields()) {
          	try {
@@ -82,41 +80,19 @@ public class LogXJsonLayout extends AbstractStringLayout {
         		}
         		// display if mandatory or value exist
             	if(field.getDisplay() || !value.isEmpty()) {
-        			jsonObject.addProperty(key, value);
+        			jsonObject.put(key, value);
             	}
         	}catch (Exception e) {
         		logger.error(e.getMessage());
         	}
         }
 
-        return gson.toJson(jsonObject).concat("\r\n");
+ 		return JsonField.convertMapToJsonString(jsonObject);
     }
     
     protected String getMessage(LogEvent event) {
-    	// Message
-    	String value = "";
-        CustomMessage customMessage = JsonUtils.generateCustomMessage(event.getMessage().getFormattedMessage());
-        if (customMessage != null) {
-            value = customMessage.getMessage();
-            //jsonObject.addProperty("message", customMessage.getMessage());
-            // enable message key value object for JRE1.8 or later
-//            customMessage.getNewField().forEach((k, v) -> {
-//                if (v instanceof String) {
-//                    jsonObject.addProperty(k, (String) v);
-//                } else if (v instanceof Number) {
-//                    jsonObject.addProperty(k, (Number) v);
-//                } else if (v instanceof Character) {
-//                    jsonObject.addProperty(k, (Character) v);
-//                } else if (v instanceof Boolean) {
-//                    jsonObject.addProperty(k, (Boolean) v);
-//                } else {
-//                    jsonObject.addProperty(k, gson.toJson(v));
-//                }
-//            });
-        } else {
-            value = event.getMessage().getFormattedMessage();
-        }
-        return value;
+    	// get formatted Message, ignore object as message supported by JRE1.8
+        return event.getMessage().getFormattedMessage();
     }
     
     protected String getException(LogEvent event) {
@@ -148,4 +124,5 @@ public class LogXJsonLayout extends AbstractStringLayout {
         }
         return "";
     }
+    
 }
