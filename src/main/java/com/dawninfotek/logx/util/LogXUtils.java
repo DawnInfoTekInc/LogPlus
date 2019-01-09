@@ -202,36 +202,24 @@ public class LogXUtils implements LogXConstants {
 
 	}
 	
-
-	public static class JsonFields {
+	public static String getLogXFieldValue(String key) {
 		
-		private String Name;
-		private String DisplayName;
-		private Boolean Display;
+		String result = null;
 		
-		public void setName(String name) {
-			this.Name = name;
+		//first, try MDC first
+		result = MDC.get(key);
+		if(result == null) {
+			//try logX Context value
+			result = LogXContext.getContextVariable(key);
+			
+			if(result == null) {
+				//try logX properties
+				result = getLogProperty(key, null);
+			}
 		}
 		
-		public String getName() {
-			return this.Name;
-		}
+		return result;
 		
-		public void setDisplayName(String name) {
-			this.DisplayName = name;
-		}
-		
-		public String getDisplayName() {
-			return this.DisplayName;
-		}
-		
-		public void setDisplay(Boolean display) {
-			this.Display = display;
-		}
-		
-		public Boolean getDisplay() {
-			return this.Display;
-		}
 	}
-
+	
 }
