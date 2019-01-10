@@ -204,6 +204,7 @@ public class LogXFilter implements Filter {
 
 	protected void removeSysFields() {
 		MDC.remove(LogXConstants.PROCESS_ID);
+		MDC.remove("hostName");
 		MDC.remove(LogXConstants.SERVICE_NAME);
 		MDC.remove(LogXConstants.APPLICATION_NAME);
 	}
@@ -218,6 +219,9 @@ public class LogXFilter implements Filter {
 		}
 
 		MDC.put(LogXConstants.TRANSACTION_PATH, transactionPath);
+		
+		//override the default service name 
+		MDC.put(LogXConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));		
 
 		String logXHeader = httpRequest.getHeader(LogXUtils.getLogXHeaderName());
 

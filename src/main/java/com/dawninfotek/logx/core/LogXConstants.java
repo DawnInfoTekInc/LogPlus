@@ -28,6 +28,9 @@ public interface LogXConstants {
     public static final String TX_PATH_PATTERN_MATCHING="path.pattern.match";
 	public static final String CURR_CHECKPOINT = "current_checkpoint";
 	public static final String CHECKPOINT = "checkpoint";
+	
+	public static final String CHECKPOINT_DSP = "checkpointForDisplay";
+	public static final String ELAPSED_TIME = "elapsedTime";
     
     public static final String LOG_MSG_EVENT_BEGIN = "message.event.begin";
     public static final String LOG_MSG_EVENT_END = "message.event.end";    
