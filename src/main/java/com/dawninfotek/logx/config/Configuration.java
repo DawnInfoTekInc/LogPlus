@@ -201,12 +201,10 @@ public class Configuration implements Component {
 		}finally {
 			if(propFile != null) {
 				try {
-					
 					propFile.close();
 					
 				} catch (Exception ignored) {
 					ignored.printStackTrace();
-					
 				}
 			}
 		}		
@@ -229,29 +227,22 @@ public class Configuration implements Component {
 		TransactionPathMappingRule lastMatch = null;
 		
 		for(TransactionPathMappingRule rule:txRules) {
-			
 			if(lastMatch != null && lastMatch.length >= rule.length) {
 				continue;
 			}
-			
 			if(isMatch(request, rule)) {
-				
 				if(lastMatch == null || lastMatch.getLength() < rule.getLength()) {
 					//Always use the better match
 					lastMatch = rule;
 				}
 			}		
-			
 		}
-		
 		String result = null;
-		
 		if(lastMatch != null) {
 			result = lastMatch.getTxPathName();
 		}else {
 			result = request.getRequestURI().substring(request.getContextPath().length());
 		}
-		
 		return result;
 	}
 	
@@ -272,17 +263,13 @@ public class Configuration implements Component {
 					}else {
 						//more verification required
 						int c = rule.getLength() - 2;
-						
 						if(rule.getHeaderName() != null) {
-							
 							//checking header
-							
 							String hValue = request.getHeader(rule.getHeaderName());
 							if(hValue != null && hValue.equals(rule.getHeaderValue())) {
 								c--;
 							}						
 						}
-						
 						if(c == 0) {
 							result = true;
 							break;
@@ -303,7 +290,6 @@ public class Configuration implements Component {
 				}
 			}
 		}
-			
 		return result;
 	}
 	
@@ -314,11 +300,9 @@ public class Configuration implements Component {
 		if(Boolean.valueOf(LogXUtils.getLogProperty(TX_PATH_PATTERN_MATCHING, "false"))){
 			//use url pattern
 			return pathMatcher.match(urlPattern, path);
-			
 		}else {
 			//use start-with
 			return path.startsWith(urlPattern);
-			
 		}
 	}
 	
@@ -359,7 +343,6 @@ public class Configuration implements Component {
 			System.out.println("The rule under key " + ruleName + " is not in well format, please verify ...");
 			return null;
 		}
-		
 		return result;
 	}
 	
@@ -386,7 +369,6 @@ public class Configuration implements Component {
 		public void setTxPathName(String txPathName) {
 			this.txPathName = txPathName;
 		}
-		
 		public String getMethod() {
 			return method;
 		}
@@ -435,8 +417,6 @@ public class Configuration implements Component {
 			}else {
 				return s2 - s1;
 			}
-
 		}	
 	}
-
 }
