@@ -18,6 +18,7 @@ import org.apache.logging.log4j.core.impl.ThrowableProxy;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
 import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
+import com.dawninfotek.logx.core.LogXConstants;
 
 
 @Plugin(name = "LogXJsonLayout", category = "Core", elementType = "layout", printObject = true)
