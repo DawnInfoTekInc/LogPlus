@@ -23,6 +23,7 @@ import com.dawninfotek.logx.core.LogXContext;
 @Plugin(name = "LogXJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class LogXJsonLayout extends AbstractStringLayout {
 	
+	private static final long serialVersionUID = 1L;
 	public static Logger logger = LoggerFactory.getLogger(LogXJsonLayout.class);
     
     protected LogXJsonLayout(Configuration config, Charset aCharset) {
@@ -107,20 +108,16 @@ public class LogXJsonLayout extends AbstractStringLayout {
             if (exceptionsClass != null) {
                 exception += exceptionsClass;
             }
-
             if (exceptionsMessage != null) {
                 exception += exceptionsMessage;
             }
-
             if (stackTrace != null) {
                 exception += stackTrace;
             }
-            
             if(!exception.isEmpty()) {
             	return exception;
             }
         }
         return "";
     }
-    
 }

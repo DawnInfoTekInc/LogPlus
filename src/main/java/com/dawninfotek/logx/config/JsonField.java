@@ -26,9 +26,7 @@ public class JsonField implements Comparable<JsonField>{
 	 */
 	private int position = Integer.MAX_VALUE - 1;
 
-	public JsonField() {
-		
-	}
+	public JsonField() {}
 	
 	public JsonField(String name, String displayname, boolean display, String format){
 		this.name = name;
@@ -57,12 +55,9 @@ public class JsonField implements Comparable<JsonField>{
 				result = EMPT;
 			}
 		}else {
-			
 			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
 		}
-		
 		return result;
-		
 	}
 	
 	public String getDisplayValue() {
@@ -149,13 +144,11 @@ public class JsonField implements Comparable<JsonField>{
 		*/
 		String[] defs = StringUtils.substringsBetween(field, "[", "]");
 		
-		if(defs!= null && defs.length > 0) {
-			
+		if(defs != null && defs.length > 0) {
 			String name = null;
 			String value = null;
 			
 			for(String def:defs) {
-				
 				String[] nv = def.split("=");
 				name = nv[0];
 				value = nv[1];
@@ -165,7 +158,6 @@ public class JsonField implements Comparable<JsonField>{
 					if(value.equalsIgnoreCase("true")){
 						newField.setDisplay(true);
 					}
-
 				}else if(name.equals("format")) {
 					newField.setFormat(value);					
 				}else if(name.equals("position")) {
@@ -181,10 +173,8 @@ public class JsonField implements Comparable<JsonField>{
 						}
 					}
 				}		
-				
 			}			
 		}
-		
 		return newField;
 	}
 	
@@ -221,13 +211,12 @@ public class JsonField implements Comparable<JsonField>{
     	if(!jsonString.equals("{")) {      
     		jsonString = jsonString.substring(0, jsonString.length() - 2);
     	}
-    	jsonString += "}";
+    	jsonString += "}\n";
     	return jsonString;
     }
 
 	@Override
 	public int compareTo(JsonField arg0) {		
 		return this.position - arg0.getPosition(); 
-		
 	}
 }
