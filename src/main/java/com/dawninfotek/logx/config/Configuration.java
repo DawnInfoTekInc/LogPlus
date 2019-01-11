@@ -181,9 +181,15 @@ public class Configuration implements Component {
 			JsonField fieldObj = null;
 			
 			if(jsonFields != null && jsonFields.size() > 0) {
-				for(String field: jsonFields) {
-					fieldObj = JsonField.fromString(field);
+				
+				for(int i=0; i<jsonFields.size(); i++) {					
+					fieldObj = JsonField.fromString(jsonFields.get(i));
 					if(fieldObj != null) {
+						//Still want to sort the un-position by the original order
+						if(fieldObj.getPosition() == JsonField.UN_DEFINED) {
+							//set the position
+							fieldObj.setPosition(JsonField.UN_DEFINED - jsonFields.size() + i);
+						}
 						fieldsMapping.add(fieldObj);
 					}
 				}

@@ -21,10 +21,12 @@ public class JsonField implements Comparable<JsonField>{
 	private boolean display;
 	private String format;
 	private String displayValue;
+	
+	public static final int UN_DEFINED = Integer.MAX_VALUE - 1;
 	/**
 	 * default value means any position is good for this field.
 	 */
-	private int position = Integer.MAX_VALUE - 1;
+	private int position = UN_DEFINED;
 
 	public JsonField() {}
 	
@@ -152,15 +154,15 @@ public class JsonField implements Comparable<JsonField>{
 				String[] nv = def.split("=");
 				name = nv[0];
 				value = nv[1];
-				if(name.equals("name")) {
+				if(name.equals("name") || name.equals("n")) {
 					newField.setLable(value);
-				}else if(name.equals("mandatory")) {
+				}else if(name.equals("mandatory") || name.equals("m")) {
 					if(value.equalsIgnoreCase("true")){
 						newField.setDisplay(true);
 					}
-				}else if(name.equals("format")) {
+				}else if(name.equals("format") || name.equals("f")) {
 					newField.setFormat(value);					
-				}else if(name.equals("position")) {
+				}else if(name.equals("position") || name.equals("p")) {
 					if(value.equalsIgnoreCase("first")) {
 						newField.setPosition(-1);
 					}else if(value.equalsIgnoreCase("last")) {

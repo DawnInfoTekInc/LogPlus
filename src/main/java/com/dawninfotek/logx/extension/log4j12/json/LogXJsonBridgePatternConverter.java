@@ -25,7 +25,8 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 			"LEVEL:Level",
 			"MESSAGE:Message",
 			"EXCEPTION:Throwable",
-			"METHOD:Method"
+			"METHOD:Method",
+			"LINE:Line"
 	};
 
 	/**
