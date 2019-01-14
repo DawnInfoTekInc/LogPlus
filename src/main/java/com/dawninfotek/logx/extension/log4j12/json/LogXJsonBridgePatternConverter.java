@@ -18,6 +18,8 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 	
 	private Map<String, LoggingEventPatternConverter> logxConverters = new HashMap<String, LoggingEventPatternConverter>();
 	
+	public static final String C = ",";
+	
 	public static final String[] LOGX_RESERVED_FIELD_NAMES = {
 			"TIMESTAMP:Date",
 			"THREAD:Thread",
@@ -87,7 +89,52 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 	 * @param e
 	 *            event to format, may not be null.
 	 */
-	public void format(final StringBuffer sbuf, final LoggingEvent e) {
+	public void format(final StringBuffer sbuf, final LoggingEvent e) {		
+		
+		LoggingEventPatternConverter converter = null;
+		StringBuffer sb = new StringBuffer();
+		String value = null;
+		String dsp = null;
+		boolean begin = true;
+		
+		sbuf.append("{");
+		
+		for(JsonField field:LogXContext.configuration().getJsonFields()) {
+			
+			converter = logxConverters.get(field.getName());
+			
+			if(converter != null){
+				//reserved field
+				//clear the buffer
+				sb.setLength(0);
+				converter.format(e, sb);
+				value = sb.toString();
+				
+			}else {
+				//not the reserved field
+				//get from logX field
+				value = LogXUtils.getLogXFieldValue(field.getName(), false);
+			}
+			
+			dsp = field.toDisplayText(value);
+			
+			if(StringUtils.isEmpty(dsp)) {
+				continue;
+			}
+			
+			if(!begin) {
+				sbuf.append(C);				
+			}else {
+				begin = false;
+			}
+			
+			sbuf.append(dsp);
+			
+		}
+		
+		sbuf.append("}\n");	
+		
+		/**
 		
 		JsonField[] logFields = new JsonField[LogXContext.configuration().getJsonFields().size()];
 		
@@ -135,7 +182,9 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 			
 		}
 		
-		sbuf.append("}\n");		
+		sbuf.append("}\n");	
+		
+		*/
 
 	}
 

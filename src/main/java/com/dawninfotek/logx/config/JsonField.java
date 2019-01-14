@@ -46,7 +46,7 @@ public class JsonField implements Comparable<JsonField>{
 	/**
 	 * Return the String in json format
 	 */
-	public String toDisplayText() {
+	public String toDisplayText(String displayValue) {
 		
 		String result = null;
 				
@@ -57,9 +57,31 @@ public class JsonField implements Comparable<JsonField>{
 				result = EMPT;
 			}
 		}else {
-			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(displayValue).append(DQ).toString();			
+			
+			String toDisplay = null;
+			if(displayValue != null && format != null && format.startsWith(X) && StringUtils.isNumeric(format.substring(1))){			
+				int l = Integer.valueOf(format.substring(1)).intValue();
+				
+				if(displayValue.length() > l) {
+					toDisplay = displayValue.substring(0, l);
+				}else {
+					toDisplay = displayValue;
+				}
+			}else {
+				toDisplay = displayValue;
+			}
+
+			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(toDisplay).append(DQ).toString();			
 		}
 		return result;
+	}
+	
+	/**
+	 * Return the String in json format
+	 */
+	public String toDisplayText() {
+		
+		return toDisplayText(this.displayValue);
 	}
 	
 	public String getDisplayValue() {

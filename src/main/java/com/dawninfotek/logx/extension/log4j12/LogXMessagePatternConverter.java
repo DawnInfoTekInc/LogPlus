@@ -56,7 +56,7 @@ public final class LogXMessagePatternConverter extends LoggingEventPatternConver
 			//normal
 			msg = msg.replaceAll("\\t", "").replaceAll("\\r\n", "").replaceAll("\\n", "    ");
 		}
-		
+
 		toAppendTo.append(msg);
 	}
 
