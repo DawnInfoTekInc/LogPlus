@@ -307,8 +307,6 @@ public class LogXUtils implements LogXConstants {
 	 */
 	public static boolean resolveFieldValueRequired(LogXField field, String logLevel) {
 		
-		System.out.println("LogXField:" + field.getName());
-		
 		List<String> levels = field.getForLogLevels();	
 		
 		return levels != null && levels.contains(logLevel);
