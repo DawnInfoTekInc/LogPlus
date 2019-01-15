@@ -10,6 +10,7 @@ package com.dawninfotek.logx.util;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.resolver.Resolver;
@@ -221,25 +223,95 @@ public class LogXUtils implements LogXConstants {
 
 	}
 	
-	public static String getLogXFieldValue(String key, boolean contextScope) {
+	public static String getLogXFieldValue(String fieldName, boolean contextScope) {
 		
 		String result = null;
 		
 		//first, try MDC first
 		if(!contextScope) {
-			result = MDC.get(key);
+			result = MDC.get(fieldName);
 		}
 		if(result == null) {
 			//try logX Context value
-			result = LogXContext.getContextVariable(key);
+			result = LogXContext.getContextVariable(fieldName);
 			
 			if(result == null) {
 				//try logX properties
-				result = getLogProperty(key, null);
+				result = getLogProperty(fieldName, null);
 			}
 		}
 		
 		return result;
+		
+	}
+	
+	/**
+	 * Determine if logX system need to resolve the value for given field 
+	 * @param fieldName
+	 * @param logLevel
+	 * @param loggerPackage
+	 * @return
+	 */
+	public static String resolveFieldValue(LogXField field, String loggerPackage, String sourceText) {
+		
+		String result = null;
+		
+		String matchingPackage = null;
+		
+		if(field.getForPackages()!= null) {
+			
+			for(String p: field.getForPackages()) {
+				
+				if(loggerPackage.equals(p) || loggerPackage.startsWith(p + ".")){
+					//match
+					matchingPackage = p;
+					break;
+				}
+				
+			}
+			
+		}
+		
+		if(matchingPackage != null) {
+			
+			Map<String, Object> ps = new HashMap<String, Object>();
+			
+			try {
+			
+				Resolver resolver = LogXContext.resolver(field.getName());
+				
+				ps.put("fieldName", field.getName());
+			
+				ps.put("package", matchingPackage);
+			
+				ps.put("sourceText", sourceText);
+			
+				result = resolver.resolveValue(null, ps);
+			
+			}catch (Exception e) {
+				utilLogger.info("Fail to resolve value for:" + field.getName() + " with parameters " + ps , e);
+			}
+			
+		}
+		
+		return result;
+		
+	}
+	
+	/**
+	 * Resolve the field value based on the 
+	 * @param fieldName
+	 * @param logLevel
+	 * @param loggerPackage
+	 * @return
+	 */
+	public static boolean resolveFieldValueRequired(LogXField field, String logLevel) {
+		
+		System.out.println("LogXField:" + field.getName());
+		
+		List<String> levels = field.getForLogLevels();	
+		
+		return levels != null && levels.contains(logLevel);
 		
 	}
 	

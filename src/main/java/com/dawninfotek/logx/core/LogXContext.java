@@ -3,17 +3,18 @@ package com.dawninfotek.logx.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.dawninfotek.logx.checkpoint.CheckPointService;
 import com.dawninfotek.logx.config.Configuration;
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.event.EventService;
 import com.dawninfotek.logx.resolver.Resolver;
 import com.dawninfotek.logx.security.HashService;
 import com.dawninfotek.logx.security.MaskService;
 import com.dawninfotek.logx.util.LogXUtils;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is the Context of the Log Plus Framework, all implementation instances will be help in the instance of Context.
@@ -37,6 +38,8 @@ public class LogXContext {
 	private Map<String, Component> components;
 	
 	private Map<String, String> contextParameters = new HashMap<String, String>();
+	
+	private Map<String, LogXField> logXFields = new HashMap<String, LogXField>();
 	
 	private static boolean initialized = false;
 	
@@ -77,14 +80,21 @@ public class LogXContext {
 			
 			}
 			
+			//Create the logXFields	
+			
+			for(String field:LogXUtils.getLogXFieldNames()) {				
+				instance.logXFields.put(field, new LogXField(field));				
+			}
+			
 			//create LogXContextVariables
-			String scope = null;
+			
+			LogXField f = null;
 			
 			for(String logXfield:LogXUtils.getLogXFieldNames()) {
 				
-				scope = LogXUtils.getLogProperty(logXfield + ".scope", null);
+				f = instance.logXFields.get(logXfield);
 				
-				if(scope != null && scope.equals("CONTEXT")) {
+				if(f != null && f.getScope() == LogXField.SCOPE_CONTEXT) {
 					//this is a context variable
 					instance.contextParameters.put(logXfield, LogXUtils.resolveFieldValue(logXfield, null));
 					System.out.println("Context Variable:" + logXfield + " was created ...");
@@ -178,4 +188,12 @@ public class LogXContext {
 		return instance.contextParameters.get(key);
 	}
 
+	/**
+	 * Answer the context variable value under given key
+	 * @param key
+	 * @return
+	 */
+	public static final LogXField getLogXField(String fieldName) {
+		return instance.logXFields.get(fieldName);
+	}
 }

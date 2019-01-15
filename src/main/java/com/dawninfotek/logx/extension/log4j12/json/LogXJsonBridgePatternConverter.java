@@ -10,6 +10,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.extension.log4j12.LogXBridgePatternConverter;
 import com.dawninfotek.logx.util.LogXUtils;
@@ -89,31 +90,43 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 	 * @param e
 	 *            event to format, may not be null.
 	 */
-	public void format(final StringBuffer sbuf, final LoggingEvent e) {		
-		
-		LoggingEventPatternConverter converter = null;
-		StringBuffer sb = new StringBuffer();
+	public void format(final StringBuffer sbuf, final LoggingEvent event) {			
+
 		String value = null;
 		String dsp = null;
 		boolean begin = true;
+		
+		//resolve all reserved values
+		Map<String, String> rsrd = resolveReservedValues(event);
 		
 		sbuf.append("{");
 		
 		for(JsonField field:LogXContext.configuration().getJsonFields()) {
 			
-			converter = logxConverters.get(field.getName());
-			
-			if(converter != null){
-				//reserved field
-				//clear the buffer
-				sb.setLength(0);
-				converter.format(e, sb);
-				value = sb.toString();
+			if(rsrd.keySet().contains(field.getName())){
 				
-			}else {
-				//not the reserved field
+				value = rsrd.get(field.getName());
+				
+			}else {			
+				//not a reserved field
 				//get from logX field
-				value = LogXUtils.getLogXFieldValue(field.getName(), false);
+				LogXField logXfield = LogXContext.getLogXField(field.getName());
+				if(logXfield != null && logXfield.getScope() == LogXField.SCOPE_LINE) {					
+					//this is a log line scope field, generate value here					
+					if(LogXUtils.resolveFieldValueRequired(logXfield, rsrd.get("LEVEL"))) {
+						//need to resolve the value for this log level for this field
+						value = LogXUtils.resolveFieldValue(logXfield, rsrd.get("LOGGER"), rsrd.get("MESSAGE"));
+						if(StringUtils.isEmpty(value)) {
+							//try resolve from exception body
+							value = LogXUtils.resolveFieldValue(logXfield, rsrd.get("LOGGER"), rsrd.get("EXCEPTION"));
+						}
+					}else {
+						value = null;
+					}
+					
+				}else {
+					value = LogXUtils.getLogXFieldValue(field.getName(), false);
+				}
 			}
 			
 			dsp = field.toDisplayText(value);
@@ -133,60 +146,23 @@ public final class LogXJsonBridgePatternConverter extends LogXBridgePatternConve
 		}
 		
 		sbuf.append("}\n");	
-		
-		/**
-		
-		JsonField[] logFields = new JsonField[LogXContext.configuration().getJsonFields().size()];
-		
-		JsonField field = null;
-		LoggingEventPatternConverter converter = null;
-		StringBuffer sb = new StringBuffer();
-		
-		for(int i=0; i<logFields.length; i++) {
-			
-			field = LogXContext.configuration().getJsonFields().get(i);
-			converter = logxConverters.get(field.getName()); 
-			
-			if(converter != null){
-				//reserved field
-				//clear the buffer
-				sb.setLength(0);
-				converter.format(e, sb);				
-				logFields[i] = field.cloneFromTemplate(sb.toString());
-				
-			}else {
-				//not the reserved field
-				//get from logX field
-				logFields[i] = field.cloneFromTemplate(LogXUtils.getLogXFieldValue(field.getName(), false));
-			}
-			
-		}		
-		
-		sbuf.append("{");
-		
-		boolean begin = true;
-		String dsp = null;
-		
-		for(JsonField logfield:logFields) {
-			
-			dsp = logfield.toDisplayText();
-			if(StringUtils.isEmpty(dsp)) {
-				continue;
-			}
-			if(!begin) {
-				sbuf.append(",");				
-			}else {
-				begin = false;
-			}
-			sbuf.append(dsp);
-			
-		}
-		
-		sbuf.append("}\n");	
-		
-		*/
 
 	}
-
+	
+	private Map<String, String> resolveReservedValues(LoggingEvent event){
+		
+		Map<String, String> result = new HashMap<String, String>(logxConverters.size());
+		
+		StringBuffer sb = new StringBuffer();
+		
+		for(String converter:logxConverters.keySet()) {
+			
+			logxConverters.get(converter).format(event, sb);
+			result.put(converter, sb.toString());
+			sb.setLength(0);
+		}
+		
+		return result;
+	}
 
 }
