@@ -11,16 +11,16 @@ import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.pattern.PatternParser;
 import org.apache.log4j.spi.LoggingEvent;
 
-public final class LogXBridgePatternConverter extends org.apache.log4j.helpers.PatternConverter {
+public class LogXBridgePatternConverter extends org.apache.log4j.helpers.PatternConverter {
 	/**
 	 * Pattern converters.
 	 */
-	private LoggingEventPatternConverter[] patternConverters;
+	protected LoggingEventPatternConverter[] patternConverters;
 
 	/**
 	 * Field widths and alignment corresponding to pattern converters.
 	 */
-	private FormattingInfo[] patternFields;
+	protected FormattingInfo[] patternFields;
 
 	/**
 	 * Does pattern process exceptions.
@@ -39,7 +39,7 @@ public final class LogXBridgePatternConverter extends org.apache.log4j.helpers.P
 
 		List converters = new ArrayList();
 		List fields = new ArrayList();
-		//Original inlementation
+		//Original implementation
 		//Map converterRegistry = null;
 		
 		//For changing the Converter implementation of 'throwable'
@@ -74,7 +74,8 @@ public final class LogXBridgePatternConverter extends org.apache.log4j.helpers.P
 			}
 
 			i++;
-		}
+		}	
+		
 	}
 
 	/**
@@ -98,12 +99,17 @@ public final class LogXBridgePatternConverter extends org.apache.log4j.helpers.P
 	 * @param e
 	 *            event to format, may not be null.
 	 */
-	public void format(final StringBuffer sbuf, final LoggingEvent e) {
+	public void format(final StringBuffer sbuf, final LoggingEvent e) {	
+
 		for (int i = 0; i < patternConverters.length; i++) {
 			int startField = sbuf.length();
+			
+			System.out.println(patternConverters[i]);
+			
 			patternConverters[i].format(e, sbuf);
 			patternFields[i].format(startField, sbuf);
-		}
+		}		
+		
 	}
 
 	/**

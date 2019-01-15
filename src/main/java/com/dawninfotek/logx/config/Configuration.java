@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,19 +14,20 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logx.core.Component;
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
+import com.dawninfotek.logx.config.JsonField;
 
 public class Configuration implements Component {
 	
-	final static Logger logger = LoggerFactory.getLogger(Configuration.class);
+	//final static Logger logger = LoggerFactory.getLogger(Configuration.class);
 	
 	public static final String LOGX_CONFIG_FILE_NAME = "logx-default.properties";
+	
+	public static final String logxConfigFile = "CLASS_PATH=logx.properties";
 	
 	private Map<String, String> propertyMap;
 	
@@ -34,23 +36,26 @@ public class Configuration implements Component {
 	public Map<String, String> getPropertyMap() {
 		return propertyMap;
 	}
-
+	
 	private List<TransactionPathMappingRule> txRules;
 	
-	private List<JsonFields> fieldsMapping;
+	private List<JsonField> fieldsMapping;
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
 		Properties override = new Properties();	
 		
 		if (configFile == null) {
-			logger.warn("logx configuration is not provided, use default only ...");			
+			//before logX is initialized, prevents to use logger 
+			//logger.warn("logx configuration is not provided, use default only ...");
+			System.out.println("logx configuration is not provided, use default only ...");
 		} else {
 
 			InputStream propFile = null;
 			try {
-				logger.info("property file: " + configFile);
-
+				//logger.info("property file: " + configFile);
+				System.out.println("property file: " + configFile);
+				
 				if (configFile.contains("CLASS_PATH")) {
 					String[] ns = configFile.split("=");
 					if (ns.length <= 1) {
@@ -67,24 +72,23 @@ public class Configuration implements Component {
 					propFile = new FileInputStream(ns[1]);
 				}
 				
-				/**
-				if (propFile == null) {
-					throw new FileNotFoundException("file path setting error");
-				}
-				*/
 				override.load(propFile);
+				
 			} catch (FileNotFoundException fnfe) {
 				//only say warning here
-				logger.warn("LogX properties not found, ignored:" + fnfe.getMessage());
+				//logger.warn("LogX properties not found, ignored:" + fnfe.getMessage());
+				System.out.println("LogX properties not found, ignored:" + fnfe.getMessage());
 			} catch (Exception e) {
-				logger.error("fail to load LogX properties.", e);
+				//logger.error("fail to load LogX properties.", e);
+				System.out.println("Fail to load LogX properties.");
+				e.printStackTrace();
 			} finally {
 				try {
 					if(propFile != null) {
 						propFile.close();
 					}
 				} catch (Exception ignored) {
-					logger.error("Fail to close ImputStream", ignored);
+					ignored.printStackTrace();
 				}
 			}
 
@@ -94,7 +98,7 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonFields> fieldsMapping) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonField> fieldsMapping) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
@@ -109,7 +113,7 @@ public class Configuration implements Component {
 		return getTransactionPathInternal(request);
 	}
 	
-	public List<JsonFields> getJsonFields(){
+	public List<JsonField> getJsonFields(){
 		return this.fieldsMapping;
 	}
 	
@@ -149,7 +153,7 @@ public class Configuration implements Component {
 			
 			TransactionPathMappingRule rule = null;
 			
-			String[] jsonFields = null;
+			List<String> jsonFields = new ArrayList<String>();
 			
 			for(String name:pm.keySet()) {
 				
@@ -160,10 +164,9 @@ public class Configuration implements Component {
 						rules.add(rule);
 					}
 				}
-				if(name.equals(LogXConstants.JSON_LAYOUT_INCLUDES)) {
-					jsonFields = pm.get(name).split(",");
+				if(name.equals(LogXConstants.JSON_LAYOUT_DEFAULT) || name.equals(LogXConstants.JSON_LAYOUT_CUSTOM)) {
+					jsonFields.addAll(Arrays.asList(pm.get(name).split(",")));
 				}
-				
 			}
 			
 			if(!rules.isEmpty()) {
@@ -171,64 +174,53 @@ public class Configuration implements Component {
 				Collections.sort(rules);
 			}
 			
-			logger.info("Logx system was inittialized successefully, {} of properties were loaded, {} of TransactionPath Mapping Rules were creared ...", pm.size(), rules.size());
+			System.out.println("Logx system was inittialized successefully, " + pm.size() + " of properties were loaded, " + rules.size() + " of TransactionPath Mapping Rules were creared ...");
 			
-			List<JsonFields> fieldsMapping = new ArrayList<JsonFields>();
+			List<JsonField> fieldsMapping = new ArrayList<JsonField>();
 			
-			JsonFields fieldObj = null;
+			JsonField fieldObj = null;
 			
-			if(jsonFields != null && jsonFields.length > 0) {
-				for(String field: jsonFields) {
-					fieldObj = createField(field);
+			if(jsonFields != null && jsonFields.size() > 0) {
+				
+				for(int i=0; i<jsonFields.size(); i++) {					
+					fieldObj = JsonField.fromString(jsonFields.get(i));
 					if(fieldObj != null) {
+						//Still want to sort the un-position by the original order
+						if(fieldObj.getPosition() == JsonField.UN_DEFINED) {
+							//set the position
+							fieldObj.setPosition(JsonField.UN_DEFINED - jsonFields.size() + i);
+						}
 						fieldsMapping.add(fieldObj);
 					}
 				}
 			}
+			
+			//Sort the List
+			sortJsonFields(fieldsMapping);			
 			//finally, create the Configuration instance and return to caller
 			return new Configuration(pm, rules, fieldsMapping);			
 			
 		}catch (Exception e) {
-			logger.error("LogX system failed to load config from files", e);
+			System.out.println("LogX system failed to load config from files");
+			e.printStackTrace();
 			throw new RuntimeException("LogX system failed to load config from files", e);
 		}finally {
 			if(propFile != null) {
 				try {
-					
 					propFile.close();
 					
 				} catch (Exception ignored) {
-					logger.error("Fail to close file ...", ignored);
-					
+					ignored.printStackTrace();
 				}
 			}
 		}		
 			
 	}
 	
-	private static JsonFields createField(String field){
-		JsonFields newField = new JsonFields();
-		if(field.indexOf("[") < 0) {
-			newField.setDisplay(true);
-			newField.setName(field);
-			newField.setDisplayName(field);
-		}else {
-			String key = field.substring(0, field.indexOf("["));
-			String[] custom = field.substring(field.indexOf("[") + 1, field.indexOf("]")).split("/");
-			if(custom[0].isEmpty() || custom[0].equals("Y") || custom[0].equals("T")) {
-				newField.setDisplay(true);
-				newField.setName(key);
-				newField.setDisplayName(custom[1]);
-			}else if(custom[0].equals("N") || custom[0].equals("F")) {
-				newField.setDisplay(false);
-				newField.setName(key);
-				newField.setDisplayName(key);
-			}else {
-				logger.error("unrecognized symbol " + custom[0]);
-				return null;
-			}
+	private static void sortJsonFields(List<JsonField> jsonFields) {
+		if(!jsonFields.isEmpty()) {
+			Collections.sort(jsonFields);
 		}
-		return newField;
 	}
 	
 	private String getConfigurationValueInternal(String key) {
@@ -241,29 +233,22 @@ public class Configuration implements Component {
 		TransactionPathMappingRule lastMatch = null;
 		
 		for(TransactionPathMappingRule rule:txRules) {
-			
 			if(lastMatch != null && lastMatch.length >= rule.length) {
 				continue;
 			}
-			
 			if(isMatch(request, rule)) {
-				
 				if(lastMatch == null || lastMatch.getLength() < rule.getLength()) {
 					//Always use the better match
 					lastMatch = rule;
 				}
 			}		
-			
 		}
-		
 		String result = null;
-		
 		if(lastMatch != null) {
 			result = lastMatch.getTxPathName();
 		}else {
 			result = request.getRequestURI().substring(request.getContextPath().length());
 		}
-		
 		return result;
 	}
 	
@@ -284,17 +269,13 @@ public class Configuration implements Component {
 					}else {
 						//more verification required
 						int c = rule.getLength() - 2;
-						
 						if(rule.getHeaderName() != null) {
-							
 							//checking header
-							
 							String hValue = request.getHeader(rule.getHeaderName());
 							if(hValue != null && hValue.equals(rule.getHeaderValue())) {
 								c--;
 							}						
 						}
-						
 						if(c == 0) {
 							result = true;
 							break;
@@ -315,7 +296,6 @@ public class Configuration implements Component {
 				}
 			}
 		}
-			
 		return result;
 	}
 	
@@ -326,11 +306,9 @@ public class Configuration implements Component {
 		if(Boolean.valueOf(LogXUtils.getLogProperty(TX_PATH_PATTERN_MATCHING, "false"))){
 			//use url pattern
 			return pathMatcher.match(urlPattern, path);
-			
 		}else {
 			//use start-with
 			return path.startsWith(urlPattern);
-			
 		}
 	}
 	
@@ -368,10 +346,9 @@ public class Configuration implements Component {
 				}
 			}
 		} else {
-			logger.warn("The rule under key {} is not in well format, please verify ...", ruleName);
+			System.out.println("The rule under key " + ruleName + " is not in well format, please verify ...");
 			return null;
 		}
-		
 		return result;
 	}
 	
@@ -398,7 +375,6 @@ public class Configuration implements Component {
 		public void setTxPathName(String txPathName) {
 			this.txPathName = txPathName;
 		}
-		
 		public String getMethod() {
 			return method;
 		}
@@ -447,8 +423,6 @@ public class Configuration implements Component {
 			}else {
 				return s2 - s1;
 			}
-
 		}	
 	}
-
 }

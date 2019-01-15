@@ -11,6 +11,8 @@ import com.dawninfotek.logx.util.LogXUtils;
 public class CheckPointServiceBaseImpl implements CheckPointService {
 	
 	public static final Logger logger = LoggerFactory.getLogger(CheckPointServiceBaseImpl.class);
+	
+	private static final boolean logCheckPointEvent = Boolean.valueOf(LogXUtils.getLogProperty("log.checkpoint.event", "false"));
 
 	@Override
 	public void startCheckPoint(String checkName) {
@@ -27,6 +29,9 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		
 		MDC.put(LogXConstants.CURR_CHECKPOINT, checkPointName);
 		MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
+		if(logCheckPointEvent) {			
+			logger.info("CheckPoint as name '" + checkPointName + "' started.");
+		}
 	}
 
 	@Override
@@ -49,11 +54,22 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			p = transPath;
 		} else if (path != null) {
 			p = path;
-		}
+		}	
+
 
 		String message = String.format(LogXUtils.getLogProperty(LogXConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
-
+		
+		MDC.put(LogXConstants.CHECKPOINT_DSP, checkName);
+		MDC.put(LogXConstants.ELAPSED_TIME, String.valueOf(executionTime));		
+		
 		LogXUtils.logTextMessage(aLogger, message);
+		
+		MDC.remove(LogXConstants.CHECKPOINT_DSP);
+		MDC.remove(LogXConstants.ELAPSED_TIME);		
+		
+		if(logCheckPointEvent) {
+			logger.info("CheckPoint as name '" + checkPointName + "' ended.");
+		}
 		
 		if(StringUtils.isEmpty(checkPointName) || checkPointName.indexOf("::") < 0) {			
 			checkPointName = "";			

@@ -6,7 +6,7 @@
 
   <groupId>com.dawninfotek</groupId>
   <artifactId>LogPlus</artifactId>
-  <version>1.7.1</version>
+  <version>1.7.2</version>
 
   <name>logx</name>
   <url>http://www.dawninfotek.com</url>
@@ -33,6 +33,11 @@
       <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
+	<dependency>
+    	<groupId>org.apache.logging.log4j</groupId>
+    	<artifactId>log4j-core</artifactId>
+    	<version>2.3</version>
+	</dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

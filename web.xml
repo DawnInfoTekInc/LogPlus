@@ -4,7 +4,7 @@
 
     <context-param>
         <param-name>logx-config-file</param-name>
-        <param-value>CLASS_PATH=logx-default.properties</param-value>
+        <param-value>CLASS_PATH=logx.properties</param-value>
     </context-param>
     <listener>
         <listener-class>com.dawninfotek.logx.core.LogXWebContextListener</listener-class>

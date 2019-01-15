@@ -9,10 +9,6 @@ package com.dawninfotek.logx.filter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -30,7 +26,6 @@ import org.slf4j.MDC;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
-import com.dawninfotek.logx.resolver.Resolver;
 import com.dawninfotek.logx.util.AntPathMatcher;
 import com.dawninfotek.logx.util.LogXUtils;
 
@@ -50,7 +45,7 @@ public class LogXFilter implements Filter {
 
 	protected String[] fieldNmaes;
 	protected String[] logxHeaders;
-	protected Set<String> maskNames;
+	
 	/**
 	 * If annotation is used, the url mapping will be /*, this mapping can be
 	 * overridden by the definitions in web.xml or the configuration values in the
@@ -66,14 +61,6 @@ public class LogXFilter implements Filter {
 
 		this.logxHeaders = LogXUtils.getLogXHeaderInclues();
 		this.fieldNmaes = LogXUtils.getLogXFieldNames();
-		String[] hs = LogXUtils.getLogProperties(LogXConstants.MASK_KEYWORD, null);
-		maskNames = new HashSet<String>();
-		if (hs != null) {
-			for (String hashName : hs) {
-				maskNames.add(hashName);
-			}
-		}
-
 		urlMappingsIncludes = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS_INCLUDES, null);
 		urlMappingsExcludes = LogXUtils.getLogProperties(LogXConstants.URL_MAPPINGS_EXCLUDES, null);
 		if (urlMappingsIncludes != null || urlMappingsExcludes != null) {
@@ -181,12 +168,8 @@ public class LogXFilter implements Filter {
 			key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
 
 			// need to be added
-			if (MDC.get(key) == null) {
-				String value = LogXUtils.getLogProperty(propertyKey + ".value", "");
-
-				String fieldValue = resolveFieldValue(key, value, httpRequest);
-
-				MDC.put(key, fieldValue);
+			if (MDC.get(key) == null) {	
+				MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));
 
 			}
 		}
@@ -206,69 +189,22 @@ public class LogXFilter implements Filter {
 		for (String propertyKey : this.fieldNmaes) {
 
 			String key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
-			String value = LogXUtils.getLogProperty(propertyKey + ".value", "");
-
-			String fieldValue = resolveFieldValue(key, value, httpRequest);
-
-			MDC.put(key, fieldValue);
+			MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));
 		}
 	}
 
-	private String resolveFieldValue(String key, String values, HttpServletRequest httpRequest) {
 
-		String fieldValue = null;
-
-		if (StringUtils.isEmpty(values)) {
-			fieldValue = "";
-			logger.warn("value must not be empty, keyword: " + key + " value: " + values);
-		} else {
-
-			for (String value : values.split(",")) {
-
-				String[] p = value.split("\\.", 2);
-				Resolver resolver = LogXContext.resolver(p[0]);
-
-				if (resolver != null) {
-
-					Map<String, Object> parameters = null;
-					if (p.length > 1) {
-						parameters = new HashMap<String, Object>();
-						parameters.put(Resolver.PARAMETERS, p[1]);
-					}
-					fieldValue = resolver.resolveValue(httpRequest, parameters);
-				} else {
-					logger.error("unknown property keyword: " + key + " value: " + value);
-				}
-				
-				if(StringUtils.isNotEmpty(fieldValue)) {
-					break;
-				}
-
-			}
-		}
-
-		// No null value to be returned
-		if (fieldValue == null) {
-			fieldValue = "";
-		}
-
-		// see if hash the value is required
-		if (this.maskNames.contains(key) && !fieldValue.isEmpty()) {
-			fieldValue = LogXContext.hashService().hash(fieldValue, null);
-		}
-
-		return fieldValue;
-
-	}
 
 	protected void prepareSysFields() {
 		MDC.put(LogXConstants.PROCESS_ID, processId);
+		MDC.put("hostName", LogXUtils.getLogXFieldValue("hostName", true));
 		MDC.put(LogXConstants.SERVICE_NAME, LogXUtils.getLogProperty(LogXConstants.SERVICE_NAME, ""));
 		MDC.put(LogXConstants.APPLICATION_NAME, LogXUtils.getLogProperty(LogXConstants.APPLICATION_NAME, ""));
 	}
 
 	protected void removeSysFields() {
 		MDC.remove(LogXConstants.PROCESS_ID);
+		MDC.remove("hostName");
 		MDC.remove(LogXConstants.SERVICE_NAME);
 		MDC.remove(LogXConstants.APPLICATION_NAME);
 	}
@@ -283,6 +219,9 @@ public class LogXFilter implements Filter {
 		}
 
 		MDC.put(LogXConstants.TRANSACTION_PATH, transactionPath);
+		
+		//override the default service name 
+		MDC.put(LogXConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));		
 
 		String logXHeader = httpRequest.getHeader(LogXUtils.getLogXHeaderName());
 

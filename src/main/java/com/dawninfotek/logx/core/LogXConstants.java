@@ -6,7 +6,8 @@ public interface LogXConstants {
     public static final String FIELDS_NAME = "logx.fields";
 	public static final String HEADER_INCLUDES = "logx.header.includes";
 	public static final String MASK_KEYWORD = "logx.value.hash";
-	public static final String JSON_LAYOUT_INCLUDES = "logx.custom.json.includes";
+	public static final String JSON_LAYOUT_DEFAULT = "logx.json.fields.default";
+	public static final String JSON_LAYOUT_CUSTOM = "logx.json.fields.custom";
 	public static final String REQUEST_HEADER = "REQUEST_HEADER";
 	public static final String REQUST_PARAMETER = "REQUST_PARAMETER";
 	public static final String SESSION_ID = "SESSION_ID";
@@ -27,6 +28,9 @@ public interface LogXConstants {
     public static final String TX_PATH_PATTERN_MATCHING="path.pattern.match";
 	public static final String CURR_CHECKPOINT = "current_checkpoint";
 	public static final String CHECKPOINT = "checkpoint";
+	
+	public static final String CHECKPOINT_DSP = "checkpointForDisplay";
+	public static final String ELAPSED_TIME = "elapsedTime";
     
     public static final String LOG_MSG_EVENT_BEGIN = "message.event.begin";
     public static final String LOG_MSG_EVENT_END = "message.event.end";    

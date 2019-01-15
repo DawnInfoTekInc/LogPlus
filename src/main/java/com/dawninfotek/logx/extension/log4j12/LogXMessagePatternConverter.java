@@ -3,12 +3,17 @@ package com.dawninfotek.logx.extension.log4j12;
 import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
 
+import com.dawninfotek.logx.util.LogXUtils;
+
 /**
  * Return the event's rendered message in a StringBuffer.
  *
- * @author Ceki G&uuml;lc&uuml;
+ * @author John Li;
  */
 public final class LogXMessagePatternConverter extends LoggingEventPatternConverter {
+	
+	
+	private  Boolean VERACODE_REQUIRED = null;
 	/**
 	 * Singleton.
 	 */
@@ -37,11 +42,21 @@ public final class LogXMessagePatternConverter extends LoggingEventPatternConver
 	 */
 	public void format(final LoggingEvent event, final StringBuffer toAppendTo) {
 		
+		if(VERACODE_REQUIRED == null) {
+			VERACODE_REQUIRED = Boolean.valueOf(LogXUtils.getLogProperty("veracode.scan.required", "false"));
+		}
+		
 		String msg = event.getRenderedMessage();
 		
 		//remove all '\n' '\' in the message String
-		msg = msg.replaceAll("\\t", "").replaceAll("\\r\n", "").replaceAll("\\n", "    ");
-		
+		if(VERACODE_REQUIRED) {			
+			//for applications need to pass the Veracode scan
+			msg = msg.replaceAll("\\t", "").replaceAll("\\r\n", "").replaceAll("\\n", "    ").replaceAll("\\r|%0d|%0D", "    ");
+		}else {
+			//normal
+			msg = msg.replaceAll("\\t", "").replaceAll("\\r\n", "").replaceAll("\\n", "    ");
+		}
+
 		toAppendTo.append(msg);
 	}
 
