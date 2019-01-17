@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logx.checkpoint.CheckPointService;
 import com.dawninfotek.logx.config.Configuration;
@@ -24,7 +22,7 @@ import com.dawninfotek.logx.util.LogXUtils;
  */
 public class LogXContext {
 	
-	public static Logger logger = LoggerFactory.getLogger(LogXContext.class);
+	//public static Logger logger = LoggerFactory.getLogger(LogXContext.class);
 	
 	private LogXContext() {
 		super();
@@ -69,12 +67,13 @@ public class LogXContext {
 						Component c = getComponent(LogXConstants.RESOLVER_PREFIX, name);
 						if(c != null) {
 							instance.components.put(name, c);
-							if(logger.isDebugEnabled()) {
-								logger.debug("Resolver:" + c + " is created under name:" + name);
-							}
+							
+							System.out.println("Resolver:" + c + " is created under name:" + name);
+							
 						}
 					}catch (Exception e) {
-						logger.error("Fail to init Resolver ...", e);
+						System.out.println("Fail to init Resolver ..." + e.getMessage());
+						e.printStackTrace();
 					}
 				}		
 			
@@ -169,12 +168,13 @@ public class LogXContext {
 		Component result = null;
 		
 		try {
-			
-			logger.info("Creating instance for " + componentName + ", using inpl class:" + impl);
+			//use System logger since this method is called during the Logger initialized.
+			System.out.println("Creating instance for " + componentName + ", using inpl class:" + impl);
 			result = (Component) Class.forName(impl).newInstance();
 			
 		}catch (Exception e) {
-			logger.error("Fail to create instance for:" + componentName + ", impl class is:" + impl, e);
+			System.out.println("Fail to create instance for:" + componentName + ", impl class is:" + impl + "::" + e.getMessage());
+			e.printStackTrace();
 		}
 		return result;
 	}
