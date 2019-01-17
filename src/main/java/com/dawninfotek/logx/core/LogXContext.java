@@ -22,6 +22,7 @@ import com.dawninfotek.logx.util.LogXUtils;
  */
 public class LogXContext {
 	
+	//Use System logger since the methods are called during the Logger initialized.
 	//public static Logger logger = LoggerFactory.getLogger(LogXContext.class);
 	
 	private LogXContext() {
@@ -168,7 +169,7 @@ public class LogXContext {
 		Component result = null;
 		
 		try {
-			//use System logger since this method is called during the Logger initialized.
+			
 			System.out.println("Creating instance for " + componentName + ", using inpl class:" + impl);
 			result = (Component) Class.forName(impl).newInstance();
 			
