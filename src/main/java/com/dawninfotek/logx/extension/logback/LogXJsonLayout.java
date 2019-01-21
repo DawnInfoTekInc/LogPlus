@@ -1,5 +1,6 @@
 package com.dawninfotek.logx.extension.logback;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,9 @@ import ch.qos.logback.contrib.json.classic.JsonLayout;
 
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
+import com.dawninfotek.logx.util.LogXUtils;
 import com.dawninfotek.logx.config.JsonFieldsConstants;
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.config.JsonField;
 
 public class LogXJsonLayout extends JsonLayout {
@@ -75,13 +78,29 @@ public class LogXJsonLayout extends JsonLayout {
     			}
         		// log custom information
         		else {
-            		value = JsonField.getFromMDC(searchName);
-            		if(value.isEmpty()) {
-            			// get applicationName from context
-            			if(searchName.equals(LogXConstants.APPLICATION_NAME)) {
-            				value = getApplicationName(event);
-            			}
-            		}
+        			LogXField logXfield = LogXContext.getLogXField(field.getName());
+        			if(logXfield != null && logXfield.getScope() == LogXField.SCOPE_LINE) {					
+    					//this is a log line scope field, generate value here					
+    					if(LogXUtils.resolveFieldValueRequired(logXfield, String.valueOf(event.getLevel()))) {
+    						//need to resolve the value for this log level for this field
+    						value = LogXUtils.resolveFieldValue(logXfield, event.getLoggerName(), event.getFormattedMessage());
+    						if(StringUtils.isEmpty(value)) {
+    							//try resolve from exception body
+    							value = LogXUtils.resolveFieldValue(logXfield, event.getLoggerName(), getThrowableException(event));
+    						}
+    					}else {
+    						value = null;
+    					}
+    					
+    				}else {
+                		value = JsonField.getFromMDC(searchName);
+                		if(value.isEmpty()) {
+                			// get applicationName from context
+                			if(searchName.equals(LogXConstants.APPLICATION_NAME)) {
+                				value = getApplicationName(event);
+                			}
+                		}
+    				}
         		}
         		// shrink value to format size
         		if(!format.isEmpty() && format.startsWith("X")) {
