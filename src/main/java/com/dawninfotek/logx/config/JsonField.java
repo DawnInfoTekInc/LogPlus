@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 
+import com.dawninfotek.logx.util.LogXUtils;
+
 public class JsonField implements Comparable<JsonField>{
 	
 	public static final String EMPT = "";
@@ -206,7 +208,7 @@ public class JsonField implements Comparable<JsonField>{
 	}
 	
 	public static String getFromMDC(String value) {
-		String result = MDC.get(value);
+		String result = LogXUtils.getLogXFieldValue(value, false);
 		if(result == null) {
 			return "";
 		}
