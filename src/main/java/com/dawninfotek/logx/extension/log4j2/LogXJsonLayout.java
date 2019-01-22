@@ -83,7 +83,8 @@ public class LogXJsonLayout extends AbstractStringLayout {
     					}else {
     						value = null;
     					}
-    				}else {
+    				}
+        			if (value.isEmpty()) {
             			value = JsonField.getFromMDC(searchName);
     				}
         		}
