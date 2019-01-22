@@ -1,6 +1,6 @@
 # Log Plus
 
-LogPlus is a framework to extend current java log framework, The goal of LogPlus is to support json format output while adding additional fields into logs with minimium change to application source code, LogPlus also implemented json layout for [logback](https://logback.qos.ch/) and log4j (both log4j1.2.17 & log4j2). It's pretty cool, and extendable with most java log frameworks.
+LogPlus is a framework to extend current java log framework, The goal of LogPlus is to support json format output while adding additional fields into logs with minimium change to application source code, LogPlus also implemented json layout for [logback](https://logback.qos.ch/) and [log4j](https://logging.apache.org/log4j/) (both log4j1.2 & log4j2). It's pretty cool, and extendable with most java log frameworks.
 
 This framework provides features which can be used in different purposes, it currently supports logback, slf4j, log4j2, log4j1.2.17.
 
