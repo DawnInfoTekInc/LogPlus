@@ -92,7 +92,8 @@ public class LogXJsonLayout extends JsonLayout {
     						value = null;
     					}
     					
-    				}else {
+    				}
+        			if (value.isEmpty()){
                 		value = JsonField.getFromMDC(searchName);
                 		if(value.isEmpty()) {
                 			// get applicationName from context
