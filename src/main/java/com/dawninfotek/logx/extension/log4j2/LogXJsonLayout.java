@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.slf4j.Logger;
@@ -16,8 +17,10 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
 import com.dawninfotek.logx.config.JsonFieldsConstants;
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
+import com.dawninfotek.logx.util.LogXUtils;
 
 
 @Plugin(name = "LogXJsonLayout", category = "Core", elementType = "layout", printObject = true)
@@ -67,7 +70,22 @@ public class LogXJsonLayout extends AbstractStringLayout {
     			}
          		// log custom information
         		else {
-        			value = JsonField.getFromMDC(searchName);
+        			LogXField logXfield = LogXContext.getLogXField(field.getName());
+        			if(logXfield != null && logXfield.getScope() == LogXField.SCOPE_LINE) {					
+    					//this is a log line scope field, generate value here					
+    					if(LogXUtils.resolveFieldValueRequired(logXfield, event.getLevel().name())) {
+    						//need to resolve the value for this log level for this field
+    						value = LogXUtils.resolveFieldValue(logXfield, event.getSource().getClassName(), getMessage(event));
+    						if(StringUtils.isEmpty(value)) {
+    							//try resolve from exception body
+    							value = LogXUtils.resolveFieldValue(logXfield, event.getSource().getClassName(), getException(event));
+    						}
+    					}else {
+    						value = null;
+    					}
+    				}else {
+            			value = JsonField.getFromMDC(searchName);
+    				}
         		}
          		
          		// shrink value to format size

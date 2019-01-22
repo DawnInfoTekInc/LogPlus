@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.dawninfotek.logx.config.LogXField;
 import com.dawninfotek.logx.core.LogXConstants;
 import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.util.AntPathMatcher;
@@ -168,8 +169,11 @@ public class LogXFilter implements Filter {
 			key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
 
 			// need to be added
-			if (MDC.get(key) == null) {	
-				MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));
+			if (MDC.get(key) == null) {					
+				LogXField field = LogXContext.getLogXField(key);				
+				if(field == null || field.getScope() != LogXField.SCOPE_LINE) {				
+					MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));
+				}
 
 			}
 		}
@@ -187,9 +191,13 @@ public class LogXFilter implements Filter {
 		// prepare all fields key value;
 
 		for (String propertyKey : this.fieldNmaes) {
-
-			String key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
-			MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));
+			
+			LogXField field = LogXContext.getLogXField(propertyKey);
+			//will ignored the EVENT scope fields
+			if(field == null || field.getScope() != LogXField.SCOPE_LINE) {
+				String key = LogXUtils.getLogProperty(propertyKey + ".key", propertyKey);
+				MDC.put(key, LogXUtils.resolveFieldValue(propertyKey, httpRequest));			
+			}
 		}
 	}
 

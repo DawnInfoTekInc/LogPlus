@@ -70,6 +70,9 @@ public class JsonField implements Comparable<JsonField>{
 			}else {
 				toDisplay = displayValue;
 			}
+			
+			//need to replace all '"' to '\"'
+			toDisplay = StringUtils.replace(toDisplay, "\"", "\\\"");
 
 			result = new StringBuilder().append(DQ).append(lable==null?name:lable).append(DQ).append(C).append(DQ).append(toDisplay).append(DQ).toString();			
 		}
