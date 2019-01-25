@@ -8,8 +8,39 @@
   <artifactId>LogPlus</artifactId>
   <version>1.7.2</version>
 
-  <name>logx</name>
-  <url>http://www.dawninfotek.com</url>
+  <name>$(project.groupId):$(project.artifactId)</name>
+  <description>LogPlus is a framework to extend current java log framework, 
+  The goal of LogPlus is to support json format output 
+  while adding additional fields into logs with minimium change to application source code.</description>
+  <url>https://www.dawninfotek.com</url>
+  
+  <licenses>
+  	<license>
+  		<name>GNU General Public License, version 3</name>
+  		<url>http://www.gnu.org/licenses/gpl.txt</url>
+  	</license>
+  </licenses>
+  
+  <developers>
+  	<developer>
+  		<name>John Li</name>
+  		<email>john.li@dawninfotek.com</email>
+  		<organization>DawnInfotek</organization>
+  		<organizationUrl>https://www.dawninfotek.com</organizationUrl>
+  	</developer>
+  	<developer>
+  		<name>Ryan Wang</name>
+  		<email>ryan.wang@dawninfotek.com</email>
+  		<organization>DawnInfotek</organization>
+  		<organizationUrl>https://www.dawninfotek.com</organizationUrl>
+  	</developer>
+  </developers>
+  
+  <scm>
+  	<connection>scm:git:git://github.com/DawnInfoTekInc/LogPlus.git</connection>
+  	<developerConnection>scm:git:ssh://github.com/DawnInfoTekInc/LogPlus.git</developerConnection>
+  	<url>https://github.com/DawnInfoTekInc/LogPlus</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

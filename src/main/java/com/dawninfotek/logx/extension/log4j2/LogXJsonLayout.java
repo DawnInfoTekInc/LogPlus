@@ -22,6 +22,7 @@ import com.dawninfotek.logx.config.JsonField;
 import com.dawninfotek.logx.core.LogXContext;
 import com.dawninfotek.logx.util.LogXUtils;
 
+// currently support log4j2.3
 
 @Plugin(name = "LogXJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class LogXJsonLayout extends AbstractStringLayout {
