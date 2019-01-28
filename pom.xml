@@ -10,8 +10,8 @@
     </parent>
     
   <groupId>com.dawninfotek</groupId>
-  <artifactId>LogPlus</artifactId>
-  <version>1.7</version>
+  <artifactId>log-plus</artifactId>
+  <version>1.7.2</version>
   
   <distributionManagement>
         <snapshotRepository>
