@@ -21,13 +21,16 @@ public class LogXField {
 	
 	public static int SCOPE_LINE = 2;
 	
+	public static int SCOPE_EVENT = 2;
+	
 	public static Map<String, Integer> scopeMapping;
 	
 	static {
 		scopeMapping = new HashMap<String, Integer>();
 		scopeMapping.put("CONTEXT", SCOPE_CONTEXT);
 		scopeMapping.put("THREAD", SCOPE_THREAD);
-		scopeMapping.put("LINE", SCOPE_LINE);		
+		scopeMapping.put("LINE", SCOPE_LINE);
+		scopeMapping.put("EVENT", SCOPE_EVENT);		
 	}
 	
 	public LogXField() {

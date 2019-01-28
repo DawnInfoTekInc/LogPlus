@@ -47,7 +47,6 @@ public class Configuration implements Component {
 		
 		if (configFile == null) {
 			//before logX is initialized, prevents to use logger 
-			//logger.warn("logx configuration is not provided, use default only ...");
 			System.out.println("logx configuration is not provided, use default only ...");
 		} else {
 
@@ -56,23 +55,28 @@ public class Configuration implements Component {
 				//logger.info("property file: " + configFile);
 				System.out.println("property file: " + configFile);
 				
-				if (configFile.contains("CLASS_PATH")) {
+				if (configFile.startsWith("CLASS_PATH") || configFile.startsWith("CLASS-PATH")) {
 					String[] ns = configFile.split("=");
 					if (ns.length <= 1) {
-						ns = configFile.split(":");
-					}
-					configFile = ns[1];
-					propFile = LogXUtils.class.getClassLoader().getResourceAsStream(configFile);
+						ns = configFile.split(":", 2);
+					}	
+					propFile = LogXUtils.class.getClassLoader().getResourceAsStream(ns[1]);
+					
 				} else if (configFile.contains("FILE")) {
 					String[] ns = configFile.split("=");
 					if (ns.length <= 1) {
-						ns = configFile.split(":");
+						ns = configFile.split(":", 2);
 					}
 					
 					propFile = new FileInputStream(ns[1]);
 				}
 				
-				override.load(propFile);
+				if(propFile == null) {
+					System.out.println("LogX configuration file:'" + configFile + "' is not found or invalid, only default configuration is used." );
+				}else {				
+					override.load(propFile);
+					System.out.println("Overide config:" + override);
+				}
 				
 			} catch (FileNotFoundException fnfe) {
 				//only say warning here

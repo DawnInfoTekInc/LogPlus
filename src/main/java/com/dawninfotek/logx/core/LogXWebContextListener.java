@@ -17,18 +17,15 @@ public class LogXWebContextListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
-		//initialize the logx system after web container loaded
-//		 before 1.7.2
+		//initialize the logx system after web container loaded//	
 		String f = contextEvent.getServletContext().getInitParameter("logx-config-file");
 		if(f == null) {
+			//use default
 			f = Configuration.logxConfigFile;
 		}
 				
-		LogXContext.initialize(f);
+		LogXContext.initialize(f);		
 		
-		
-		//since 1.7.2
-//		LogXContext.initialize(Configuration.logxConfigFile);		
 		//log application startup
 		LogXContext.eventService().logApplicationStateChangeEventBegin(LogXUtils.getLogProperty("applicationName", ""), null);
 	}
