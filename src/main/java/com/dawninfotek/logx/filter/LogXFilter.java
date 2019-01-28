@@ -37,8 +37,8 @@ import com.dawninfotek.logx.util.LogXUtils;
  * @author Ryan Wang, John Li
  *
  */
-@WebFilter("/*") // default filter mapping, could be overridden by web.xml, the filterName
-					// is:com.dawninfotek.logx.filter.LogXFilter
+@WebFilter(filterName = "LogXFilter",urlPatterns = {"/*"}) 
+// default filter mapping, could be overridden by web.xml
 public class LogXFilter implements Filter {
 
 	final static Logger logger = LoggerFactory.getLogger(LogXFilter.class);
