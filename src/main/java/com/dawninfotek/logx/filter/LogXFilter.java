@@ -160,6 +160,9 @@ public class LogXFilter implements Filter {
 			}
 
 			MDC.put(key, headerValue);
+			if(key.equals(LogXConstants.CHECKPOINT)) {
+				MDC.put(LogXConstants.CURR_CHECKPOINT, headerValue);
+			}
 		}
 
 		// Need to be able to create new fields which not be defined in the previous
