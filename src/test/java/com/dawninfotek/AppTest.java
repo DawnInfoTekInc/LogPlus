@@ -54,7 +54,7 @@ public class AppTest
 
     @Test
     public void eventTest(){
-    	LogXContext.initialize("CLASS_PATH=logx-default.properties");
+    	LogXContext.initialize("CLASS_PATH=logx-default1.properties");
     	LogXContext.eventService().logEventBegin("pay event", LogXUtils.getLogProperty(LogXConstants.TYPE_A_S_C, ""), logger);
     	LogXContext.eventService().logEventEnd("pay event", LogXUtils.getLogProperty(LogXConstants.TYPE_A_S_C, ""), logger);
     	LogXContext.eventService().logBusinessEventBegin("agreement", logger);

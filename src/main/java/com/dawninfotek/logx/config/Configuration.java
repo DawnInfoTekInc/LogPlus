@@ -59,8 +59,14 @@ public class Configuration implements Component {
 					String[] ns = configFile.split("=");
 					if (ns.length <= 1) {
 						ns = configFile.split(":", 2);
-					}	
-					propFile = LogXUtils.class.getClassLoader().getResourceAsStream(ns[1]);
+					}
+					
+					//try System Classloader
+					propFile = ClassLoader.getSystemClassLoader().getResourceAsStream(ns[1]); 				
+					
+					if(propFile == null) {
+						propFile = Configuration.class.getClassLoader().getResourceAsStream(ns[1]);
+					}
 					
 				} else if (configFile.contains("FILE")) {
 					String[] ns = configFile.split("=");
@@ -85,7 +91,7 @@ public class Configuration implements Component {
 			} catch (Exception e) {
 				//logger.error("fail to load LogX properties.", e);
 				System.out.println("Fail to load LogX properties.");
-				e.printStackTrace();
+				//e.printStackTrace();
 			} finally {
 				try {
 					if(propFile != null) {
@@ -133,7 +139,13 @@ public class Configuration implements Component {
 		try {
 			//load the default properties
 			Properties defaultConfig = new Properties();
-			propFile = LogXUtils.class.getClassLoader().getResourceAsStream(LOGX_CONFIG_FILE_NAME);
+			
+			propFile = ClassLoader.getSystemClassLoader().getResourceAsStream(LOGX_CONFIG_FILE_NAME); 		
+			
+			if(propFile == null) {				
+				propFile = Configuration.class.getClassLoader().getResourceAsStream(LOGX_CONFIG_FILE_NAME);
+			}
+			
 			defaultConfig.load(propFile);		
 				
 			//merge the override items
