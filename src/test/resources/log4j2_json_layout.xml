@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- <Configuration  status="DEBUG" packages="com.test">   -->
-<Configuration  status="TRACE" packages="com.dawninfotek.logx.extension.log4j2">
+<Configuration  status="TRACE" packages="com.dawninfotek.logplus.extension.log4j2">
 	<Appenders>
         <RollingFile name="json_file_appender" fileName="D:\jsonlogger.json"
                      filePattern="${log-path}/%d{yyyyMMdd}_jsonlogger-%i.json" >
-            <LogXJsonLayout/>
+            <LogPlusJsonLayout/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="1 KB" />
             </Policies>
@@ -14,7 +14,7 @@
     
     <Appenders>
 	    <Console name="ConsoleJSONAppender" target="SYSTEM_OUT">
-	    	<LogXJsonLayout/>
+	    	<LogPlusJsonLayout/>
 	    </Console>
 	</Appenders>
 

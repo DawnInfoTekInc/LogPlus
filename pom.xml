@@ -10,7 +10,7 @@
     </parent>
     
   <groupId>com.dawninfotek</groupId>
-  <artifactId>log-plus</artifactId>
+  <artifactId>logplus-core</artifactId>
   <version>1.7.2</version>
   
   <distributionManagement>
