@@ -11,7 +11,7 @@
     
   <groupId>com.dawninfotek</groupId>
   <artifactId>logplus-core</artifactId>
-  <version>1.7.2</version>
+  <version>1.8.0</version>
   
   <distributionManagement>
         <snapshotRepository>
@@ -173,25 +173,8 @@
                 </includes>
         </resource>
     </resources>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+    <pluginManagement>
       <plugins>
-<!--         <plugin> -->
-<!--           <groupId>org.codehaus.mojo</groupId> -->
-<!--           <artifactId>aspectj-maven-plugin</artifactId> -->
-<!--           <version>1.6</version> -->
-<!--           <configuration> -->
-<!--             <complianceLevel>1.6</complianceLevel> -->
-<!--             <source>1.6</source> -->
-<!--             <target>1.6</target> -->
-<!--           </configuration> -->
-<!--           <executions> -->
-<!--             <execution> -->
-<!--               <goals> -->
-<!--                 <goal>compile</goal> -->
-<!--               </goals> -->
-<!--             </execution> -->
-<!--           </executions> -->
-<!--         </plugin> -->
 		<plugin>
         	<groupId>org.apache.maven.plugins</groupId>
         	<artifactId>maven-javadoc-plugin</artifactId>

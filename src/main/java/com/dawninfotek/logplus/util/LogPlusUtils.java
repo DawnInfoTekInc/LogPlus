@@ -33,6 +33,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	
 	protected static Set<String> maskNames;
 	
+	/**
 	static {
 	
 		String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
@@ -44,6 +45,7 @@ public class LogPlusUtils implements LogPlusConstants {
 			}
 		}
 	}
+	*/
 
 	/**
 	 * Retrieves configuration value from configuration file
@@ -353,6 +355,18 @@ public class LogPlusUtils implements LogPlusConstants {
 			fieldValue = "";
 		}
 
+		if(maskNames == null) {
+			
+			String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
+			
+			maskNames = new HashSet<String>();
+			if (hs != null) {
+				for (String hashName : hs) {
+					maskNames.add(hashName);
+				}
+			}
+		}
+		
 		// see if hash the value is required
 		if (maskNames.contains(propertyKey) && !fieldValue.isEmpty()) {
 			fieldValue = LogPlusContext.hashService().hash(fieldValue, null);
