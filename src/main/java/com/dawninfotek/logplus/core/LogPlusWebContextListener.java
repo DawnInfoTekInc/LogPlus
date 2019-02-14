@@ -2,11 +2,12 @@ package com.dawninfotek.logplus.core;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 import com.dawninfotek.logplus.config.Configuration;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 
-//@WebListener
+@WebListener
 public class LogPlusWebContextListener implements ServletContextListener {
 
 	@Override
