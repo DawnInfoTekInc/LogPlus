@@ -7,11 +7,11 @@
         <param-value>CLASS_PATH=logplus.properties</param-value>
     </context-param>
     <listener>
-        <listener-class>com.dawninfotek.logplus.core.LogPlusWebContextListener</listener-class>
+        <listener-class>com.dawninfotek.logplus.web.LogPlusWebContextListener</listener-class>
     </listener>
     <filter>
         <filter-name>LogFilter</filter-name>
-        <filter-class>com.dawninfotek.logplus.filter.LogPlusFilter</filter-class>
+        <filter-class>com.dawninfotek.logplus.web.LogPlusFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>LogFilter</filter-name>
