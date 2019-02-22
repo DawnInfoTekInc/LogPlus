@@ -37,7 +37,7 @@ This framework provides features which can be used in different purposes, it cur
     > - eventType clause (operational.connection, abnormal, transaction, business)
     > - txpath (transaction path)
     
-3. http header, for the purpose of passing traceable field to different applications/services set logplus value into header with key and value, or call checkpoint interface from source code, [a sample](src/test/java/com/dawninfotek/AppTest.java) for calling checkpoint.
+3. trace API, for the purpose of passing traceable field to different applications/services set logplus value into header with key and value, or call checkpoint interface from source code, [a sample](src/test/java/com/dawninfotek/AppTest.java) for calling checkpoint.
 > eg. connection = url.openConnection(); 
 >
 > connection.setRequestProperty(LogPlusUtils.getLogPlusHeaderName(), LogPlusUtils.getLogPlusHeaderValue());
