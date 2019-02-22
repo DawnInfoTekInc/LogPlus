@@ -69,7 +69,7 @@ This framework provides features which can be used in different purposes, it cur
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j.properties](src/test/resources/log4j_json_layout.properties)
 
-3. with log4j2 (currently support log4j2.3, with slight API changes logplus can support up to 2.11):
+3. with log4j2 (currently we do not support log4j2.8.2, with slight source change you can make it support 2.8.2):
     1. with static json config in pattern:
     > - add jars: log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, logplus, commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
