@@ -112,7 +112,7 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
     
     protected String getMessage(LogEvent event) {
     	// get formatted Message, ignore object as message supported by JRE1.8
-        return event.getMessage().getFormattedMessage().replaceAll("\n", "");
+        return JsonField.replaceAllNewline(event.getMessage().getFormattedMessage());
     }
     
     protected String getException(LogEvent event) {
@@ -136,7 +136,7 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
                 exception += stackTrace;
             }
             if(!exception.isEmpty()) {
-            	return exception.replaceAll("\n", "");
+            	return JsonField.replaceAllNewline(exception);
             }
         }
         return "";

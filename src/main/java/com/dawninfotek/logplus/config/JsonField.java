@@ -242,6 +242,10 @@ public class JsonField implements Comparable<JsonField>{
     	jsonString += "}\n";
     	return jsonString;
     }
+    
+    public static String replaceAllNewline(String msg) {
+    	return msg.replaceAll("(\\r|\\n|\\t)", "");
+    }
 
 	@Override
 	public int compareTo(JsonField arg0) {		

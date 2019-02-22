@@ -11,29 +11,22 @@ import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
-import ch.qos.logback.contrib.json.classic.JsonLayout;
+import ch.qos.logback.core.LayoutBase;
 
-public class LogPlusJsonLayout extends JsonLayout {
+public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 	
 	public static Logger logger = LoggerFactory.getLogger(LogPlusJsonLayout.class);
 	
 	private ThrowableHandlingConverter throwableProxyConverter;
 	
 	public LogPlusJsonLayout() {
-	    this.includeMessage = false;
-        this.includeLevel = false;
-        this.includeThreadName = false;
-        this.includeMDC = false;
-        this.includeLoggerName = false;
-        this.includeFormattedMessage = false;
-        this.includeException = false;
-        this.includeContextName = false;
         this.throwableProxyConverter = new ThrowableProxyConverter();
 	}
 
@@ -49,9 +42,10 @@ public class LogPlusJsonLayout extends JsonLayout {
         this.throwableProxyConverter.stop();
     }
 
-	protected void addCustomDataToJsonMap(Map<String, Object> map, ILoggingEvent event) {
+    @Override
+	public String doLayout(ILoggingEvent event) {
         // custom all fields
-        
+		Map<String, String> map = new LinkedHashMap<String, String>();
         for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
         	try {
         		String searchName = field.getName();
@@ -69,7 +63,7 @@ public class LogPlusJsonLayout extends JsonLayout {
         		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
         			value = event.getLoggerName();
         		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
-        			value = event.getFormattedMessage();
+        			value = JsonField.replaceAllNewline(event.getFormattedMessage());
         		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
         			value = getThrowableException(event);
         		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
@@ -111,13 +105,14 @@ public class LogPlusJsonLayout extends JsonLayout {
         			}
         		}
         		// display if mandatory or value exist
-            	if(field.getDisplay() || !value.isEmpty()) { 
-        			add(key, true, value, map);
+            	if(field.getDisplay() || !value.isEmpty()) {
+        			map.put(key, value);
             	}
         	}catch (Exception e) {
         		logger.error(e.getMessage());
         	}
         }
+        return JsonField.convertMapToJsonString(map);
     }
 
 	protected String getApplicationName(ILoggingEvent event) {
@@ -145,7 +140,7 @@ public class LogPlusJsonLayout extends JsonLayout {
         if (throwableProxy != null) {
             String ex = this.throwableProxyConverter.convert(event);
             if (ex != null && !ex.equals("")) {
-                return ex;
+                return JsonField.replaceAllNewline(ex);
             }
         }
         return "";
