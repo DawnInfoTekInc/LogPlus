@@ -5,7 +5,7 @@ LogPlus is a framework to extend current java log framework, The goal of LogPlus
 This framework provides features which can be used in different purposes, it currently supports logback, slf4j, log4j2, log4j1.2.17, some of features only support for java web application.
 
 ## features
-1. integrate with servlet, extend servlet dofilter [dofilter function](https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/Filter.html) to get extra message from http request
+1. integrate with servlet, extend servlet dofilter [dofilter function](https://tomcat.apache.org/tomcat-5.5-doc/servletapi/javax/servlet/Filter.html) to get extra message from http request with logplus-web component [LogPlusWeb](https://github.com/DawnInfoTekInc/LogPlusWeb)
 2. provide application & service level traceability, meanwhile traceability feature set performance check point inside application/service
 3. security, for sensitive information MaskService provide a way to mask string with designed pattern, also HashService hide indicated key from http request with hash method
 4. event, EventService is designed for the purpose of tracing, continuously trace activities/actions happened/generated inside production service
