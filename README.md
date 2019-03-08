@@ -45,39 +45,39 @@ This framework provides features which can be used in different purposes, it cur
 ## examples
 1. with logback:
     1. with static json config in pattern:
-    > - add jars: logback-classic, logback-core, slf4j-api, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: logback-classic, logback-core, slf4j-api, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [logback.xml](src/test/resources/logback.xml)
 
     2. with jsonlayout dynamic config:
-    > - add jars: logback-classic, logback-core, slf4j-api, jackson-annotations, jackson-core, jackson-databind, logback-jackson, logback-json-classic, logback-json-core, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: logback-classic, logback-core, slf4j-api, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [logback.xml](src/test/resources/logback_json_layout.xml)
 
 2. with log4j1.2.17:
     1. with static json config in pattern:
-    > - add jars: log4j1.2.17, slf4j-api, slf4j-log4j12, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: log4j1.2.17, slf4j-api, slf4j-log4j12, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j.properties](src/test/resources/log4j.properties)
 
     2. with jsonlayout dynamic config:
-    > - add jars: log4j1.2.17, slf4j-api, slf4j-log4j12, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: log4j1.2.17, slf4j-api, slf4j-log4j12, logplus, logplus-web(with filter&listener) commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j.properties](src/test/resources/log4j_json_layout.properties)
 
 3. with log4j2 (currently we do not support log4j2.8.2, with slight source change you can make it support 2.8.2):
     1. with static json config in pattern:
-    > - add jars: log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j2.properties](src/test/resources/log4j2.properties)
 
     2. with jsonlayout dynamic config:
-    > - add jars: log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, jackson-annotations, jackson-core, jackson-databind, logplus, commons-beanutils, commons-codec, commons-lang
+    > - add jars: log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j2.xml](src/test/resources/log4j2_json_layout.xml)
