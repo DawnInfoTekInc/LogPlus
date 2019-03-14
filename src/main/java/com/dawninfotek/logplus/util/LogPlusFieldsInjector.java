@@ -45,7 +45,6 @@ public class LogPlusFieldsInjector {
 	}
 	
 	private void init() {
-		
 		this.logPlusHeaders = LogPlusUtils.getLogPlusHeaderInclues();
 		this.fieldNmaes = LogPlusUtils.getLogPlusFieldNames();
 		this.urlMappingsIncludes = LogPlusUtils.getLogProperties(LogPlusConstants.URL_MAPPINGS_INCLUDES, null);
@@ -53,7 +52,6 @@ public class LogPlusFieldsInjector {
 		if (this.urlMappingsIncludes != null || this.urlMappingsExcludes != null) {
 			this.antPathMatcher = new AntPathMatcher();
 		}
-		
 	}
 	
 	public static boolean preProcessHttp(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
@@ -65,75 +63,53 @@ public class LogPlusFieldsInjector {
 	}
 	
 	protected boolean preProcessHttpInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-		
 		// see if need to verify the url
 		if (isUrlMatch(httpRequest)) {
-
 			// to trace all the headers
 			if (logger.isTraceEnabled()) {
 				traceRequest(httpRequest);
 			}
-
+			
 			String transactionPath = null;
-
+			
 			try {
 				// need to make sure any error in LogPlus will not impact the application in the
 				// run time.
 				prepareSysFields();
-
 				prepareLogPlusFields(httpRequest);
-
 				transactionPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
-
 				if (transactionPath != null) {
-
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
-
 					LogPlusContext.eventService().logServiceEventBegin(transactionPath, logger);
 				}
-
 			} catch (Exception e) {
 				logger.error("Error occured during processing LogPlus functions.", e);
 			}
-			
 			return true;
-			
 		} else {
 			if (logger.isTraceEnabled()) {
 				logger.trace("request path:" + httpRequest.getServletPath() + " is not match, do nothing ...");
 			}
-			
 			return false;
-			
 		}
-		
 	}
 	
 	protected void postProcessHttpInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-		
 		try {
-			
 			String transactionPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
 			
 			if (transactionPath != null) {
-
 				LogPlusContext.eventService().logServiceEventEnd(transactionPath, logger);
-
 				LogPlusContext.checkPointService().endCheckPoint(logger);
 			}
-
 			removeLogPlusFields(httpRequest);
-
 			removeSysFields();
-
 		} catch (Exception e) {
 			logger.error("Error occured during processing LogPlus functions.", e);
 		}
-		
 	}
 	
 	protected void prepareLogPlusFields(HttpServletRequest httpRequest) {
-
 		// log service begin
 		String transactionPath = LogPlusUtils.getTransactionPath(httpRequest);
 
@@ -207,7 +183,6 @@ public class LogPlusFieldsInjector {
 				if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {				
 					MDC.put(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 				}
-
 			}
 		}
 	}
@@ -220,9 +195,7 @@ public class LogPlusFieldsInjector {
 	 * @return string AQAHeader hash code
 	 */
 	private void processWithoutLogPlusHeader(HttpServletRequest httpRequest) {
-
 		// prepare all fields key value;
-
 		for (String propertyKey : this.fieldNmaes) {
 			
 			LogPlusField field = LogPlusContext.getLogPlusField(propertyKey);
@@ -238,11 +211,9 @@ public class LogPlusFieldsInjector {
 		for (String key : this.fieldNmaes) {
 			MDC.remove(key);
 		}
-
 		MDC.remove(LogPlusUtils.getLogPlusHeaderName());
 		MDC.remove(LogPlusConstants.TRANSACTION_PATH);
 		MDC.remove(LogPlusConstants.PATH);
-
 	}
 	
 	/**
@@ -252,14 +223,12 @@ public class LogPlusFieldsInjector {
 	 * @return
 	 */
 	protected boolean isUrlMatch(HttpServletRequest httpRequest) {
-		
 		if(urlMappingsExcludes != null) {			
 			for (String pattern : urlMappingsExcludes) {
 				if (antPathMatcher.match(pattern, httpRequest.getServletPath())) {
 					return false;
 				}
 			}
-			
 		}
 		
 		boolean result = false;
@@ -275,7 +244,6 @@ public class LogPlusFieldsInjector {
 		} else {
 			result = true;
 		}
-
 		return result;
 	}
 	
@@ -299,7 +267,6 @@ public class LogPlusFieldsInjector {
 	 * @param httpRequest
 	 */
 	private void traceRequest(HttpServletRequest httpRequest) {
-
 		logger.trace("request servlet path: " + httpRequest.getServletPath());
 		logger.trace("request context path: " + httpRequest.getContextPath());
 		logger.trace("request path info: " + httpRequest.getPathInfo());
@@ -313,5 +280,4 @@ public class LogPlusFieldsInjector {
 		}
 		logger.trace("request headers:" + sb.toString());
 	}
-
 }

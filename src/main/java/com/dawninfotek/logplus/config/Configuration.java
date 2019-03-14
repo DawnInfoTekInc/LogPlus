@@ -20,6 +20,7 @@ import com.dawninfotek.logplus.core.Component;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.AntPathMatcher;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.LogPlusProperties;
 
 public class Configuration implements Component {
 	
@@ -28,6 +29,10 @@ public class Configuration implements Component {
 	public static final String LOGPLUS_CONFIG_FILE_NAME = "logplus-default.properties";
 	
 	public static final String logplusConfigFile = "CLASS_PATH=logplus.properties";
+	
+	private String contextName = "";
+	
+	private Map<Object, Object> sectionMap;
 	
 	private Map<String, String> propertyMap;
 	
@@ -43,7 +48,7 @@ public class Configuration implements Component {
 	
 	public static Configuration loadFromConfigFile(String configFile) {
 		
-		Properties override = new Properties();	
+		LogPlusProperties override = new LogPlusProperties();	
 		
 		if (configFile == null) {
 			//before LogPlus is initialized, prevents to use logger 
@@ -104,11 +109,12 @@ public class Configuration implements Component {
 		
 	}
 	
-	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonField> fieldsMapping) {
+	private Configuration(Map<String, String> propertyMap, List<TransactionPathMappingRule> txRules, List<JsonField> fieldsMapping, Map<Object, Object> cMap) {
 		super();
 		this.propertyMap = propertyMap;
 		this.txRules = txRules;		
 		this.fieldsMapping = fieldsMapping;
+		this.sectionMap = cMap;
 	}
 
 	public String getConfigurationValue(String key) {
@@ -128,7 +134,7 @@ public class Configuration implements Component {
 	 * overrideConfig is present, the default values will be overridden.
 	 * @param overrideConfig
 	 */
-	private synchronized static Configuration init(Properties overrideConfig) {
+	private synchronized static Configuration init(LogPlusProperties overrideConfig) {
 		
 		InputStream propFile = null;
 		
@@ -145,13 +151,17 @@ public class Configuration implements Component {
 			defaultConfig.load(propFile);		
 				
 			//merge the override items
+			Map<Object, Object> cMap = new HashMap<Object, Object>();
 			if(overrideConfig != null && !overrideConfig.isEmpty()) {
-				
 				for(Object key:overrideConfig.keySet()) {
 					//Merge and override
-					defaultConfig.put(key, overrideConfig.get(key));
+					Object value = overrideConfig.get(key);
+					if(value != null && value instanceof String) {
+						defaultConfig.put(key, value);
+					}else if(value instanceof Map) {
+						cMap.put(key, value);
+					}
 				}
-				
 			}
 					
 			//crate property Map
@@ -210,7 +220,7 @@ public class Configuration implements Component {
 			//Sort the List
 			sortJsonFields(fieldsMapping);			
 			//finally, create the Configuration instance and return to caller
-			return new Configuration(pm, rules, fieldsMapping);			
+			return new Configuration(pm, rules, fieldsMapping, cMap);			
 			
 		}catch (Exception e) {
 			System.out.println("LogPlus system failed to load config from files");
@@ -226,7 +236,6 @@ public class Configuration implements Component {
 				}
 			}
 		}		
-			
 	}
 	
 	private static void sortJsonFields(List<JsonField> jsonFields) {
@@ -236,7 +245,31 @@ public class Configuration implements Component {
 	}
 	
 	private String getConfigurationValueInternal(String key) {
-		return propertyMap.get(key);
+		String value = "";
+		if(!getContextName().isEmpty() && !getContextMap().isEmpty()) {
+			Object result = getContextMap().get(contextName);
+			if(result != null && result instanceof Map) {
+				@SuppressWarnings("unchecked")
+				Map<String, String> map = (Map<String, String>) result;
+				value = map.get(key);
+			}
+		}
+		if(value.isEmpty()) {
+			return propertyMap.get(key);
+		}
+		return value;
+	}
+	
+	private Map<Object, Object> getContextMap(){
+		return sectionMap;
+	}
+	
+	private void setContextName(String cname) {
+		contextName = cname;
+	}
+	
+	private String getContextName() {
+		return contextName;
 	}
 	
 	public String getTransactionPathInternal(HttpServletRequest request) {
@@ -255,6 +288,7 @@ public class Configuration implements Component {
 				}
 			}		
 		}
+		setContextName(request.getContextPath());
 		String result = null;
 		if(lastMatch != null) {
 			result = lastMatch.getTxPathName();
