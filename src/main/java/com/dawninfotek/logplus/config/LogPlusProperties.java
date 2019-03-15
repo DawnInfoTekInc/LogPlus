@@ -86,7 +86,7 @@ public class LogPlusProperties {
         String s;
         String sectionName = "";
         int lineNumber = 0;
-        BufferedReader in = new BufferedReader( reader );
+        BufferedReader in = new BufferedReader(reader);
         while((s = in.readLine()) != null ) {
         	if(s.isEmpty() || s.startsWith("#")) {
         		continue;
@@ -97,7 +97,7 @@ public class LogPlusProperties {
                 map.put(sectionName, sectionMap);
         	}else {
         		if(s.indexOf("=") > 0) {
-            		String kv[] = s.split("=");
+            		String kv[] = s.split("=", 2);
             		if(!sectionName.isEmpty()) {
             			Object result = get(sectionName);
             			if(result instanceof Map) {

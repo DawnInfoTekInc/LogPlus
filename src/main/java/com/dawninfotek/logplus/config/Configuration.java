@@ -255,7 +255,7 @@ public class Configuration implements Component {
 				value = map.get(key);
 			}
 		}
-		if(value.isEmpty()) {
+		if(StringUtils.isEmpty(value)) {
 			return propertyMap.get(key);
 		}
 		return value;
