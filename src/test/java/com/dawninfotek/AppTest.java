@@ -94,5 +94,12 @@ public class AppTest
         LogPlusContext.initialize(null);
         assertTrue(LogPlusContext.hashService().hash("valid name", null).equals("4277d967dc8434b5b1c59d7e7087760a"));
     }
+    
+    @Test
+    public void propertiesLoadTest() {
+    	String dir = System.getProperty("user.dir");
+    	String propertyPath = "FILE=" + dir + "\\logplus.properties";
+    	LogPlusContext.initialize(propertyPath);
+    }
 
 }

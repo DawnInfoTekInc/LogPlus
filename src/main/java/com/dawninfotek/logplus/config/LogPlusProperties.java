@@ -1,4 +1,4 @@
-package com.dawninfotek.logplus.util;
+package com.dawninfotek.logplus.config;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,18 +26,10 @@ public class LogPlusProperties {
 	}
 
     public Object get(Object key) {
-        return getProperty((String)key);
-    }
-    
-    public Object get(String key, Object defaultValue) {
-        return getProperty(key, defaultValue);
-    }
-    
-    public Object getProperty(String key) {
-        return map.get(key);
+    	return map.get(key);
     }
  
-    public Object getProperty( String key, Object defaultValue ) {
+    public Object get( Object key, Object defaultValue ) {
         Object s = map.get( key );
         if( s != null )
             return s;
@@ -52,11 +44,8 @@ public class LogPlusProperties {
      * @param value
      * @return previous value of the key (which may be null)
      */
-    public Object set( String key, Object value ) {
-        return setProperty(key, value);
-    }
     
-    public Object setProperty( String key, Object value ) {
+    public Object set( Object key, Object value ) {
         Object s = map.get( key );
         map.put( key, value );
         return s;
@@ -97,7 +86,7 @@ public class LogPlusProperties {
         String s;
         String sectionName = "";
         int lineNumber = 0;
-        BufferedReader  in = new BufferedReader( reader );
+        BufferedReader in = new BufferedReader( reader );
         while((s = in.readLine()) != null ) {
         	if(s.isEmpty() || s.startsWith("#")) {
         		continue;
@@ -110,15 +99,17 @@ public class LogPlusProperties {
         		if(s.indexOf("=") > 0) {
             		String kv[] = s.split("=");
             		if(!sectionName.isEmpty()) {
-            			Object result = this.getProperty(sectionName);
+            			Object result = get(sectionName);
             			if(result instanceof Map) {
                 			@SuppressWarnings("unchecked")
 							LinkedHashMap<String, String> sMap = (LinkedHashMap<String, String>) result;
                 			sMap.put(StringUtils.trim(kv[0]), StringUtils.trim(kv[1]));
             			}
+            		} else {
+            			set(StringUtils.trim(kv[0]), StringUtils.trim(kv[1]));
             		}
         		}else {
-        			System.out.println("malformat line: " + lineNumber);
+        			System.out.println("invalid format line: " + lineNumber);
         		}
         	}
         	lineNumber++;

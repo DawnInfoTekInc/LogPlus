@@ -20,7 +20,6 @@ import com.dawninfotek.logplus.core.Component;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.AntPathMatcher;
 import com.dawninfotek.logplus.util.LogPlusUtils;
-import com.dawninfotek.logplus.util.LogPlusProperties;
 
 public class Configuration implements Component {
 	
@@ -150,7 +149,7 @@ public class Configuration implements Component {
 			
 			defaultConfig.load(propFile);		
 				
-			//merge the override items
+			//merge the override items to default configure while save sections to additional map
 			Map<Object, Object> cMap = new HashMap<Object, Object>();
 			if(overrideConfig != null && !overrideConfig.isEmpty()) {
 				for(Object key:overrideConfig.keySet()) {
@@ -160,6 +159,8 @@ public class Configuration implements Component {
 						defaultConfig.put(key, value);
 					}else if(value instanceof Map) {
 						cMap.put(key, value);
+					}else {
+						System.out.println("unknown value: " + value);
 					}
 				}
 			}
@@ -265,7 +266,11 @@ public class Configuration implements Component {
 	}
 	
 	private void setContextName(String cname) {
-		contextName = cname;
+		if(cname.startsWith("/")) {
+			contextName = cname.substring(1);
+		}else {
+			contextName = cname;
+		}
 	}
 	
 	private String getContextName() {
