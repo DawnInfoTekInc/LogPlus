@@ -27,8 +27,10 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			logger.debug("CheckPoint as name '" + checkPointName + "' is created ...");
 		}
 		
-		MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
-		MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
+		//MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		//MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
+		LogPlusUtils.saveFieldValue(checkPointName, String.valueOf(System.currentTimeMillis()));
 		if(logCheckPointEvent) {			
 			logger.info("CheckPoint as name '" + checkPointName + "' started.");
 		}
@@ -38,34 +40,46 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	public void endCheckPoint(Object aLogger) {
 		long executionTime = 0;
 		long end = System.currentTimeMillis();
-		String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
+		//String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
+		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT, false);
 		String checkName = checkPointName;
-		String start = MDC.get(checkPointName);
-		if (start != null) {
-			executionTime = end - Long.parseLong(start);
+		
+		try {
+			String start = LogPlusUtils.getLogPlusFieldValue(checkPointName, false);
+			if (start != null) {
+				executionTime = end - Long.parseLong(start);
+			}
+		
+			//String transPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
+			String transPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
+			//String path = MDC.get(LogPlusConstants.PATH);
+			String path = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.PATH, false);
+			
+			String p = "";
+
+			if (!StringUtils.isEmpty(transPath)) {
+				p = transPath;
+			} else if (path != null) {
+				p = path;
+			}	
+
+
+			String message = String.format(LogPlusUtils.getLogProperty(LogPlusConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
+		
+			//MDC.put(LogPlusConstants.CHECKPOINT_DSP, checkName);
+			LogPlusUtils.saveFieldValue(LogPlusConstants.CHECKPOINT_DSP, checkName);
+			//MDC.put(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));		
+			LogPlusUtils.saveFieldValue(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));	
+			LogPlusUtils.logTextMessage(aLogger, message);
+		
+		}finally {
+			//MDC.remove(LogPlusConstants.CHECKPOINT_DSP);
+			LogPlusUtils.removeField(LogPlusConstants.CHECKPOINT_DSP);
+			//MDC.remove(LogPlusConstants.ELAPSED_TIME);
+			LogPlusUtils.removeField(LogPlusConstants.ELAPSED_TIME);
+			//MDC.remove(checkName);
+			LogPlusUtils.removeField(checkName);
 		}
-		
-		String transPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
-		String path = MDC.get(LogPlusConstants.PATH);
-
-		String p = "";
-
-		if (!StringUtils.isEmpty(transPath)) {
-			p = transPath;
-		} else if (path != null) {
-			p = path;
-		}	
-
-
-		String message = String.format(LogPlusUtils.getLogProperty(LogPlusConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
-		
-		MDC.put(LogPlusConstants.CHECKPOINT_DSP, checkName);
-		MDC.put(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));		
-		
-		LogPlusUtils.logTextMessage(aLogger, message);
-		
-		MDC.remove(LogPlusConstants.CHECKPOINT_DSP);
-		MDC.remove(LogPlusConstants.ELAPSED_TIME);		
 		
 		if(logCheckPointEvent) {
 			logger.info("CheckPoint as name '" + checkPointName + "' ended.");
@@ -77,19 +91,19 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			checkPointName = checkPointName.substring(0, checkPointName.lastIndexOf("::"));			
 		}
 		
-		MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		//MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
 		
 		if(logger.isTraceEnabled()) {
 			logger.trace("Current CheckPoint is set to {}", checkPointName);
 		}
-
-		MDC.remove(checkName);
-
+		
 	}
 
 	@Override
 	public String getCurrentCheckPoint() {
-		return MDC.get(CURR_CHECKPOINT);
+		//return MDC.get(CURR_CHECKPOINT);
+		return LogPlusUtils.getLogPlusFieldValue(CURR_CHECKPOINT, false);
 	}
 
 	@Override

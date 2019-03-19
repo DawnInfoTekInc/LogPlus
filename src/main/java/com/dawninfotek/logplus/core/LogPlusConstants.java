@@ -4,6 +4,8 @@ public interface LogPlusConstants {
 
     public static final String HEADER_NAME = "logplus.header.name";
     public static final String FIELDS_NAME = "logplus.fields";
+    public static final String USE_MDC = "logplus.system.usemdc";
+    public static final String INHB_FIELD_VALUE = "logplus.system.inheritable.fields";
 	public static final String HEADER_INCLUDES = "logplus.header.includes";
 	public static final String MASK_KEYWORD = "logplus.value.hash";
 	public static final String JSON_LAYOUT_DEFAULT = "logplus.json.fields.default";
@@ -24,6 +26,7 @@ public interface LogPlusConstants {
     public static final String PERFORMANCE_METRIC = "Performance_Metric";
     public static final String TRANSACTION_PATH = "transactionPath";
     public static final String PATH = "path";
+    public static final String HOST_NAME = "hostName";
     public static final String TX_PATH_PREFIX="txpath.";
     public static final String TX_PATH_PATTERN_MATCHING="path.pattern.match";
 	public static final String CURR_CHECKPOINT = "current_checkpoint";

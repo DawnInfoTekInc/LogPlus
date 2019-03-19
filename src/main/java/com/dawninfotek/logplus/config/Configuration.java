@@ -15,11 +15,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.core.Component;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.AntPathMatcher;
-import com.dawninfotek.logplus.util.LogPlusUtils;
 
 public class Configuration implements Component {
 	
@@ -315,7 +313,7 @@ public class Configuration implements Component {
 		
 		String path = request.getRequestURI().substring(request.getContextPath().length());
 		
-		if(Boolean.valueOf(LogPlusUtils.getLogProperty(TX_PATH_PATTERN_MATCHING, "false"))){
+		if(Boolean.valueOf(propertyMap.get(TX_PATH_PATTERN_MATCHING))){
 			//use url pattern
 			return pathMatcher.match(urlPattern, path);
 		}else {
