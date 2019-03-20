@@ -9,7 +9,8 @@ This framework provides features which can be used in different purposes, it cur
 2. provide application & service level traceability, meanwhile traceability feature set performance check point inside application/service
 3. security, for sensitive information MaskService provide a way to mask string with designed pattern, also HashService hide indicated key from http request with hash method
 4. event, EventService is designed for the purpose of tracing, continuously trace activities/actions happened/generated inside production service
-5. formatted output logs, All output logs are in nice JSON format with customized fields, both in pattern configure or json layout.
+5. multithread support, logplus supports multithread application by passing application context to child thread so that tracibility can extend to child thread as well, remember to clean threadlocal (LogPlusUtils.clearThreadContext();), see [sample](#sample code).
+6. formatted output logs, All output logs are in nice JSON format with customized fields, both in pattern configure or json layout.
 
 ## usage
 1. requirement:
@@ -111,7 +112,7 @@ Code in Parent Thread
 > Java Worker
 Parent Thread:
     try{                      
-        vorkmanager.schedule(new MyWorker("", LogPlusUtils.getCopyOfThreadContext()));
+        workmanager.schedule(new MyWorker("", LogPlusUtils.getCopyOfThreadContext()));
     }catch (Exception e) {
         logger.error("",e);
     }                           
