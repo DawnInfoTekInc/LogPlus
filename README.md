@@ -83,7 +83,7 @@ This framework provides features which can be used in different purposes, it cur
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j2.xml](src/test/resources/log4j2_json_layout.xml)
 ### sample code
-1. if set logplus.system.inheritable.fields=true (see [logplus-default.properties](src/main/resources/logplus-default.properties)) 
+1. if set logplus.system.inheritable.fields=true (see [logplus-default.properties](src/main/resources/logplus-default.properties)), see below sample code on how to pass context manually 
 ~~~~
 > Spring @Async
 Code in the Async method
