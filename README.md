@@ -43,6 +43,7 @@ This framework provides features which can be used in different purposes, it cur
 > connection.setRequestProperty(LogPlusUtils.getLogPlusHeaderName(), LogPlusUtils.getLogPlusHeaderValue());
 
 ## examples
+### configuration
 1. with logback:
     1. with static json config in pattern:
     > - add jars: logback-classic, logback-core, slf4j-api, logplus, logplus-web(with filter&listener), commons-beanutils, commons-codec, commons-lang
@@ -81,6 +82,61 @@ This framework provides features which can be used in different purposes, it cur
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j2.xml](src/test/resources/log4j2_json_layout.xml)
+### sample code
+1. if set logplus.system.inheritable.fields=true (see [logplus-default.properties](src/main/resources/logplus-default.properties)) 
+~~~~
+> Spring @Async
+Code in the Async method
+    @Async
+    public Future<String> asyncGetProfile(String key, Map<String, String> threadContext) {
+        LogPlusUtils.initThreadContext(threadContext);          
+            try {
+                    logger.info("asyncGetProfile() is called ...");
+                    Thread.sleep(500);
+                    logger.info("asyncGetProfile() done ...");
+                }catch (Exception e) {
+                    logger.error("Somthing went wrong",e);
+                }finally {
+                    LogPlusUtils.clearThreadContext();
+                }       
+                return new AsyncResult<String>("How are you!");
+              }
+
+
+Code in Parent Thread
+    Future<String> f = profileService.asyncGetProfile(null, LogPlusUtils.getCopyOfThreadContext());
+        String r = f.get();
+
+
+> Java Worker
+Parent Thread:
+    try{                      
+        vorkmanager.schedule(new MyWorker("", LogPlusUtils.getCopyOfThreadContext()));
+    }catch (Exception e) {
+        logger.error("",e);
+    }                           
+
+Work:
+public MyWorker(String id, Map<String, String> logPlusContext){
+    super();
+    this.id = id;
+    this.logPlusContext = logPlusContext;
+}             
+
+@Override
+public void run() {
+    LogPlusUtils.initThreadContext(logPlusContext);
+    logger.info("Async Thread started ..." + id);
+    try{
+        Thread.sleep(500);
+        logger.info("Async Thread done ...");                                    
+    }catch (Exception e) {
+        logger.error("",e);
+    }finally{
+        LogPlusUtils.clearThreadContext();                                       
+    }
+}
+~~~~
 
 ## License
 

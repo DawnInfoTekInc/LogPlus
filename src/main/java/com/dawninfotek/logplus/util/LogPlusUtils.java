@@ -31,22 +31,19 @@ public class LogPlusUtils implements LogPlusConstants {
 
 	final static Logger utilLogger = LoggerFactory.getLogger(LogPlusUtils.class);
 	
-	protected static Set<String> maskNames;
+	protected static Set<String> maskNames;	
 	
-	/**
+	public static ThreadLocal<Map<String, String>> threadContext;
+	
 	static {
-	
-		String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
 		
-		maskNames = new HashSet<String>();
-		if (hs != null) {
-			for (String hashName : hs) {
-				maskNames.add(hashName);
-			}
+		if(Boolean.valueOf(LogPlusContext.configuration().getConfigurationValue(LogPlusConstants.INHB_FIELD_VALUE))) {
+			threadContext = new InheritableThreadContext();
+		}else {
+			threadContext = new ThreadContext();
 		}
 	}
-	*/
-
+	
 	/**
 	 * Retrieves configuration value from configuration file
 	 * 
@@ -231,7 +228,11 @@ public class LogPlusUtils implements LogPlusConstants {
 		
 		//first, try MDC first
 		if(!contextScope) {
-			result = MDC.get(fieldName);
+			//result = MDC.get(fieldName);
+			Map<String, String> sc = threadContext.get();
+			if(sc != null) {
+				result = sc.get(fieldName);
+			}
 		}
 		if(result == null) {
 			//try LogPlus Context value
@@ -375,5 +376,111 @@ public class LogPlusUtils implements LogPlusConstants {
 		return fieldValue;
 
 	}
+
+	
+	/**
+	 * Clear the LogPlusFields in the MDC and Copy the new values from the given Map
+	 * @param logplusFilesds
+	 */
+	public static void clearAndCopyMDC(Map<String, String> logplusFilesds) {
+		
+		//Since MDC might be used by the application, so only remove the LogPlus fields one by one instead of clear() method by MDC
+		for(String fieldMightInMDC:LogPlusContext.notEventScopeFields()) {
+			MDC.remove(fieldMightInMDC);
+		}
+		
+		copyToMDC(logplusFilesds);
+		
+	}
+	
+	/**
+	 * Copy the new values to MDC from the given Map
+	 * @param logplusFilesds
+	 */
+	public static void copyToMDC(Map<String, String> logplusFilesds) {
+		
+		if(logplusFilesds != null) {
+			for(String name:logplusFilesds.keySet()) {
+				MDC.put(name, logplusFilesds.get(name));
+			}
+		}
+	}
+	
+	public static void saveFieldValue(String fieldName, String fieldValue) {
+		Map<String, String> sc = threadContext.get();
+		if(sc == null) {
+			sc = new HashMap<String, String>();
+			threadContext.set(sc);
+		}
+		
+		sc.put(fieldName, fieldValue);
+		
+		if(LogPlusContext.isUseMDC()) {
+			//Update the MDC values as well
+			MDC.put(fieldName, fieldValue);
+		}
+	}
+	
+	public static void removeField(String fieldName) {
+
+		Map<String, String> sc = threadContext.get();
+		if(sc !=null) {
+			sc.remove(fieldName);
+		}
+		
+		if(LogPlusContext.isUseMDC()) {
+			MDC.remove(fieldName);
+		}
+	}
+	
+	public static boolean containField(String fieldName) {
+
+		boolean result = false;
+		Map<String, String> sc = threadContext.get();
+		if(sc !=null) {
+			result = sc.keySet().contains(fieldName);
+		}
+		
+		return result;
+	}
+	
+	public static void initThreadContext() {
+		initThreadContext(new HashMap<String, String>());
+	}
+	
+	public static void initThreadContext(Map<String, String> map) {
+		threadContext.set(map);
+		if(LogPlusContext.isUseMDC() && map != null) {
+			for(String fieldName:map.keySet()) {
+				MDC.put(fieldName, map.get(fieldName));
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, String> getCopyOfThreadContext() {
+		
+		Map<String, String> map = threadContext.get();
+		if(map != null) {
+			return (Map<String, String>)((HashMap<String, String>) map).clone();
+		}else {
+			return null;
+		}
+		
+	}
+	
+	public static void clearThreadContext() {
+		Map<String, String> sc = threadContext.get();
+		if(sc !=null) {			
+			if(LogPlusContext.isUseMDC()) {
+				for(String key:sc.keySet()) {
+					MDC.remove(key);
+				}
+			}
+			sc.clear();
+		}	
+	}
+	
+	
 	
 }

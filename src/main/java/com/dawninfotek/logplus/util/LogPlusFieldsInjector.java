@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
@@ -75,9 +74,12 @@ public class LogPlusFieldsInjector {
 			try {
 				// need to make sure any error in LogPlus will not impact the application in the
 				// run time.
+				LogPlusUtils.initThreadContext();
+				
 				prepareSysFields();
 				prepareLogPlusFields(httpRequest);
-				transactionPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
+				transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
+
 				if (transactionPath != null) {
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
 					LogPlusContext.eventService().logServiceEventBegin(transactionPath, logger);
@@ -96,16 +98,16 @@ public class LogPlusFieldsInjector {
 	
 	protected void postProcessHttpInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		try {
-			String transactionPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
+			String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
 			
 			if (transactionPath != null) {
 				LogPlusContext.eventService().logServiceEventEnd(transactionPath, logger);
 				LogPlusContext.checkPointService().endCheckPoint(logger);
 			}
-			removeLogPlusFields(httpRequest);
-			removeSysFields();
 		} catch (Exception e) {
 			logger.error("Error occured during processing LogPlus functions.", e);
+		}finally {				
+			LogPlusUtils.clearThreadContext();
 		}
 	}
 	
@@ -117,11 +119,11 @@ public class LogPlusFieldsInjector {
 			logger.trace("transactionPath is {}.", transactionPath);
 		}
 
-		MDC.put(LogPlusConstants.TRANSACTION_PATH, transactionPath);
+		LogPlusUtils.saveFieldValue(LogPlusConstants.TRANSACTION_PATH, transactionPath);
 		
 		//override the default service name 
-		MDC.put(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));		
-
+		LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));	
+		
 		String logPlusHeader = httpRequest.getHeader(LogPlusUtils.getLogPlusHeaderName());
 
 		if (StringUtils.isEmpty(logPlusHeader)) {
@@ -133,7 +135,7 @@ public class LogPlusFieldsInjector {
 		String path = httpRequest.getPathInfo();
 		if (path == null) {
 			path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
-			MDC.put("path", path);
+			LogPlusUtils.saveFieldValue(LogPlusConstants.PATH, path);
 		}
 		logger.info("request path: " + path);
 	}
@@ -147,7 +149,6 @@ public class LogPlusFieldsInjector {
 	 */
 	private void processLogPlusHeader(String logPlusHeader, HttpServletRequest httpRequest) {
 		String decodedHeader = LogPlusUtils.decode(logPlusHeader);
-		// StringBuilder AQAHeaderValue = new StringBuilder();
 		String[] headers = decodedHeader.split(";");
 		String key;
 		String headerValue;
@@ -165,23 +166,22 @@ public class LogPlusFieldsInjector {
 				headerValue = aqastrings[1];
 			}
 
-			MDC.put(key, headerValue);
+			LogPlusUtils.saveFieldValue(key, headerValue);
 			if(key.equals(LogPlusConstants.CHECKPOINT)) {
-				MDC.put(LogPlusConstants.CURR_CHECKPOINT, headerValue);
+				LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, headerValue);
 			}
 		}
 
-		// Need to be able to create new fields which not be defined in the previous
-		// tier.
+		// Need to be able to create new fields which not be defined in the previous tier.
 		for (String propertyKey : this.fieldNmaes) {
 
 			key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
 
 			// need to be added
-			if (MDC.get(key) == null) {					
+			if (!LogPlusUtils.containField(key)) {	
 				LogPlusField field = LogPlusContext.getLogPlusField(key);				
 				if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {				
-					MDC.put(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
+					LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 				}
 			}
 		}
@@ -202,18 +202,16 @@ public class LogPlusFieldsInjector {
 			//will ignored the EVENT scope fields
 			if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {
 				String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
-				MDC.put(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));			
+				LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 			}
 		}
 	}
 
 	protected void removeLogPlusFields(HttpServletRequest httpRequest) {
-		for (String key : this.fieldNmaes) {
-			MDC.remove(key);
+		for (String key : LogPlusContext.notEventScopeFields()) {
+			LogPlusUtils.removeField(key);
 		}
-		MDC.remove(LogPlusUtils.getLogPlusHeaderName());
-		MDC.remove(LogPlusConstants.TRANSACTION_PATH);
-		MDC.remove(LogPlusConstants.PATH);
+		LogPlusUtils.removeField(LogPlusUtils.getLogPlusHeaderName());
 	}
 	
 	/**
@@ -248,17 +246,17 @@ public class LogPlusFieldsInjector {
 	}
 	
 	protected void prepareSysFields() {
-		MDC.put(LogPlusConstants.PROCESS_ID, processId);
-		MDC.put("hostName", LogPlusUtils.getLogPlusFieldValue("hostName", true));
-		MDC.put(LogPlusConstants.SERVICE_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.SERVICE_NAME, ""));
-		MDC.put(LogPlusConstants.APPLICATION_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.APPLICATION_NAME, ""));
+		LogPlusUtils.saveFieldValue(LogPlusConstants.PROCESS_ID, processId);
+		LogPlusUtils.saveFieldValue(LogPlusConstants.HOST_NAME, LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.HOST_NAME, true));
+		LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.SERVICE_NAME, ""));
+		LogPlusUtils.saveFieldValue(LogPlusConstants.APPLICATION_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.APPLICATION_NAME, ""));
 	}
 
 	protected void removeSysFields() {
-		MDC.remove(LogPlusConstants.PROCESS_ID);
-		MDC.remove("hostName");
-		MDC.remove(LogPlusConstants.SERVICE_NAME);
-		MDC.remove(LogPlusConstants.APPLICATION_NAME);
+		LogPlusUtils.removeField(LogPlusConstants.PROCESS_ID);
+		LogPlusUtils.removeField(LogPlusConstants.HOST_NAME);
+		LogPlusUtils.removeField(LogPlusConstants.SERVICE_NAME);
+		LogPlusUtils.removeField(LogPlusConstants.APPLICATION_NAME);
 	}
 	
 	/**

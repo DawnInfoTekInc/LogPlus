@@ -35,7 +35,7 @@ public class AppTest
         assertTrue(LogPlusUtils.getLogProperty("uuid.key", "").equals("uuid"));
         LogPlusContext.checkPointService().startCheckPoint("subTest");
         assertTrue(LogPlusUtils.getLogPlusHeaderName().equals("AQALogPlus"));
-        MDC.put("AQALogPlus", "header"); 
+        LogPlusUtils.saveFieldValue("AQALogPlus", "header"); 
         System.out.println(LogPlusUtils.getLogPlusHeaderValue());
         try {
             Thread.sleep(1000);
@@ -83,7 +83,7 @@ public class AppTest
     @Test
     public void checkpointTest(){
         LogPlusContext.initialize(null);
-        MDC.put(LogPlusConstants.CURR_CHECKPOINT, "curr_cp");
+        LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, "curr_cp");
         LogPlusContext.checkPointService().startCheckPoint("testCheck");
         LogPlusContext.checkPointService().endCheckPoint(logger);
         System.out.println(LogPlusUtils.getLogPlusHeaderValue());

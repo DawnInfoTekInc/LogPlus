@@ -1,7 +1,9 @@
 package com.dawninfotek.logplus.core;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -41,6 +43,10 @@ public class LogPlusContext {
 	
 	private static boolean initialized = false;
 	
+	private static boolean useMDC = false;
+	
+	private Set<String> notEventScopeFields = null;
+
 	/**
 	 * Initial the Log Plus System
 	 * @param configFile
@@ -54,6 +60,7 @@ public class LogPlusContext {
 			//indicate the configuration has been initialized.
 			initialized = true;			
 			//initial other components
+			useMDC = Boolean.valueOf(instance.configuration.getConfigurationValue(LogPlusConstants.USE_MDC));
 			instance.components.put(LogPlusConstants.C_NAME_CP, getComponent(null,LogPlusConstants.C_NAME_CP));
 			instance.components.put(LogPlusConstants.C_NAME_EVT, getComponent(null,LogPlusConstants.C_NAME_EVT));
 			instance.components.put(LogPlusConstants.C_NAME_HASH, getComponent(null,LogPlusConstants.C_NAME_HASH));
@@ -85,23 +92,40 @@ public class LogPlusContext {
 				instance.logPlusFields.put(field, new LogPlusField(field));				
 			}
 			
-			//create logPlusContextVariables
+			//create logPlusContextVariables and Not Event field names
 			
 			LogPlusField f = null;
+			
+			//Use for creating the name list of fields
+			Set<String> notEventScopeFields = new HashSet<String>();
 			
 			for(String logPlusField:LogPlusUtils.getLogPlusFieldNames()) {
 				
 				f = instance.logPlusFields.get(logPlusField);
 				
-				if(f != null && f.getScope() == LogPlusField.SCOPE_CONTEXT) {
-					//this is a context variable
-					instance.contextParameters.put(logPlusField, LogPlusUtils.resolveFieldValue(logPlusField, null));
-					System.out.println("Context Variable:" + logPlusField + " was created ...");
+				if(f != null) {
+					if(f.getScope() == LogPlusField.SCOPE_CONTEXT) {
+						//this is a context variable
+						instance.contextParameters.put(logPlusField, LogPlusUtils.resolveFieldValue(logPlusField, null));
+						notEventScopeFields.add(logPlusField);
+						System.out.println("Context Variable:" + logPlusField + " was created ...");
+					
+					}else if(f.getScope() == LogPlusField.SCOPE_THREAD) {
+						notEventScopeFields.add(logPlusField);
+					}
 					
 				}
 				
-			}		
-		
+			}
+			
+			//names about the checkpoints
+			notEventScopeFields.add(LogPlusConstants.CURR_CHECKPOINT);
+			notEventScopeFields.add(LogPlusConstants.CHECKPOINT_DSP);
+			notEventScopeFields.add(LogPlusConstants.ELAPSED_TIME);
+			notEventScopeFields.add(LogPlusConstants.TRANSACTION_PATH);
+			notEventScopeFields.add(LogPlusConstants.PATH);
+			
+			instance.notEventScopeFields = notEventScopeFields;
 		}
 		
 	}
@@ -195,5 +219,17 @@ public class LogPlusContext {
 	 */
 	public static final LogPlusField getLogPlusField(String fieldName) {
 		return instance.logPlusFields.get(fieldName);
+	}
+	
+	public static boolean isUseMDC() {
+		return useMDC;
+	}
+	
+	public Set<String> getNotEventScopeFields() {
+		return notEventScopeFields;
+	}
+	
+	public static Set<String> notEventScopeFields(){
+		return instance.getNotEventScopeFields();
 	}
 }

@@ -79,7 +79,7 @@ public class AntPathMatcher {
 	 * @param pattern the pattern to match against
 	 * @param path the path String to test
 	 * @param fullMatch whether a full pattern match is required
-	 * (else a pattern match as far as the given base path goes is sufficient)
+	 * (else a pattern match as far as the given base path is sufficient)
 	 * @return <code>true</code> if the supplied <code>path</code> matched,
 	 * <code>false</code> if it didn't
 	 */
