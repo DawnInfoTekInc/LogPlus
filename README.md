@@ -9,7 +9,7 @@ This framework provides features which can be used in different purposes, it cur
 2. provide application & service level traceability, meanwhile traceability feature set performance check point inside application/service
 3. security, for sensitive information MaskService provide a way to mask string with designed pattern, also HashService hide indicated key from http request with hash method
 4. event, EventService is designed for the purpose of tracing, continuously trace activities/actions happened/generated inside production service
-5. multithread support, logplus supports multithread application by passing application context to child thread so that tracibility can extend to child thread as well, remember to clean threadlocal (LogPlusUtils.clearThreadContext();), see [sample](#sample code).
+5. multithread support, logplus supports multithread application by passing application context to child thread so that tracibility can extend to child thread as well, remember to clean threadlocal (LogPlusUtils.clearThreadContext();), see [sample code](#sample-code).
 6. formatted output logs, All output logs are in nice JSON format with customized fields, both in pattern configure or json layout.
 
 ## usage
@@ -83,7 +83,7 @@ This framework provides features which can be used in different purposes, it cur
     > - config logplus.properties, no need to change/add logplus-default.properties, customize logplus.properties to override logplus-default.properties
     > - config web.xml to add listener, filter, custom config file logplus.properties. by default, it will try to find config file from class path, and filter everything under root "/"
     > - config logback.xml, see sample [log4j2.xml](src/test/resources/log4j2_json_layout.xml)
-### sample code
+### sample code ###
 1. if set logplus.system.inheritable.fields=true (see [logplus-default.properties](src/main/resources/logplus-default.properties)), see below sample code on how to pass context manually 
 ~~~~
 > Spring @Async
