@@ -116,8 +116,9 @@ public class LogPlusUtils implements LogPlusConstants {
 			for(String name:getLogPlusHeaderInclues()) {
 				
 				sb.append(name).append("=");
-				v = MDC.get(name);
-				if(v == null) {
+//				v = MDC.get(name);
+				v = getLogPlusFieldValue(name, false);
+				if(StringUtils.isEmpty(v)) {
 					sb.append("");
 				}else {
 					sb.append(v);

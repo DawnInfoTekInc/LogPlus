@@ -3,7 +3,6 @@ package com.dawninfotek.logplus.checkpoint;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.LogPlusUtils;
@@ -16,7 +15,8 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 
 	@Override
 	public void startCheckPoint(String checkName) {
-		String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
+//		String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
+		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT, false);
 		if (checkPointName == null || checkPointName.length() == 0) {
 			checkPointName = checkName;
 		} else {
