@@ -7,6 +7,7 @@
 
 package com.dawninfotek.logplus.util;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Base64;
+//import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.resolver.Resolver;
+import com.google.common.io.BaseEncoding;
 
 public class LogPlusUtils implements LogPlusConstants {
 
@@ -203,8 +205,14 @@ public class LogPlusUtils implements LogPlusConstants {
 		if (source == null) {
 			return null;
 		}
-
-		return Base64.encodeBase64String(source.getBytes());
+		//To prevent the new version of 'common-codec.jar' conflict with some old system. use guava. 
+		try {
+			return BaseEncoding.base64().encode(source.getBytes("UTF-8"));
+		}catch(UnsupportedEncodingException ignored) {
+			utilLogger.error("Failed to encode...",ignored);
+		}		
+		return null; 
+		//return Base64.encodeBase64String(source.getBytes());
 
 	}
 
@@ -218,8 +226,16 @@ public class LogPlusUtils implements LogPlusConstants {
 		if (source == null) {
 			return null;
 		}
+		
+		try {
+			return new String(BaseEncoding.base64().decode(source), "UTF-8");
+		}catch (Exception ignored) {
+			utilLogger.error("Failed to decode ...",ignored);
+		}
+		
+		return null;
 
-		return new String(Base64.decodeBase64(source));
+		//return new String(Base64.decodeBase64(source));
 
 	}
 	
