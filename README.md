@@ -18,7 +18,7 @@ This framework provides features which can be used in different purposes, it cur
     2. for log4j1.2.17 packages (log4j1.2.17, slf4j-api, slf4j-log4j12)
     3. for log4j2 packages (log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl) with json output static configure in pattern, (log4j-api, log4j-core, slf4j-api, log4j-slf4j-impl, jackson-annotations, jackson-core, jackson-databind) with jsonlayout dynamic configure.
     4. commons-beanutils
-    5. commons-codec ( 1.4 or above)
+    5. guava  (guava-14.0.1 or above)
     6. commons-lang
     
 2. configuration:
