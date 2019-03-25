@@ -27,7 +27,6 @@ import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.resolver.Resolver;
-import com.google.common.io.BaseEncoding;
 
 public class LogPlusUtils implements LogPlusConstants {
 
@@ -205,9 +204,9 @@ public class LogPlusUtils implements LogPlusConstants {
 		if (source == null) {
 			return null;
 		}
-		//To prevent the new version of 'common-codec.jar' conflict with some old system. use guava. 
+		//To prevent the new version of 'common-codec.jar' conflict with some old system. 
 		try {
-			return BaseEncoding.base64().encode(source.getBytes("UTF-8"));
+			return Base64Util.encode(source.getBytes("UTF-8"));
 		}catch(UnsupportedEncodingException ignored) {
 			utilLogger.error("Failed to encode...",ignored);
 		}		
@@ -228,7 +227,7 @@ public class LogPlusUtils implements LogPlusConstants {
 		}
 		
 		try {
-			return new String(BaseEncoding.base64().decode(source), "UTF-8");
+			return new String(Base64Util.decode(source), "UTF-8");
 		}catch (Exception ignored) {
 			utilLogger.error("Failed to decode ...",ignored);
 		}
