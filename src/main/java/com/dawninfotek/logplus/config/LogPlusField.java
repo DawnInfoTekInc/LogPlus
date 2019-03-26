@@ -23,6 +23,8 @@ public class LogPlusField {
 	
 	public static int SCOPE_EVENT = 2;
 	
+	public static int SCOPE_ENTERPRISE = 3;
+	
 	public static Map<String, Integer> scopeMapping;
 	
 	static {
@@ -30,7 +32,8 @@ public class LogPlusField {
 		scopeMapping.put("CONTEXT", SCOPE_CONTEXT);
 		scopeMapping.put("THREAD", SCOPE_THREAD);
 		scopeMapping.put("LINE", SCOPE_LINE);
-		scopeMapping.put("EVENT", SCOPE_EVENT);		
+		scopeMapping.put("EVENT", SCOPE_EVENT);	
+		scopeMapping.put("ENTERPRISE", SCOPE_ENTERPRISE);	
 	}
 	
 	public LogPlusField() {

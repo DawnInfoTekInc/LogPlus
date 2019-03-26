@@ -146,6 +146,26 @@ public class LogPlusUtils implements LogPlusConstants {
 
 		return encode(headerValue);
 	}	
+	
+	public static Map<String, String> getLogPlusEnterpriseHeaders() {
+		
+		Map<String, String> map = new HashMap<String, String>();
+		String v = null;
+		
+		if(getLogPlusHeaderInclues() != null && getLogPlusHeaderInclues().length > 0) {
+			
+			for(String name:getLogPlusHeaderInclues()) {
+				LogPlusField field = LogPlusContext.getLogPlusField(name);
+				if(field != null && field.getScope() == LogPlusField.SCOPE_ENTERPRISE) {
+					if(LogPlusUtils.containField(name)) {
+						v = getLogPlusFieldValue(name, false);
+						map.put(name, v);
+					}
+				}
+			}
+		}
+		return map;
+	}
 
 	/**
 	 * Answer the value of Trace Header
