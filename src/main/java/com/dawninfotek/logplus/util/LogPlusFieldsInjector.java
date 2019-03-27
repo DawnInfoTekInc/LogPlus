@@ -78,7 +78,7 @@ public class LogPlusFieldsInjector {
 				
 				prepareSysFields();
 				prepareLogPlusFields(httpRequest);
-				transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
+				transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 
 				if (transactionPath != null) {
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
@@ -98,7 +98,7 @@ public class LogPlusFieldsInjector {
 	
 	protected void postProcessHttpInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		try {
-			String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
+			String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 			
 			if (transactionPath != null) {
 				LogPlusContext.eventService().logServiceEventEnd(transactionPath, logger);
@@ -247,7 +247,7 @@ public class LogPlusFieldsInjector {
 	
 	protected void prepareSysFields() {
 		LogPlusUtils.saveFieldValue(LogPlusConstants.PROCESS_ID, processId);
-		LogPlusUtils.saveFieldValue(LogPlusConstants.HOST_NAME, LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.HOST_NAME, true));
+		LogPlusUtils.saveFieldValue(LogPlusConstants.HOST_NAME, LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.HOST_NAME));
 		LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.SERVICE_NAME, ""));
 		LogPlusUtils.saveFieldValue(LogPlusConstants.APPLICATION_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.APPLICATION_NAME, ""));
 	}

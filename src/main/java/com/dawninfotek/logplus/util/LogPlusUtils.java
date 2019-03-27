@@ -118,7 +118,7 @@ public class LogPlusUtils implements LogPlusConstants {
 				
 				sb.append(name).append("=");
 //				v = MDC.get(name);
-				v = getLogPlusFieldValue(name, false);
+				v = getLogPlusFieldValue(name);
 				if(StringUtils.isEmpty(v)) {
 					sb.append("");
 				}else {
@@ -151,16 +151,13 @@ public class LogPlusUtils implements LogPlusConstants {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		String v = null;
-		
-		if(getLogPlusHeaderInclues() != null && getLogPlusHeaderInclues().length > 0) {
-			
-			for(String name:getLogPlusHeaderInclues()) {
-				LogPlusField field = LogPlusContext.getLogPlusField(name);
-				if(field != null && field.getScope() == LogPlusField.SCOPE_ENTERPRISE) {
-					if(LogPlusUtils.containField(name)) {
-						v = getLogPlusFieldValue(name, false);
-						map.put(name, v);
-					}
+		map.put(getLogPlusHeaderName(), getLogPlusHeaderValue());
+		for(String name:getLogPlusHeaderInclues()) {
+			LogPlusField field = LogPlusContext.getLogPlusField(name);
+			if(field != null && field.getScope() == LogPlusField.SCOPE_ENTERPRISE) {
+				if(LogPlusUtils.containField(name)) {
+					v = getLogPlusFieldValue(name);
+					map.put(name, v);
 				}
 			}
 		}
@@ -258,17 +255,15 @@ public class LogPlusUtils implements LogPlusConstants {
 
 	}
 	
-	public static String getLogPlusFieldValue(String fieldName, boolean contextScope) {
+	public static String getLogPlusFieldValue(String fieldName) {
 		
 		String result = null;
 		
 		//first, try MDC first
-		if(!contextScope) {
-			//result = MDC.get(fieldName);
-			Map<String, String> sc = threadContext.get();
-			if(sc != null) {
-				result = sc.get(fieldName);
-			}
+		//result = MDC.get(fieldName);
+		Map<String, String> sc = threadContext.get();
+		if(sc != null) {
+			result = sc.get(fieldName);
 		}
 		if(result == null) {
 			//try LogPlus Context value

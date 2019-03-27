@@ -17,7 +17,7 @@ public class ALIASResolver extends AbstractResolver {
 	@Override
 	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		String value = (String) parameters.get(PARAMETERS);
-		String result = LogPlusUtils.getLogPlusFieldValue(value, false);
+		String result = LogPlusUtils.getLogPlusFieldValue(value);
 		if(logger.isTraceEnabled()) {
 			logger.trace("resolved value as:" + result);
 		}

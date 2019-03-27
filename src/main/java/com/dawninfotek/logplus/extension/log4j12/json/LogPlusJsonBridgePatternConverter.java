@@ -125,7 +125,7 @@ public final class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatter
 					}
 					
 				}else {
-					value = LogPlusUtils.getLogPlusFieldValue(field.getName(), false);
+					value = LogPlusUtils.getLogPlusFieldValue(field.getName());
 				}
 			}
 			

@@ -207,7 +207,7 @@ public class JsonField implements Comparable<JsonField>{
 	}
 	
 	public static String getFromMDC(String value) {
-		String result = LogPlusUtils.getLogPlusFieldValue(value, false);
+		String result = LogPlusUtils.getLogPlusFieldValue(value);
 		if(result == null) {
 			return "";
 		}

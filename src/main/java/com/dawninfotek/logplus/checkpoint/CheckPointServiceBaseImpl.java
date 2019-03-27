@@ -16,7 +16,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	@Override
 	public void startCheckPoint(String checkName) {
 //		String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
-		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT, false);
+		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT);
 		if (checkPointName == null || checkPointName.length() == 0) {
 			checkPointName = checkName;
 		} else {
@@ -41,19 +41,19 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		long executionTime = 0;
 		long end = System.currentTimeMillis();
 		//String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
-		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT, false);
+		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT);
 		String checkName = checkPointName;
 		
 		try {
-			String start = LogPlusUtils.getLogPlusFieldValue(checkPointName, false);
+			String start = LogPlusUtils.getLogPlusFieldValue(checkPointName);
 			if (start != null) {
 				executionTime = end - Long.parseLong(start);
 			}
 		
 			//String transPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
-			String transPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH, false);
+			String transPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 			//String path = MDC.get(LogPlusConstants.PATH);
-			String path = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.PATH, false);
+			String path = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.PATH);
 			
 			String p = "";
 
@@ -103,7 +103,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	@Override
 	public String getCurrentCheckPoint() {
 		//return MDC.get(CURR_CHECKPOINT);
-		return LogPlusUtils.getLogPlusFieldValue(CURR_CHECKPOINT, false);
+		return LogPlusUtils.getLogPlusFieldValue(CURR_CHECKPOINT);
 	}
 
 	@Override
