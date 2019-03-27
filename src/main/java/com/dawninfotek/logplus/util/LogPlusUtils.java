@@ -127,7 +127,6 @@ public class LogPlusUtils implements LogPlusConstants {
 				
 				sb.append(";");				
 			}
-		
 		}
 		
 		v = LogPlusContext.checkPointService().getCurrentCheckPoint();
@@ -152,7 +151,7 @@ public class LogPlusUtils implements LogPlusConstants {
 		Map<String, String> map = new HashMap<String, String>();
 		String v = null;
 		map.put(getLogPlusHeaderName(), getLogPlusHeaderValue());
-		for(String name:getLogPlusHeaderInclues()) {
+		for(String name: getLogPlusFieldNames()) {
 			LogPlusField field = LogPlusContext.getLogPlusField(name);
 			if(field != null && field.getScope() == LogPlusField.SCOPE_ENTERPRISE) {
 				if(LogPlusUtils.containField(name)) {
@@ -181,9 +180,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	 * @return
 	 */
 	public static String getTransactionPath(HttpServletRequest httpRequest) {
-
 		return LogPlusContext.configuration().getTransactionPath(httpRequest);
-
 	}
 
 	/***
@@ -276,7 +273,6 @@ public class LogPlusUtils implements LogPlusConstants {
 		}
 		
 		return result;
-		
 	}
 	
 	/**
@@ -301,15 +297,12 @@ public class LogPlusUtils implements LogPlusConstants {
 					matchingPackage = p;
 					break;
 				}
-				
 			}
-			
 		}
 		
 		if(matchingPackage != null) {
 			
 			Map<String, Object> ps = new HashMap<String, Object>();
-			
 			try {
 			
 				Resolver resolver = LogPlusContext.resolver(field.getName());
@@ -324,12 +317,10 @@ public class LogPlusUtils implements LogPlusConstants {
 			
 			}catch (Exception e) {
 				utilLogger.info("Fail to resolve value for:" + field.getName() + " with parameters " + ps , e);
-			}
-			
+			}	
 		}
 		
 		return result;
-		
 	}
 	
 	/**
@@ -340,31 +331,24 @@ public class LogPlusUtils implements LogPlusConstants {
 	 * @return
 	 */
 	public static boolean resolveFieldValueRequired(LogPlusField field, String logLevel) {
-		
 		List<String> levels = field.getForLogLevels();	
-		
 		return levels != null && levels.contains(logLevel);
-		
 	}
 	
 	public static String resolveFieldValue(String propertyKey, HttpServletRequest httpRequest) {
 		
 		String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-
 		String fieldValue = null;
-
 		if (StringUtils.isEmpty(values)) {
 			fieldValue = "";
 			utilLogger.warn("value must not be empty, keyword: " + propertyKey + " value: " + values);
 		} else {
 
 			for (String value : values.split(",")) {
-
 				String[] p = value.split("\\.", 2);
 				Resolver resolver = LogPlusContext.resolver(p[0]);
 
 				if (resolver != null) {
-
 					Map<String, Object> parameters = null;
 					if (p.length > 1) {
 						parameters = new HashMap<String, Object>();
@@ -378,7 +362,6 @@ public class LogPlusUtils implements LogPlusConstants {
 				if(StringUtils.isNotEmpty(fieldValue)) {
 					break;
 				}
-
 			}
 		}
 
@@ -390,7 +373,6 @@ public class LogPlusUtils implements LogPlusConstants {
 		if(maskNames == null) {
 			
 			String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
-			
 			maskNames = new HashSet<String>();
 			if (hs != null) {
 				for (String hashName : hs) {
@@ -405,7 +387,6 @@ public class LogPlusUtils implements LogPlusConstants {
 		}
 
 		return fieldValue;
-
 	}
 
 	
@@ -421,7 +402,6 @@ public class LogPlusUtils implements LogPlusConstants {
 		}
 		
 		copyToMDC(logplusFilesds);
-		
 	}
 	
 	/**
@@ -511,7 +491,4 @@ public class LogPlusUtils implements LogPlusConstants {
 			sc.clear();
 		}	
 	}
-	
-	
-	
 }
