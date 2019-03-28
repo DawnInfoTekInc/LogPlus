@@ -174,15 +174,30 @@ public class LogPlusFieldsInjector {
 
 		// Need to be able to create new fields which not be defined in the previous tier.
 		for (String propertyKey : this.fieldNmaes) {
-
-			key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
-
-			// need to be added
-			if (!LogPlusUtils.containField(key)) {	
-				LogPlusField field = LogPlusContext.getLogPlusField(key);				
-				if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {				
-					LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
-				}
+			
+			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
+			if(!values.contains(LogPlusConstants.ALIAS)) {
+				// deal with non-alias fields first
+				// need to be added
+				fieldsNameProcess(propertyKey, httpRequest);
+			}
+		}
+		// alias fields process
+		for (String propertyKey : this.fieldNmaes) {
+			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
+			if(values.contains(LogPlusConstants.ALIAS)) {
+				// deal with alias fields
+				fieldsNameProcess(propertyKey, httpRequest);
+			}
+		}
+	}
+	
+	private void fieldsNameProcess(String propertyKey, HttpServletRequest httpRequest) {
+		String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
+		if (LogPlusUtils.containField(key)) {	
+			LogPlusField field = LogPlusContext.getLogPlusField(key);				
+			if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {				
+				LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 			}
 		}
 	}
@@ -197,13 +212,27 @@ public class LogPlusFieldsInjector {
 	private void processWithoutLogPlusHeader(HttpServletRequest httpRequest) {
 		// prepare all fields key value;
 		for (String propertyKey : this.fieldNmaes) {
-			
-			LogPlusField field = LogPlusContext.getLogPlusField(propertyKey);
-			//will ignored the EVENT scope fields
-			if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {
-				String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
-				LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
+			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
+			// deal with non-alias fields first
+			if(!values.contains(LogPlusConstants.ALIAS)) {
+				fieldsNameProcessWithoutHeader(propertyKey, httpRequest);
 			}
+		}
+		for (String propertyKey : this.fieldNmaes) {
+			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
+			// deal with alias fields
+			if(values.contains(LogPlusConstants.ALIAS)) {
+				fieldsNameProcessWithoutHeader(propertyKey, httpRequest);
+			}
+		}
+	}
+	
+	private void fieldsNameProcessWithoutHeader(String propertyKey, HttpServletRequest httpRequest) {
+		LogPlusField field = LogPlusContext.getLogPlusField(propertyKey);
+		//will ignored the EVENT scope fields
+		if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {
+			String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
+			LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 		}
 	}
 

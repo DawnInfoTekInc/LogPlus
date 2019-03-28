@@ -94,28 +94,22 @@ public class LogPlusContext {
 			
 			//create logPlusContextVariables and Not Event field names
 			
-			LogPlusField f = null;
-			
 			//Use for creating the name list of fields
 			Set<String> notEventScopeFields = new HashSet<String>();
 			
 			for(String logPlusField:LogPlusUtils.getLogPlusFieldNames()) {
-				
-				f = instance.logPlusFields.get(logPlusField);
-				
-				if(f != null) {
-					if(f.getScope() == LogPlusField.SCOPE_CONTEXT) {
-						//this is a context variable
-						instance.contextParameters.put(logPlusField, LogPlusUtils.resolveFieldValue(logPlusField, null));
-						notEventScopeFields.add(logPlusField);
-						System.out.println("Context Variable:" + logPlusField + " was created ...");
-					
-					}else if(f.getScope() == LogPlusField.SCOPE_THREAD) {
-						notEventScopeFields.add(logPlusField);
-					}
-					
+				String values = LogPlusUtils.getLogProperty(logPlusField + ".value", "");
+				// deal with non-alias fields first
+				if(!values.contains(LogPlusConstants.ALIAS)) {
+					fieldsNameProcess(logPlusField, notEventScopeFields);
 				}
-				
+			}
+			for(String logPlusField:LogPlusUtils.getLogPlusFieldNames()) {
+				String values = LogPlusUtils.getLogProperty(logPlusField + ".value", "");
+				// deal with alias fields
+				if(values.contains(LogPlusConstants.ALIAS)) {
+					fieldsNameProcess(logPlusField, notEventScopeFields);
+				}
 			}
 			
 			//names about the checkpoints
@@ -127,7 +121,23 @@ public class LogPlusContext {
 			
 			instance.notEventScopeFields = notEventScopeFields;
 		}
+	}
+	
+	private static void fieldsNameProcess(String logPlusField, Set<String> notEventScopeFields) {
+		LogPlusField f = instance.logPlusFields.get(logPlusField);
 		
+		if(f != null) {
+			if(f.getScope() == LogPlusField.SCOPE_CONTEXT) {
+				//this is a context variable
+				instance.contextParameters.put(logPlusField, LogPlusUtils.resolveFieldValue(logPlusField, null));
+				notEventScopeFields.add(logPlusField);
+				System.out.println("Context Variable:" + logPlusField + " was created ...");
+			
+			}else if(f.getScope() == LogPlusField.SCOPE_THREAD) {
+				notEventScopeFields.add(logPlusField);
+			}
+			
+		}
 	}
 
 	/**

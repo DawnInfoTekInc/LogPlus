@@ -31,6 +31,7 @@ public interface LogPlusConstants {
     public static final String TX_PATH_PATTERN_MATCHING="path.pattern.match";
 	public static final String CURR_CHECKPOINT = "current_checkpoint";
 	public static final String CHECKPOINT = "checkpoint";
+	public static final String ALIAS = "ALIAS";
 	
 	public static final String CHECKPOINT_DSP = "checkpointForDisplay";
 	public static final String ELAPSED_TIME = "elapsedTime";
