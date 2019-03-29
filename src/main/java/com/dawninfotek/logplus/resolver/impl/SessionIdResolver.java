@@ -15,16 +15,14 @@ public class SessionIdResolver extends AbstractResolver {
 	public static Logger logger = LoggerFactory.getLogger(SessionIdResolver.class);
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		
 		String result = "";
 		HttpSession session = httpRequest.getSession(false);
 		if(session != null) {
 			result = session.getId();
 		}		
-		if(logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result);
-		}
+
 		return result;
 	}
 

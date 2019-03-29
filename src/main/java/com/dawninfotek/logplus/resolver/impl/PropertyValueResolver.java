@@ -15,7 +15,7 @@ public class PropertyValueResolver extends AbstractResolver {
 	public static Logger logger = LoggerFactory.getLogger(PropertyValueResolver.class);
 	
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		
 		String value = (String) parameters.get(PARAMETERS);
 		

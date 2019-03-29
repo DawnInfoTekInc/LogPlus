@@ -22,7 +22,7 @@ public class TextSearchResultResolver extends AbstractResolver {
 	
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 
 		String result = "";	
 
@@ -63,9 +63,6 @@ public class TextSearchResultResolver extends AbstractResolver {
 			logger.info("fail to get value for text search", ignored);
 		}
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result);
-		}
 		return result;
 	}
 

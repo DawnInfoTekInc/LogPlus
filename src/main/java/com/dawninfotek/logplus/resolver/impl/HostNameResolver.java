@@ -16,7 +16,7 @@ public class HostNameResolver extends AbstractResolver {
 	public static Logger logger = LoggerFactory.getLogger(HostNameResolver.class);
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 
 		String result = "";	
 
@@ -31,9 +31,6 @@ public class HostNameResolver extends AbstractResolver {
 			logger.warn("fail to get hostname", ignored);
 		}
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result);
-		}
 		return result;
 	}
 

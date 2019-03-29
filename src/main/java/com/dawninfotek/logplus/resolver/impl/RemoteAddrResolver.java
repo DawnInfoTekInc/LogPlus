@@ -14,7 +14,7 @@ public class RemoteAddrResolver extends AbstractResolver {
 	public static Logger logger = LoggerFactory.getLogger(RemoteAddrResolver.class);
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		
 		String result = httpRequest.getHeader("X-Forwarded-For");
 		
@@ -55,9 +55,6 @@ public class RemoteAddrResolver extends AbstractResolver {
 			result = "";
 		}
 
-		if(logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result);
-		}
 		return result;
 	}
 

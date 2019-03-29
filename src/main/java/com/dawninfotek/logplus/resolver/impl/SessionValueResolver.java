@@ -12,44 +12,40 @@ import org.slf4j.LoggerFactory;
 import com.dawninfotek.logplus.resolver.AbstractResolver;
 
 public class SessionValueResolver extends AbstractResolver {
-	
+
 	public static Logger logger = LoggerFactory.getLogger(SessionValueResolver.class);
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {		
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		String result = "";
-		if(parameters == null) {
+		if (parameters == null) {
 			logger.warn("No Session object is defined.");
-		}else {			
+		} else {
 			String[] keyAndPath = ((String) parameters.get(PARAMETERS)).split("\\.", 2);
 			Object sessionObj = null;
 			HttpSession session = httpRequest.getSession(false);
-			
-			if(session != null) {
+
+			if (session != null) {
 				sessionObj = session.getAttribute(keyAndPath[0]);
 			}
-			
-			if(sessionObj != null) {
-				if(keyAndPath.length == 1) {
-					result = sessionObj.toString();					
-				}else {
+
+			if (sessionObj != null) {
+				if (keyAndPath.length == 1) {
+					result = sessionObj.toString();
+				} else {
 					try {
 						result = (String) PropertyUtils.getProperty(sessionObj, keyAndPath[1]);
-					}catch (Exception e) {
+					} catch (Exception e) {
 						logger.warn("Fail to resolve session object value", e);
 					}
 				}
-								
-			}else {		
-				logger.info("Session object not found under key:" + keyAndPath[0]);				
-								
-			}			
+
+			} else {
+				logger.info("Session object not found under key:" + keyAndPath[0]);
+
+			}
 		}
-		
-		if(logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result + " under " + parameters.get(PARAMETERS));
-		}		
-	
+
 		return result;
 	}
 

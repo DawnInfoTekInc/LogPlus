@@ -11,57 +11,52 @@ import org.slf4j.LoggerFactory;
 import com.dawninfotek.logplus.resolver.AbstractResolver;
 
 public class RequestHeaderResolver extends AbstractResolver {
-	
+
 	public static Logger logger = LoggerFactory.getLogger(RequestHeaderResolver.class);
 
 	@Override
-	public String resolveValue(HttpServletRequest httpRequest, Map<String, Object> parameters) {
-		
+	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
+
 		String result = "";
 
 		String value = (String) parameters.get(PARAMETERS);
-		if(logger.isTraceEnabled()) {
+		if (logger.isTraceEnabled()) {
 			logger.trace("header retrieve value:" + value);
 		}
 
-			try {
+		try {
 
-				String headerName = value;
-	
-				String attribute = StringUtils.substringBetween(headerName, "[", "]");
+			String headerName = value;
 
-				if (attribute != null) {
+			String attribute = StringUtils.substringBetween(headerName, "[", "]");
 
-					headerName = headerName.substring(0, headerName.indexOf("["));
-					
-					String headerValue = httpRequest.getHeader(headerName);
+			if (attribute != null) {
 
-					if (headerValue != null) {
-						//multiple header is separated by ';'
-						String[] keyValues = headerValue.split(";");
-						for (String keyValue : keyValues) {
-							String[] s = keyValue.split("=", 2);
-							if (s.length > 1 && s[0].equals(attribute)) {
-								result = s[1];
-							}
+				headerName = headerName.substring(0, headerName.indexOf("["));
+
+				String headerValue = httpRequest.getHeader(headerName);
+
+				if (headerValue != null) {
+					// multiple header is separated by ';'
+					String[] keyValues = headerValue.split(";");
+					for (String keyValue : keyValues) {
+						String[] s = keyValue.split("=", 2);
+						if (s.length > 1 && s[0].equals(attribute)) {
+							result = s[1];
 						}
 					}
-
-				} else {
-					// single value
-					result = httpRequest.getHeader(headerName);
-
 				}
 
-			} catch (Exception e) {
-				logger.error("value not exist, " + e.getMessage());
+			} else {
+				// single value
+				result = httpRequest.getHeader(headerName);
+
 			}
 
-		
-		if(logger.isTraceEnabled()) {
-			logger.trace("resolved value as:" + result + " under " + parameters.get("parameter"));
-		}		
-	
+		} catch (Exception e) {
+			logger.error("value not exist, " + e.getMessage());
+		}
+
 		return result;
 	}
 
