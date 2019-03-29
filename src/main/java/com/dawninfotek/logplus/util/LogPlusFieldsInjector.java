@@ -2,6 +2,8 @@ package com.dawninfotek.logplus.util;
 
 import java.lang.management.ManagementFactory;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 
@@ -67,19 +68,12 @@ public class LogPlusFieldsInjector {
 			// to trace all the headers
 			if (logger.isTraceEnabled()) {
 				traceRequest(httpRequest);
-			}
-			
-			String transactionPath = null;
+			}			
 			
 			try {
-				// need to make sure any error in LogPlus will not impact the application in the
-				// run time.
-				LogPlusUtils.initThreadContext();
-				
-				prepareSysFields();
+				// need to make sure any error in LogPlus will not impact the application in the run time.	
 				prepareLogPlusFields(httpRequest);
-				transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
-
+				String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 				if (transactionPath != null) {
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
 					LogPlusContext.eventService().logServiceEventBegin(transactionPath, logger);
@@ -112,49 +106,58 @@ public class LogPlusFieldsInjector {
 	}
 	
 	protected void prepareLogPlusFields(HttpServletRequest httpRequest) {
-		// log service begin
+		
+		Map<String, String> fieldsMap = new HashMap<String, String>();
+		
 		String transactionPath = LogPlusUtils.getTransactionPath(httpRequest);
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("transactionPath is {}.", transactionPath);
 		}
-
-		LogPlusUtils.saveFieldValue(LogPlusConstants.TRANSACTION_PATH, transactionPath);
 		
+		fieldsMap.put(LogPlusConstants.TRANSACTION_PATH, transactionPath);
+		
+		fieldsMap.put(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));
 		//override the default service name 
-		LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));	
+		//LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));	
 		
 		String logPlusHeader = httpRequest.getHeader(LogPlusUtils.getLogPlusHeaderName());
+		
+		if(StringUtils.isNotEmpty(logPlusHeader)) {
+			//Extract the headers passed from parent tier
+			extractLogPlusHeader(logPlusHeader, fieldsMap);
+		}	
 
-		if (StringUtils.isEmpty(logPlusHeader)) {
-			processWithoutLogPlusHeader(httpRequest);
-		} else {
-			processLogPlusHeader(logPlusHeader, httpRequest);
+		// Need to be able to create new fields which not be defined in the previous tier.
+		for (String fieldName : this.fieldNmaes) {
+			
+			LogPlusUtils.resolveFieldValue(fieldName, httpRequest, fieldsMap, true);			
+
 		}
 
 		String path = httpRequest.getPathInfo();
 		if (path == null) {
 			path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
-			LogPlusUtils.saveFieldValue(LogPlusConstants.PATH, path);
+			fieldsMap.put(LogPlusConstants.PATH, path);
 		}
 		logger.info("request path: " + path);
+		
+		//store the values into thread local. ready to use after this point ...
+		LogPlusUtils.initThreadContext(fieldsMap);
+		
 	}
 	
-	/***
-	 * process headers with AQAHeader
-	 * 
-	 * @param logPlusHeader
-	 *            passed log header
-	 * @return string AQAHeader hash code
-	 */
-	private void processLogPlusHeader(String logPlusHeader, HttpServletRequest httpRequest) {
+	private void extractLogPlusHeader(String logPlusHeader, Map<String, String> fieldsMap) {
+		
 		String decodedHeader = LogPlusUtils.decode(logPlusHeader);
 		String[] headers = decodedHeader.split(";");
 		String key;
 		String headerValue;
 		for (String header : headers) {
-
-			logger.trace("received AQA header: " + header);
+			
+			if(logger.isTraceEnabled()) {
+				logger.trace("received AQA header: " + header);
+			}
 
 			String[] aqastrings = header.split("=", 2);
 
@@ -165,74 +168,12 @@ public class LogPlusFieldsInjector {
 			} else {
 				headerValue = aqastrings[1];
 			}
-
-			LogPlusUtils.saveFieldValue(key, headerValue);
-			if(key.equals(LogPlusConstants.CHECKPOINT)) {
-				LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, headerValue);
-			}
-		}
-
-		// Need to be able to create new fields which not be defined in the previous tier.
-		for (String propertyKey : this.fieldNmaes) {
 			
-			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-			if(!values.contains(LogPlusConstants.ALIAS)) {
-				// deal with non-alias fields first
-				// need to be added
-				fieldsNameProcess(propertyKey, httpRequest);
-			}
-		}
-		// alias fields process
-		for (String propertyKey : this.fieldNmaes) {
-			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-			if(values.contains(LogPlusConstants.ALIAS)) {
-				// deal with alias fields
-				fieldsNameProcess(propertyKey, httpRequest);
-			}
-		}
-	}
-	
-	private void fieldsNameProcess(String propertyKey, HttpServletRequest httpRequest) {
-		String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
-		if (LogPlusUtils.containField(key)) {	
-			LogPlusField field = LogPlusContext.getLogPlusField(key);				
-			if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {				
-				LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
-			}
-		}
-	}
+			fieldsMap.put(key, headerValue);
 
-	/***
-	 * process headers without AQAHeader
-	 * 
-	 * @param httpRequest
-	 *            request
-	 * @return string AQAHeader hash code
-	 */
-	private void processWithoutLogPlusHeader(HttpServletRequest httpRequest) {
-		// prepare all fields key value;
-		for (String propertyKey : this.fieldNmaes) {
-			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-			// deal with non-alias fields first
-			if(!values.contains(LogPlusConstants.ALIAS)) {
-				fieldsNameProcessWithoutHeader(propertyKey, httpRequest);
+			if(key.equals(LogPlusConstants.CHECKPOINT)) {
+				fieldsMap.put(LogPlusConstants.CURR_CHECKPOINT, headerValue);
 			}
-		}
-		for (String propertyKey : this.fieldNmaes) {
-			String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-			// deal with alias fields
-			if(values.contains(LogPlusConstants.ALIAS)) {
-				fieldsNameProcessWithoutHeader(propertyKey, httpRequest);
-			}
-		}
-	}
-	
-	private void fieldsNameProcessWithoutHeader(String propertyKey, HttpServletRequest httpRequest) {
-		LogPlusField field = LogPlusContext.getLogPlusField(propertyKey);
-		//will ignored the EVENT scope fields
-		if(field == null || field.getScope() != LogPlusField.SCOPE_LINE) {
-			String key = LogPlusUtils.getLogProperty(propertyKey + ".key", propertyKey);
-			LogPlusUtils.saveFieldValue(key, LogPlusUtils.resolveFieldValue(propertyKey, httpRequest));
 		}
 	}
 
@@ -272,20 +213,6 @@ public class LogPlusFieldsInjector {
 			result = true;
 		}
 		return result;
-	}
-	
-	protected void prepareSysFields() {
-		LogPlusUtils.saveFieldValue(LogPlusConstants.PROCESS_ID, processId);
-		LogPlusUtils.saveFieldValue(LogPlusConstants.HOST_NAME, LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.HOST_NAME));
-		LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.SERVICE_NAME, ""));
-		LogPlusUtils.saveFieldValue(LogPlusConstants.APPLICATION_NAME, LogPlusUtils.getLogProperty(LogPlusConstants.APPLICATION_NAME, ""));
-	}
-
-	protected void removeSysFields() {
-		LogPlusUtils.removeField(LogPlusConstants.PROCESS_ID);
-		LogPlusUtils.removeField(LogPlusConstants.HOST_NAME);
-		LogPlusUtils.removeField(LogPlusConstants.SERVICE_NAME);
-		LogPlusUtils.removeField(LogPlusConstants.APPLICATION_NAME);
 	}
 	
 	/**

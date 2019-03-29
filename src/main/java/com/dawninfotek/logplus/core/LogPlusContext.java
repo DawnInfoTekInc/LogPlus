@@ -3,6 +3,7 @@ package com.dawninfotek.logplus.core;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -92,25 +93,27 @@ public class LogPlusContext {
 				instance.logPlusFields.put(field, new LogPlusField(field));				
 			}
 			
-			//create logPlusContextVariables and Not Event field names
+			//create logPlusContextVariables and Not Event field names	
 			
+			Map<String, String> contextFields = new HashMap<String, String>();
+			
+			LogPlusField field = null;
+			
+			for(String logPlusField:instance.logPlusFields.keySet()) {
+				
+				field = instance.logPlusFields.get(logPlusField);
+				if(field != null && field.getScope() == LogPlusField.SCOPE_CONTEXT) {
+				
+					LogPlusUtils.resolveFieldValue(logPlusField, null, contextFields, false);
+				
+				}
+	
+			}
+			
+			//cache the instance scope fields
+			instance.contextParameters = contextFields;
 			//Use for creating the name list of fields
-			Set<String> notEventScopeFields = new HashSet<String>();
-			
-			for(String logPlusField:LogPlusUtils.getLogPlusFieldNames()) {
-				String values = LogPlusUtils.getLogProperty(logPlusField + ".value", "");
-				// deal with non-alias fields first
-				if(!values.contains(LogPlusConstants.ALIAS)) {
-					fieldsNameProcess(logPlusField, notEventScopeFields);
-				}
-			}
-			for(String logPlusField:LogPlusUtils.getLogPlusFieldNames()) {
-				String values = LogPlusUtils.getLogProperty(logPlusField + ".value", "");
-				// deal with alias fields
-				if(values.contains(LogPlusConstants.ALIAS)) {
-					fieldsNameProcess(logPlusField, notEventScopeFields);
-				}
-			}
+			Set<String> notEventScopeFields = new HashSet<String>();	
 			
 			//names about the checkpoints
 			notEventScopeFields.add(LogPlusConstants.CURR_CHECKPOINT);
@@ -119,27 +122,18 @@ public class LogPlusContext {
 			notEventScopeFields.add(LogPlusConstants.TRANSACTION_PATH);
 			notEventScopeFields.add(LogPlusConstants.PATH);
 			
+			for(Entry<String, LogPlusField> entry:instance.logPlusFields.entrySet()) {
+				
+				if(entry.getValue().getScope() != LogPlusField.SCOPE_EVENT) {
+					notEventScopeFields.add(entry.getKey());
+				}
+				
+			}			
+			
 			instance.notEventScopeFields = notEventScopeFields;
 		}
 	}
 	
-	private static void fieldsNameProcess(String logPlusField, Set<String> notEventScopeFields) {
-		LogPlusField f = instance.logPlusFields.get(logPlusField);
-		
-		if(f != null) {
-			if(f.getScope() == LogPlusField.SCOPE_CONTEXT) {
-				//this is a context variable
-				instance.contextParameters.put(logPlusField, LogPlusUtils.resolveFieldValue(logPlusField, null));
-				notEventScopeFields.add(logPlusField);
-				System.out.println("Context Variable:" + logPlusField + " was created ...");
-			
-			}else if(f.getScope() == LogPlusField.SCOPE_THREAD) {
-				notEventScopeFields.add(logPlusField);
-			}
-			
-		}
-	}
-
 	/**
 	 * get configuration instance
 	 * @return

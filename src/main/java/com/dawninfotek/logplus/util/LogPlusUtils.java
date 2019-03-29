@@ -335,59 +335,112 @@ public class LogPlusUtils implements LogPlusConstants {
 		return levels != null && levels.contains(logLevel);
 	}
 	
-	public static String resolveFieldValue(String propertyKey, HttpServletRequest httpRequest) {
+	static String ALS = LogPlusConstants.ALIAS + ".";
+	
+	/**
+	 * Resolve the fieldValue, the name/value will be stored into the given Map
+	 * @param propertyKey
+	 * @param httpRequest
+	 * @param fieldsMap
+	 * @return
+	 */
+	public static String resolveFieldValue(String fieldName, HttpServletRequest httpRequest, Map<String, String> fieldsMap, boolean lookForContextParameters) {
 		
-		String values = LogPlusUtils.getLogProperty(propertyKey + ".value", "");
-		String fieldValue = null;
-		if (StringUtils.isEmpty(values)) {
-			fieldValue = "";
-			utilLogger.warn("value must not be empty, keyword: " + propertyKey + " value: " + values);
-		} else {
-
-			for (String value : values.split(",")) {
-				String[] p = value.split("\\.", 2);
-				Resolver resolver = LogPlusContext.resolver(p[0]);
-
-				if (resolver != null) {
-					Map<String, Object> parameters = null;
-					if (p.length > 1) {
-						parameters = new HashMap<String, Object>();
-						parameters.put(Resolver.PARAMETERS, p[1]);
-					}
-					fieldValue = resolver.resolveValue(httpRequest, parameters);
+		LogPlusField field = LogPlusContext.getLogPlusField(fieldName);
+		
+		if(field == null) {
+			utilLogger.error("The field named as:" + fieldName + " is not defined." );
+			return null;
+		}
+		
+		String result = fieldsMap.get(fieldName);		
+		//see if it is already resolved
+		if(result == null) {
+					
+			if(field.getScope() == LogPlusField.SCOPE_CONTEXT && lookForContextParameters) {
+				
+				result = LogPlusContext.getContextVariable(fieldName);
+				
+			}
+			
+			if(result == null) {
+				//still not found, resolve value based on the configuration
+				String values = field.getValue();
+				
+				if (StringUtils.isEmpty(values)) {
+					result = "";
+					utilLogger.warn("field value must not be empty, fieldName: " + fieldName);
 				} else {
-					utilLogger.error("unknown property keyword: " + propertyKey + " value: " + value);
+					
+					if(values.startsWith(ALS)) {
+						//alias
+						String aliasName = StringUtils.removeStart(values, ALS);
+						result = resolveFieldValue(aliasName, httpRequest, fieldsMap, lookForContextParameters);
+					}else {
+						//resolve regular value
+						result = resolveFieldValue(values, httpRequest);
+
+					}
 				}
 				
-				if(StringUtils.isNotEmpty(fieldValue)) {
-					break;
+			}
+			
+			if(maskNames == null) {
+				
+				String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
+				maskNames = new HashSet<String>();
+				if (hs != null) {
+					for (String hashName : hs) {
+						maskNames.add(hashName);
+					}
 				}
 			}
-		}
-
-		// No null value to be returned
-		if (fieldValue == null) {
-			fieldValue = "";
-		}
-
-		if(maskNames == null) {
 			
-			String[] hs = getLogProperties(LogPlusConstants.MASK_KEYWORD, null);
-			maskNames = new HashSet<String>();
-			if (hs != null) {
-				for (String hashName : hs) {
-					maskNames.add(hashName);
-				}
+			// see if hash the value is required
+			if (maskNames.contains(fieldName) && !fieldName.isEmpty()) {
+				result = LogPlusContext.hashService().hash(result, null);
+			}
+			
+			fieldsMap.put(fieldName, result);
+			
+			if(utilLogger.isTraceEnabled()) {
+				utilLogger.trace("field value resolved result:" + fieldName + "=" + result);
 			}
 		}
 		
-		// see if hash the value is required
-		if (maskNames.contains(propertyKey) && !fieldValue.isEmpty()) {
-			fieldValue = LogPlusContext.hashService().hash(fieldValue, null);
-		}
-
-		return fieldValue;
+		return result;
 	}
+	
+	private static String resolveFieldValue(String values, HttpServletRequest httpRequest) {
+		String result = null;
+		for (String value : values.split(",")) {
+			String[] p = value.split("\\.", 2);
+		
+			Resolver resolver = LogPlusContext.resolver(p[0]);
+
+			if (resolver != null) {
+				Map<String, Object> parameters = null;
+				if (p.length > 1) {
+					parameters = new HashMap<String, Object>();
+					parameters.put(Resolver.PARAMETERS, p[1]);
+				}
+				result = resolver.resolveValue(httpRequest, parameters);
+			} else {
+				utilLogger.error("unknown resolver keyword: " + value);
+			}
+		
+			if(StringUtils.isNotEmpty(result)) {
+				break;
+			}
+		}
+		
+		if(result == null) {
+			//no 'null' will be returned. 
+			result = "";
+		}
+		return result;
+	}
+	
 
 	
 	/**

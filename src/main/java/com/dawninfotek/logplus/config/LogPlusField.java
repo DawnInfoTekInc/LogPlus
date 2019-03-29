@@ -43,7 +43,7 @@ public class LogPlusField {
 	public LogPlusField(String fieldName) {
 		super();
 		this.name = fieldName;
-		this.key = LogPlusUtils.getLogProperty(fieldName + ".key", fieldName);
+		//this.key = LogPlusUtils.getLogProperty(fieldName + ".key", fieldName);
 		this.value = LogPlusUtils.getLogProperty(fieldName + ".value", "");
 		if (StringUtils.isEmpty(value)) {
 			//the log system may not be fully initialized at this point, use System.out 
@@ -80,7 +80,7 @@ public class LogPlusField {
 	
 	private String name;
 	
-	private String key;
+	//private String key;
 	
 	private String value;
 	
@@ -98,13 +98,13 @@ public class LogPlusField {
 		this.name = name;
 	}
 
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
+//	public String getKey() {
+//		return key;
+//	}
+//
+//	public void setKey(String key) {
+//		this.key = key;
+//	}
 
 	public String getValue() {
 		return value;

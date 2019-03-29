@@ -32,7 +32,8 @@ public class AppTest
 
         LogPlusContext.checkPointService().startCheckPoint("testCheck");
         System.out.println("currId: "+ LogPlusUtils.getLogProperty("uuid.key", ""));
-        assertTrue(LogPlusUtils.getLogProperty("uuid.key", "").equals("uuid"));
+        //There is no 'key' attribute in LogPlusField anymore
+        //assertTrue(LogPlusUtils.getLogProperty("uuid.key", "").equals("uuid"));
         LogPlusContext.checkPointService().startCheckPoint("subTest");
         assertTrue(LogPlusUtils.getLogPlusHeaderName().equals("AQALogPlus"));
         LogPlusUtils.saveFieldValue("AQALogPlus", "header"); 
