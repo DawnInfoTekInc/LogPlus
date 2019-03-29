@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 
@@ -131,7 +132,12 @@ public class LogPlusFieldsInjector {
 		// Need to be able to create new fields which not be defined in the previous tier.
 		for (String fieldName : this.fieldNmaes) {
 			
-			LogPlusUtils.resolveFieldValue(fieldName, httpRequest, fieldsMap, true);			
+			//only resolve not event scope fields
+			if(LogPlusContext.getLogPlusField(fieldName).getScope() != LogPlusField.SCOPE_EVENT) {
+			
+				LogPlusUtils.resolveFieldValue(fieldName, httpRequest, fieldsMap, true);
+			
+			}
 
 		}
 
