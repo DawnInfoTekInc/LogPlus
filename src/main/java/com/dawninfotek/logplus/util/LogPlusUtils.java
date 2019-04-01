@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 //import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +35,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	
 	protected static Set<String> maskNames;	
 	
-	public static ThreadLocal<Map<String, String>> threadContext;
+	public static ThreadLocal<LogPlusThreadContext> threadContext;
 	
 	static {
 		
@@ -256,11 +257,11 @@ public class LogPlusUtils implements LogPlusConstants {
 		
 		String result = null;
 		
-		//first, try MDC first
-		//result = MDC.get(fieldName);
-		Map<String, String> sc = threadContext.get();
-		if(sc != null) {
-			result = sc.get(fieldName);
+		LogPlusThreadContext lc = threadContext.get();
+		
+		if(lc != null && lc.getLogPlusFields() != null) {
+			
+			result = lc.getLogPlusFields().get(fieldName);
 		}
 		if(result == null) {
 			//try LogPlus Context value
@@ -471,12 +472,15 @@ public class LogPlusUtils implements LogPlusConstants {
 	}
 	
 	public static void saveFieldValue(String fieldName, String fieldValue) {
-		Map<String, String> sc = threadContext.get();
-		if(sc == null) {
-			sc = new HashMap<String, String>();
-			threadContext.set(sc);
+		
+		LogPlusThreadContext lc = threadContext.get();
+		
+		if(lc == null) {
+			threadContext.set(new LogPlusThreadContext(null, null, new HashMap<String, String>()));
 		}
 		
+		Map<String, String> sc = getLogPlusThreadContextFields();
+
 		sc.put(fieldName, fieldValue);
 		
 		if(LogPlusContext.isUseMDC()) {
@@ -487,8 +491,8 @@ public class LogPlusUtils implements LogPlusConstants {
 	
 	public static void removeField(String fieldName) {
 
-		Map<String, String> sc = threadContext.get();
-		if(sc !=null) {
+		Map<String, String> sc = getLogPlusThreadContextFields();
+		if(sc != null) {
 			sc.remove(fieldName);
 		}
 		
@@ -500,7 +504,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	public static boolean containField(String fieldName) {
 
 		boolean result = false;
-		Map<String, String> sc = threadContext.get();
+		Map<String, String> sc = getLogPlusThreadContextFields();
 		if(sc !=null) {
 			result = sc.keySet().contains(fieldName);
 		}
@@ -508,12 +512,14 @@ public class LogPlusUtils implements LogPlusConstants {
 		return result;
 	}
 	
-	public static void initThreadContext() {
-		initThreadContext(new HashMap<String, String>());
+	public static void initThreadContext(HttpServletRequest request, HttpServletResponse response) {
+		initThreadContext(request, response, new HashMap<String, String>());
 	}
 	
-	public static void initThreadContext(Map<String, String> map) {
-		threadContext.set(map);
+	public static void initThreadContext(HttpServletRequest request, HttpServletResponse response, Map<String, String> map) {
+
+		threadContext.set(new LogPlusThreadContext(request, response, map));
+
 		if(LogPlusContext.isUseMDC() && map != null) {
 			for(String fieldName:map.keySet()) {
 				MDC.put(fieldName, map.get(fieldName));
@@ -521,20 +527,19 @@ public class LogPlusUtils implements LogPlusConstants {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static Map<String, String> getCopyOfThreadContext() {
+
+	public static LogPlusThreadContext getCopyOfThreadContext() {
 		
-		Map<String, String> map = threadContext.get();
-		if(map != null) {
-			return (Map<String, String>)((HashMap<String, String>) map).clone();
-		}else {
-			return null;
-		}
+		if(threadContext.get() != null) {
+			return threadContext.get().clone();
+		}		
+
+		return null;
 		
 	}
 	
 	public static void clearThreadContext() {
-		Map<String, String> sc = threadContext.get();
+		Map<String, String> sc = getLogPlusThreadContextFields();
 		if(sc !=null) {			
 			if(LogPlusContext.isUseMDC()) {
 				for(String key:sc.keySet()) {
@@ -543,5 +548,18 @@ public class LogPlusUtils implements LogPlusConstants {
 			}
 			sc.clear();
 		}	
+	}
+	
+	public static final LogPlusThreadContext getLogPlusThreadContext() {
+		return threadContext.get();
+	}
+	
+	public static final Map<String, String> getLogPlusThreadContextFields() {
+		LogPlusThreadContext lc = threadContext.get();
+		if(lc != null) {
+			return lc.getLogPlusFields();
+		}else {
+			return null;
+		}
 	}
 }

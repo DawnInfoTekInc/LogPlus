@@ -73,7 +73,7 @@ public class LogPlusFieldsInjector {
 			
 			try {
 				// need to make sure any error in LogPlus will not impact the application in the run time.	
-				prepareLogPlusFields(httpRequest);
+				prepareLogPlusFields(httpRequest, httpResponse);
 				String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 				if (transactionPath != null) {
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
@@ -106,7 +106,7 @@ public class LogPlusFieldsInjector {
 		}
 	}
 	
-	protected void prepareLogPlusFields(HttpServletRequest httpRequest) {
+	protected void prepareLogPlusFields(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
 		
 		Map<String, String> fieldsMap = new HashMap<String, String>();
 		
@@ -149,7 +149,7 @@ public class LogPlusFieldsInjector {
 		logger.info("request path: " + path);
 		
 		//store the values into thread local. ready to use after this point ...
-		LogPlusUtils.initThreadContext(fieldsMap);
+		LogPlusUtils.initThreadContext(httpRequest, httpResponse, fieldsMap);
 		
 	}
 	

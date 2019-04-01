@@ -9,42 +9,50 @@ import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.core.LogPlusConstants;
 
-public class InheritableThreadContext extends InheritableThreadLocal<Map<String, String>> {
-	
+public class InheritableThreadContext extends InheritableThreadLocal<LogPlusThreadContext> {
+
 	public static final Logger logger = LoggerFactory.getLogger(InheritableThreadContext.class);
-	
-	protected Map<String, String> childValue(final Map<String, String> parentValue) {
+
+	protected LogPlusThreadContext childValue(final LogPlusThreadContext parentValue) {
 		
 		//for debug, should be removed later
 		//logger.debug("InheritableThreadContext.childValue() is called ...");
 		
-		Map<String, String> childValue = null;
+		Map<String, String> childFieldsValue = null;
 		
-		if(parentValue != null && !parentValue.isEmpty()) {
+		if(parentValue != null) { 
+				
+			if(parentValue.getLogPlusFields() != null && parentValue.getLogPlusFields().isEmpty()) {
 			
-			childValue = new HashMap<String, String>();
-			String key = null;
-			for(Entry<String, String> e: parentValue.entrySet()) {				
-				//ignore the 'checkpoint' in the new Thread. TODO configurable
-				key = e.getKey();
-				if(!(key.equals(LogPlusConstants.CHECKPOINT)
-						|| key.equals(LogPlusConstants.CURR_CHECKPOINT)
-						|| key.equals(LogPlusConstants.CHECKPOINT_DSP)
-						|| key.equals(LogPlusConstants.ELAPSED_TIME))
-						) {
-					childValue.put(e.getKey(), e.getValue());
+				childFieldsValue = new HashMap<String, String>();
+				String key = null;
+				for(Entry<String, String> e: parentValue.getLogPlusFields().entrySet()) {				
+					//ignore the 'checkpoint' in the new Thread. TODO configurable
+					key = e.getKey();
+					if(!(key.equals(LogPlusConstants.CHECKPOINT)
+							|| key.equals(LogPlusConstants.CURR_CHECKPOINT)
+							|| key.equals(LogPlusConstants.CHECKPOINT_DSP)
+							|| key.equals(LogPlusConstants.ELAPSED_TIME))
+							) {
+						childFieldsValue.put(e.getKey(), e.getValue());
+					}
 				}
+				
 			}
 			
-		}
-		
-		if(logger.isDebugEnabled() && childValue != null) {
+			if(logger.isDebugEnabled() && childFieldsValue != null) {
 
-			logger.debug("" + childValue.size() + " of fields from parent thread are set ... ");
+				logger.debug("" + childFieldsValue.size() + " of fields from parent thread are set ... ");
 
-		}
+			}
+			
+			return new LogPlusThreadContext(parentValue.getHttpRequest(), parentValue.getHttpResponse(), childFieldsValue);
+			
+		}else {
 		
-		return childValue;
+			return null;
+			
+		}
 		
     }
 
