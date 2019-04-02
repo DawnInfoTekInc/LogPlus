@@ -1,6 +1,5 @@
 package com.dawninfotek.logplus.util;
 
-import java.lang.management.ManagementFactory;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +20,6 @@ public class LogPlusFieldsInjector {
 	private static LogPlusFieldsInjector instance;
 	
 	final static Logger logger = LoggerFactory.getLogger(LogPlusFieldsInjector.class);
-	public static String processId = ManagementFactory.getRuntimeMXBean().getName();
 
 	protected String[] fieldNmaes;
 	protected String[] logPlusHeaders;

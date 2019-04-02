@@ -512,6 +512,10 @@ public class LogPlusUtils implements LogPlusConstants {
 		return result;
 	}
 	
+	public static void initThreadContext(LogPlusThreadContext context) {
+		initThreadContext(context.getHttpRequest(), context.getHttpResponse(), context.getLogPlusFields());
+	}
+	
 	public static void initThreadContext(HttpServletRequest request, HttpServletResponse response) {
 		initThreadContext(request, response, new HashMap<String, String>());
 	}
