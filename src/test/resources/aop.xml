@@ -1,0 +1,10 @@
+<aspectj>
+    <aspects>
+		<aspect name="com.dawninfotek.logplus.checkpoint.LogPlusCheckPointAspect"/>
+        <weaver options="-verbose -showWeaveInfo">
+            <include within="com.dawninfotek.logplus.checkpoint.*"/>
+			<!-- inclues the packages which LogPlusCheckPoint annotation is used -->
+            <include within="com.dawninfotek.test.aop.*"/>
+        </weaver>
+    </aspects>
+</aspectj>
