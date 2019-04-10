@@ -26,9 +26,9 @@ public class HashServiceBaseImpl implements HashService {
 	 */
 	private String MD5(String string) {
 		try {
-			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			MessageDigest md5 = MessageDigest.getInstance("SHA-256");
 			md5.update(string.getBytes(Charset.forName("UTF8")));
-			return String.format("%032x", new BigInteger(1, md5.digest()));
+			return String.format("%064x", new BigInteger(1, md5.digest()));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
