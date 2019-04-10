@@ -93,7 +93,7 @@ public class AppTest
     @Test
     public void hashCheck(){
         LogPlusContext.initialize(null);
-        assertTrue(LogPlusContext.hashService().hash("valid name", null).equals("4277d967dc8434b5b1c59d7e7087760a"));
+        assertTrue(LogPlusContext.hashService().hash("valid name", null).equals("71dc1596838df3bf0083bfe8ff44fa8283e2ecab4f09ff5f57f61ccb2285165f"));
     }
     
     @Test
