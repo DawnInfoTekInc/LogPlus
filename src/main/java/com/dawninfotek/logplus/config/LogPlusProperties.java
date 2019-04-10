@@ -114,6 +114,7 @@ public class LogPlusProperties {
         	}
         	lineNumber++;
         }
+	in.close();
         reader.close();
     }
 
