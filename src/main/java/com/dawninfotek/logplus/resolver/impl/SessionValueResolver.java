@@ -5,11 +5,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.resolver.AbstractResolver;
+import com.dawninfotek.logplus.util.BeanUtils;
 
 public class SessionValueResolver extends AbstractResolver {
 
@@ -34,7 +34,7 @@ public class SessionValueResolver extends AbstractResolver {
 					result = sessionObj.toString();
 				} else {
 					try {
-						result = (String) PropertyUtils.getProperty(sessionObj, keyAndPath[1]);
+						result = (String) BeanUtils.getObject(sessionObj, keyAndPath[1]);
 					} catch (Exception e) {
 						logger.warn("Fail to resolve session object value", e);
 					}
