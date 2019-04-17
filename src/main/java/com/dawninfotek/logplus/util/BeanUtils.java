@@ -8,13 +8,14 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class BeanUtils {
 
-	public static Log logger = LogFactory.getLog(BeanUtils.class);
+	//public static Log logger = LogFactory.getLog(BeanUtils.class);
+	static final Logger logger = LoggerFactory.getLogger(LogPlusUtils.class);
 
 	/**
 	 * return a Object which get form the source object under give path
@@ -309,7 +310,7 @@ public class BeanUtils {
 					} catch (Exception e) {
 						// turn on the trace log to see what's happening.
 						if (logger.isTraceEnabled()) {
-							logger.trace(BeanUtils.class, e);
+							logger.trace("something went wrong", e);
 						}
 						e.printStackTrace();
 						// do nothing will return null;
