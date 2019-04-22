@@ -7,8 +7,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
@@ -29,7 +27,6 @@ import org.apache.logging.log4j.core.impl.ThrowableProxy;
 public class LogPlusJsonLayout extends AbstractStringLayout {
 	
 	private static final long serialVersionUID = 1L;
-	public static Logger logger = LoggerFactory.getLogger(LogPlusJsonLayout.class);
     
     protected LogPlusJsonLayout(Configuration config, Charset aCharset) {
         super(aCharset);
@@ -103,7 +100,8 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
         			jsonObject.put(key, value);
             	}
         	}catch (Exception e) {
-        		logger.error(e.getMessage());
+        		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
+			
         	}
         }
 
