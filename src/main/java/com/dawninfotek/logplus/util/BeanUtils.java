@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class BeanUtils {
 
-	//public static Log logger = LogFactory.getLog(BeanUtils.class);
-	static final Logger logger = LoggerFactory.getLogger(LogPlusUtils.class);
+	static final Logger logger = LoggerFactory.getLogger(BeanUtils.class);
 
 	/**
 	 * return a Object which get form the source object under give path

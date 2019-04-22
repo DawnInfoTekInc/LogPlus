@@ -1,8 +1,6 @@
 package com.dawninfotek.logplus.extension.logback;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
@@ -21,8 +19,6 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.LayoutBase;
 
 public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
-	
-	public static Logger logger = LoggerFactory.getLogger(LogPlusJsonLayout.class);
 	
 	private ThrowableHandlingConverter throwableProxyConverter;
 	
@@ -109,7 +105,7 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
         			map.put(key, value);
             	}
         	}catch (Exception e) {
-        		logger.error(e.getMessage());
+        		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
         	}
         }
         return JsonField.convertMapToJsonString(map);

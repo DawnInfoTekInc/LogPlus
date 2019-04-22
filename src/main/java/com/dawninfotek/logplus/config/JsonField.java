@@ -1,5 +1,7 @@
 package com.dawninfotek.logplus.config;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -245,6 +247,13 @@ public class JsonField implements Comparable<JsonField>{
     
     public static String replaceAllNewline(String msg) {
     	return msg.replaceAll("(\\r|\\n|\\t)", "");
+    }
+
+    public static String stackTraceToString(Exception e) {
+    	StringWriter stringWriter = new StringWriter();
+    	PrintWriter printWriter = new PrintWriter(stringWriter);
+    	e.printStackTrace(printWriter);
+    	return stringWriter.toString();
     }
 
 	@Override
