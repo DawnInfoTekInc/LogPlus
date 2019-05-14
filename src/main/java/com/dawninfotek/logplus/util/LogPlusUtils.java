@@ -18,8 +18,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-//import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -216,7 +214,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	 */
 	public static String encode(String source) {
 
-		if (source == null) {
+		if (StringUtils.isEmpty(source)) {
 			return null;
 		}
 		//To prevent the new version of 'common-codec.jar' conflict with some old system. 
@@ -238,7 +236,7 @@ public class LogPlusUtils implements LogPlusConstants {
 	public static String decode(String source) {
 
 		if (source == null) {
-			return null;
+			return "";
 		}
 		
 		try {
@@ -247,7 +245,7 @@ public class LogPlusUtils implements LogPlusConstants {
 			utilLogger.error("Failed to decode ...",ignored);
 		}
 		
-		return null;
+		return "";
 
 		//return new String(Base64.decodeBase64(source));
 

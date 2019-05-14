@@ -3,7 +3,6 @@ package com.dawninfotek.logplus.extension.log4j12.json;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.pattern.DatePatternConverter;
 import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
@@ -14,6 +13,7 @@ import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.extension.log4j12.LogPlusBridgePatternConverter;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 public final class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConverter {
 	

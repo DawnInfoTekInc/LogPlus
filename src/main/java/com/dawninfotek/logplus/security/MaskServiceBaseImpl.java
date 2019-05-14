@@ -1,8 +1,9 @@
 package com.dawninfotek.logplus.security;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.dawninfotek.logplus.util.StringUtils;
 
 public class MaskServiceBaseImpl implements MaskService {
 	

@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.dawninfotek.logplus.checkpoint.CheckPointService;
 import com.dawninfotek.logplus.config.Configuration;
 import com.dawninfotek.logplus.config.LogPlusField;
@@ -16,6 +14,7 @@ import com.dawninfotek.logplus.resolver.Resolver;
 import com.dawninfotek.logplus.security.HashService;
 import com.dawninfotek.logplus.security.MaskService;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 /**
  * This is the Context of the Log Plus Framework, all implementation instances will be help in the instance of Context.

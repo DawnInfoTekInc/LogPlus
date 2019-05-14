@@ -4,7 +4,6 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
@@ -13,6 +12,7 @@ import com.dawninfotek.logplus.config.JsonFieldsConstants;
 import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -101,7 +101,6 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
             	}
         	}catch (Exception e) {
         		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
-			
         	}
         }
 

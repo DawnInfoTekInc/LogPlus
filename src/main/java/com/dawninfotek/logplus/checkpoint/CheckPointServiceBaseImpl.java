@@ -1,11 +1,11 @@
 package com.dawninfotek.logplus.checkpoint;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 public class CheckPointServiceBaseImpl implements CheckPointService {
 	
@@ -110,6 +110,4 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	public void endCheckPoint(String checkName, Object logger) {
 		
 	}
-
-
 }

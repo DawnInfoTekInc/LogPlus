@@ -6,9 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
+
 
 public class JsonField implements Comparable<JsonField>{
 	
@@ -248,7 +248,7 @@ public class JsonField implements Comparable<JsonField>{
     public static String replaceAllNewline(String msg) {
     	return msg.replaceAll("(\\r|\\n|\\t)", "");
     }
-
+    
     public static String stackTraceToString(Exception e) {
     	StringWriter stringWriter = new StringWriter();
     	PrintWriter printWriter = new PrintWriter(stringWriter);
