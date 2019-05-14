@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.StringUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 public class LogPlusProperties {
 

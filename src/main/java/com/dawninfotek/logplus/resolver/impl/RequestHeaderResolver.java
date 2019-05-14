@@ -4,11 +4,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dawninfotek.logplus.resolver.AbstractResolver;
+import com.dawninfotek.logplus.util.StringUtils;
 
 public class RequestHeaderResolver extends AbstractResolver {
 

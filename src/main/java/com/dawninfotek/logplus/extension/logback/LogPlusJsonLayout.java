@@ -1,13 +1,12 @@
 package com.dawninfotek.logplus.extension.logback;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
 import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

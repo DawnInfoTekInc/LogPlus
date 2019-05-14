@@ -13,11 +13,10 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
-
 import com.dawninfotek.logplus.core.Component;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.AntPathMatcher;
+import com.dawninfotek.logplus.util.StringUtils;
 
 public class Configuration implements Component {
 	
@@ -138,11 +137,11 @@ public class Configuration implements Component {
 		try {
 			//load the default properties
 			Properties defaultConfig = new Properties();
+
+			propFile = ClassLoader.getSystemClassLoader().getResourceAsStream(LOGPLUS_CONFIG_FILE_NAME);	
 			
-			propFile = ClassLoader.getSystemClassLoader().getResourceAsStream(LOGPLUS_CONFIG_FILE_NAME); 		
-			
-			if(propFile == null) {				
-				propFile = Configuration.class.getClassLoader().getResourceAsStream(LOGPLUS_CONFIG_FILE_NAME);
+			if(propFile == null) {			
+				propFile = Configuration.class.getClassLoader().getResourceAsStream(LOGPLUS_CONFIG_FILE_NAME);	
 			}
 			
 			defaultConfig.load(propFile);		
@@ -264,11 +263,7 @@ public class Configuration implements Component {
 	}
 	
 	private void setContextName(String cname) {
-		if(cname.startsWith("/")) {
-			contextName = cname.substring(1);
-		}else {
-			contextName = cname;
-		}
+		contextName = StringUtils.removeStart(cname, "/");
 	}
 	
 	private String getContextName() {
@@ -368,7 +363,9 @@ public class Configuration implements Component {
 		result.setTxPathName(StringUtils.removeStart(ruleName, LogPlusConstants.TX_PATH_PREFIX));
 		
 		String[] items = StringUtils.split(rule, "::");
-		
+		if(items == null) {
+			return null;
+		}
 		//the method and the path must be defined in the rules
 		// length equal to 1, accept all methods. length equal to 2, accept specified method.
 		if(items.length == 1) {

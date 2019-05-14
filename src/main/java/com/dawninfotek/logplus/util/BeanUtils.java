@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ public class BeanUtils {
 			// remove all ' here
 			
 			String realPath = StringUtils.remove(path, "'");
-			//realPath = StringUtils.removeEnd(realPath, "'");
+			//realPath = LogPlusUtils.removeEnd(realPath, "'");
 
 			if (source instanceof Map) {
 

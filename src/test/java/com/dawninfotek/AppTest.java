@@ -2,14 +2,18 @@ package com.dawninfotek;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.EmptyStackException;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
+import com.dawninfotek.logplus.util.StringUtils;
 
 /**
  * Unit test for simple App.
@@ -101,6 +105,21 @@ public class AppTest
     	String dir = System.getProperty("user.dir");
     	String propertyPath = "FILE=" + dir + "\\logplus.properties";
     	LogPlusContext.initialize(propertyPath);
+    }
+    
+    @Test
+    public void throwableToStringTest() {
+    	try {
+    		throw new EmptyStackException();
+    	}catch(Exception e) {
+    		String exception = JsonField.stackTraceToString(e);
+    		System.out.println(exception);
+    	}
+    }
+    
+    @Test
+    public void stringUtilsTests() {
+    	System.out.println(StringUtils.removeStart("/api/test", "/"));
     }
 
 }

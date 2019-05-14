@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +117,7 @@ public class LogPlusFieldsInjector {
 		
 		fieldsMap.put(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));
 		//override the default service name 
-		//LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, StringUtils.removeStart(transactionPath, "/"));	
+		//LogPlusUtils.saveFieldValue(LogPlusConstants.SERVICE_NAME, LogPlusUtils.removeStart(transactionPath, "/"));	
 		
 		String logPlusHeader = httpRequest.getHeader(LogPlusUtils.getLogPlusHeaderName());
 		
