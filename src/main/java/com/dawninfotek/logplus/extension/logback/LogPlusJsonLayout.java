@@ -82,15 +82,19 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
     					}
     					
     				}
-        			if (value.isEmpty()){
+        			if (value == null || value.isEmpty()){
                 		value = JsonField.getFromMDC(searchName);
-                		if(value.isEmpty()) {
+                		if(value == null || value.isEmpty()) {
                 			// get applicationName from context
                 			if(searchName.equals(LogPlusConstants.APPLICATION_NAME)) {
                 				value = getApplicationName(event);
                 			}
                 		}
     				}
+        		}
+        		
+        		if(value == null) {
+        			value = "";
         		}
         		// shrink value to format size
         		if(!format.isEmpty() && format.startsWith("X")) {
