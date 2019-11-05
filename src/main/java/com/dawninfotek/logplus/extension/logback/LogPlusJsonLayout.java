@@ -11,6 +11,8 @@ import com.dawninfotek.logplus.util.StringUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -39,79 +41,108 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 
     @Override
 	public String doLayout(ILoggingEvent event) {
-        // custom all fields
-		Map<String, String> map = new LinkedHashMap<String, String>();
-        for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
-        	try {
-        		String searchName = field.getName();
-        		String key = field.getLable();
-        		String format = field.getFormat();
-        		String value = "";
-        		
-                // Log default Information
-        		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
-        			value = JsonField.getTimestampValue(event.getTimeStamp(), format);
-        		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
-        			value = String.valueOf(event.getLevel());
-        		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
-        			value = event.getThreadName();
-        		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
-        			value = event.getLoggerName();
-        		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
-        			value = JsonField.replaceAllNewline(event.getFormattedMessage());
-        		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
-        			value = getThrowableException(event);
-        		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
-    				// get log method from logger
-    				value = getMethodFromLogger(event);
+    	
+		if(Boolean.valueOf(LogPlusUtils.getLogProperty("logplus.use.jsonobject", "false"))) {
+    		
+        	JSONObject json = new JSONObject();
+            for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
+            	
+            	String value = getFieldValue(field, event);  
+            	// display if mandatory or value exist
+                if(field.getDisplay() || !value.isEmpty()) {
+            		json.put(field.getLable(), value);
+                }
+     
+            }
+            return json.toString();    	
+    		
+    	}else {
+    		// custom all fields
+    		Map<String, String> map = new LinkedHashMap<String, String>();
+    		for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
+        	
+    			String key = field.getLable();
+    			String value = getFieldValue(field, event);
+    			// display if mandatory or value exist
+    			if(field.getDisplay() || !value.isEmpty()) {
+    				map.put(key, value);
     			}
-        		// log custom information
-        		else {
-        			LogPlusField logPlusField = LogPlusContext.getLogPlusField(field.getName());
-        			if(logPlusField != null && logPlusField.getScope() == LogPlusField.SCOPE_LINE) {					
-    					//this is a log line scope field, generate value here					
-    					if(LogPlusUtils.resolveFieldValueRequired(logPlusField, String.valueOf(event.getLevel()))) {
-    						//need to resolve the value for this log level for this field
-    						value = LogPlusUtils.resolveFieldValue(logPlusField, event.getLoggerName(), event.getFormattedMessage());
-    						if(StringUtils.isEmpty(value)) {
-    							//try resolve from exception body
-    							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getLoggerName(), getThrowableException(event));
-    						}
-    					}else {
-    						value = null;
-    					}
-    					
-    				}
-        			if (value == null || value.isEmpty()){
-                		value = JsonField.getFromMDC(searchName);
-                		if(value == null || value.isEmpty()) {
-                			// get applicationName from context
-                			if(searchName.equals(LogPlusConstants.APPLICATION_NAME)) {
-                				value = getApplicationName(event);
-                			}
-                		}
-    				}
-        		}
-        		
-        		if(value == null) {
-        			value = "";
-        		}
-        		// shrink value to format size
-        		if(!format.isEmpty() && format.startsWith("X")) {
-        			int charNumber = Integer.parseInt(format.substring(1));
-        			if(charNumber < value.length()) {
-            			value = value.substring(0, charNumber);
-        			}
-        		}
-        		// display if mandatory or value exist
-            	if(field.getDisplay() || !value.isEmpty()) {
-        			map.put(key, value);
-            	}
-        	}catch (Exception e) {
-        		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
-        	}
-        }
-        return JsonField.convertMapToJsonString(map);
+  
+    		}
+    		return JsonField.convertMapToJsonString(map);
+    	}
+    }
+    
+    protected String getFieldValue(JsonField field, ILoggingEvent event) {
+ 
+   		String value = "";
+       	try {
+    		String searchName = field.getName();
+  
+    		String format = field.getFormat(); 
+    		
+            // Log default Information
+    		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
+    			value = JsonField.getTimestampValue(event.getTimeStamp(), format);
+    		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
+    			value = String.valueOf(event.getLevel());
+    		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
+    			value = event.getThreadName();
+    		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
+    			value = event.getLoggerName();
+    		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
+    			value = JsonField.replaceAllNewline(event.getFormattedMessage());
+    		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
+    			value = getThrowableException(event);
+    		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
+				// get log method from logger
+				value = getMethodFromLogger(event);
+			}
+    		// log custom information
+    		else {
+    			LogPlusField logPlusField = LogPlusContext.getLogPlusField(field.getName());
+    			if(logPlusField != null && logPlusField.getScope() == LogPlusField.SCOPE_LINE) {					
+					//this is a log line scope field, generate value here					
+					if(LogPlusUtils.resolveFieldValueRequired(logPlusField, String.valueOf(event.getLevel()))) {
+						//need to resolve the value for this log level for this field
+						value = LogPlusUtils.resolveFieldValue(logPlusField, event.getLoggerName(), event.getFormattedMessage());
+						if(StringUtils.isEmpty(value)) {
+							//try resolve from exception body
+							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getLoggerName(), getThrowableException(event));
+						}
+					}else {
+						value = null;
+					}
+					
+				}
+    			if (value == null || value.isEmpty()){
+            		value = JsonField.getFromMDC(searchName);
+            		if(value == null || value.isEmpty()) {
+            			// get applicationName from context
+            			if(searchName.equals(LogPlusConstants.APPLICATION_NAME)) {
+            				value = getApplicationName(event);
+            			}
+            		}
+				}
+    		}
+    		
+    		if(value == null) {
+    			value = "";
+    		}
+    		// shrink value to format size
+    		if(!format.isEmpty() && format.startsWith("X")) {
+    			int charNumber = Integer.parseInt(format.substring(1));
+    			if(charNumber < value.length()) {
+        			value = value.substring(0, charNumber);
+    			}
+    		}
+    		
+      	}catch (Exception e) {
+    		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
+    	}
+    		
+    	return value;
+    	
     }
 
 	protected String getApplicationName(ILoggingEvent event) {

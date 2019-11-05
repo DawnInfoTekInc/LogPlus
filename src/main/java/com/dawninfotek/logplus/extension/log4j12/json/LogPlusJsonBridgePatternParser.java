@@ -16,7 +16,9 @@ public class LogPlusJsonBridgePatternParser extends org.apache.log4j.helpers.Pat
 	   * @return pattern converter.
 	   */
 	  public org.apache.log4j.helpers.PatternConverter parse() {
-	    return new LogPlusJsonBridgePatternConverter(pattern);
+		  
+		  return new LogPlusJsonBridgePatternConverter(pattern);
 	  }
+
 
 }

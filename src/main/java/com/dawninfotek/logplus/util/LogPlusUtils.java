@@ -188,12 +188,12 @@ public class LogPlusUtils implements LogPlusConstants {
 	 * @param givenLogger
 	 * @param message
 	 */
-	public static void logTextMessage(Object givenLogger, String message) {
+	public static void logTextMessage(Object givenLogger, String message, String logLevel) {
 
-		if (givenLogger != null) {
+		if (givenLogger != null &&("trace".equalsIgnoreCase(logLevel) || "debug".equalsIgnoreCase(logLevel) || "info".equalsIgnoreCase(logLevel) || "warn".equalsIgnoreCase(logLevel) || "error".equalsIgnoreCase(logLevel))) {
 			try {
 
-				Method info = givenLogger.getClass().getMethod("info", String.class);
+				Method info = givenLogger.getClass().getMethod(logLevel.toLowerCase(), String.class);
 				if (info != null) {
 					info.invoke(givenLogger, message);
 				}

@@ -134,8 +134,7 @@ public class Log4jConfigChangeWatcherService implements Runnable {
 				try {
 					watchService.close();
 				} catch (IOException e) {
-					System.out.println("Fail to close watch service");
-					e.printStackTrace();
+					logger.error("Fail to close watch service", e);
 				}
 			}
 		});
@@ -154,11 +153,11 @@ public class Log4jConfigChangeWatcherService implements Runnable {
 				}
 				boolean reset = key.reset();
 				if (!reset) {
-					System.out.println("Could not reset the watch key.");
+					logger.error("Could not reset the watch key.");
 					break;
 				}
 			} catch (Exception e) {
-				System.out.println("InterruptedException: " + e.getMessage());
+				logger.error("InterruptedException fail: ", e);
 			}
 		}
 	}

@@ -70,7 +70,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			LogPlusUtils.saveFieldValue(LogPlusConstants.CHECKPOINT_DSP, checkName);
 			//MDC.put(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));		
 			LogPlusUtils.saveFieldValue(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));	
-			LogPlusUtils.logTextMessage(aLogger, message);
+			LogPlusUtils.logTextMessage(aLogger, message, "info");
 		
 		}finally {
 			//MDC.remove(LogPlusConstants.CHECKPOINT_DSP);

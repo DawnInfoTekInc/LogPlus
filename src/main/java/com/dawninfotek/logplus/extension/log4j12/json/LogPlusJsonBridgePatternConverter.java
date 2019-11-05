@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.log4j.pattern.DatePatternConverter;
 import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
+import org.json.JSONObject;
 
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
@@ -15,9 +16,9 @@ import com.dawninfotek.logplus.extension.log4j12.LogPlusBridgePatternConverter;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
 
-public final class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConverter {
+public class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConverter {
 	
-	private Map<String, LoggingEventPatternConverter> logPlusConverters = new HashMap<String, LoggingEventPatternConverter>();
+	protected Map<String, LoggingEventPatternConverter> logPlusConverters = new HashMap<String, LoggingEventPatternConverter>();
 
 	public static final String C = ",";
 	
@@ -31,6 +32,7 @@ public final class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatter
 			"METHOD:Method",
 			"LINE:Line"
 	};
+
 
 	/**
 	 * Create a new instance.
@@ -99,57 +101,81 @@ public final class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatter
 		//resolve all reserved values
 		Map<String, String> rsrd = resolveReservedValues(event);
 		
-		sbuf.append("{");
-		
-		for(JsonField field:LogPlusContext.configuration().getJsonFields()) {
+		if(Boolean.valueOf(LogPlusUtils.getLogProperty("logplus.use.jsonobject", "false"))) {
 			
-			if(rsrd.keySet().contains(field.getName())){
+			JSONObject json = new JSONObject();	
+			
+			for(JsonField field:LogPlusContext.configuration().getJsonFields()) {
 				
-				value = rsrd.get(field.getName());
+				json.put(field.getName(), getFieldValue(field, rsrd));
 				
-			}else {			
-				//not a reserved field
-				//get from logPlus field
-				LogPlusField logPlusfield = LogPlusContext.getLogPlusField(field.getName());
-				if(logPlusfield != null && logPlusfield.getScope() == LogPlusField.SCOPE_LINE) {					
-					//this is a log line scope field, generate value here					
-					if(LogPlusUtils.resolveFieldValueRequired(logPlusfield, rsrd.get("LEVEL"))) {
-						//need to resolve the value for this log level for this field
-						value = LogPlusUtils.resolveFieldValue(logPlusfield, rsrd.get("LOGGER"), rsrd.get("MESSAGE"));
-						if(StringUtils.isEmpty(value)) {
-							//try resolve from exception body
-							value = LogPlusUtils.resolveFieldValue(logPlusfield, rsrd.get("LOGGER"), rsrd.get("EXCEPTION"));
-						}
-					}else {
-						value = null;
-					}
-					
-				}else {
-					value = LogPlusUtils.getLogPlusFieldValue(field.getName());
+			}
+			
+			sbuf.append(json.toString());				
+			
+		}else {
+		
+			sbuf.append("{");
+		
+			for(JsonField field:LogPlusContext.configuration().getJsonFields()) {
+			
+				value = getFieldValue(field, rsrd);
+			
+				dsp = field.toDisplayText(value);
+			
+				if(StringUtils.isEmpty(dsp)) {
+					continue;
 				}
+			
+				if(!begin) {
+					sbuf.append(C);				
+				}else {
+					begin = false;
+				}
+			
+				sbuf.append(dsp);
+			
 			}
-			
-			dsp = field.toDisplayText(value);
-			
-			if(StringUtils.isEmpty(dsp)) {
-				continue;
-			}
-			
-			if(!begin) {
-				sbuf.append(C);				
-			}else {
-				begin = false;
-			}
-			
-			sbuf.append(dsp);
-			
-		}
 		
-		sbuf.append("}\n");	
+			sbuf.append("}\n");
+		
+		}
 
 	}
 	
-	private Map<String, String> resolveReservedValues(LoggingEvent event){
+	protected String getFieldValue(JsonField field, Map<String, String> rsrd) {
+		
+		String value = null;
+		
+		if(rsrd.keySet().contains(field.getName())){
+			
+			value = rsrd.get(field.getName());
+			
+		}else {			
+			//not a reserved field
+			//get from logPlus field
+			LogPlusField logPlusfield = LogPlusContext.getLogPlusField(field.getName());
+			if(logPlusfield != null && logPlusfield.getScope() == LogPlusField.SCOPE_LINE) {					
+				//this is a log line scope field, generate value here					
+				if(LogPlusUtils.resolveFieldValueRequired(logPlusfield, rsrd.get("LEVEL"))) {
+					//need to resolve the value for this log level for this field
+					value = LogPlusUtils.resolveFieldValue(logPlusfield, rsrd.get("LOGGER"), rsrd.get("MESSAGE"));
+					if(StringUtils.isEmpty(value)) {
+						//try resolve from exception body
+						value = LogPlusUtils.resolveFieldValue(logPlusfield, rsrd.get("LOGGER"), rsrd.get("EXCEPTION"));
+					}
+				}else {
+					value = null;
+				}
+				
+			}else {
+				value = LogPlusUtils.getLogPlusFieldValue(field.getName());
+			}
+		}
+		return value;
+	}
+	
+	protected Map<String, String> resolveReservedValues(LoggingEvent event){
 		
 		Map<String, String> result = new HashMap<String, String>(logPlusConverters.size());
 		

@@ -65,6 +65,7 @@
     <logback.version>1.2.3</logback.version>
     <aspect.version>1.8.2</aspect.version>
     <jackson-annotations-version>2.4.5</jackson-annotations-version>
+    <json.version>20190722</json.version>
   </properties>
 
   <dependencies>
@@ -109,6 +110,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter</artifactId>
 		<version>2.1.1.RELEASE</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.json/json -->
+	<dependency>
+    	<groupId>org.json</groupId>
+    	<artifactId>json</artifactId>
+    	<version>${json.version}</version>
 	</dependency>
 	
     <dependency>
