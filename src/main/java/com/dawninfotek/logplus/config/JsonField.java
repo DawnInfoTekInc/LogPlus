@@ -260,4 +260,15 @@ public class JsonField implements Comparable<JsonField>{
 	public int compareTo(JsonField arg0) {		
 		return this.position - arg0.getPosition(); 
 	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer("{");
+		sb.append("\"name\":\"").append(getName()).append("\"").append(",");
+		sb.append("\"lable\":\"").append(getLable()).append("\"").append(",");
+		sb.append("\"display\":\"").append(getDisplay()).append("\"").append(",");
+		sb.append("\"format\":\"").append(getFormat()).append("\"").append(",");
+		sb.append("\"position\":\"").append(getPosition()).append("\"").append("}");
+		
+		return sb.toString(); 
+	}
 }

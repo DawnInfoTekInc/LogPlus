@@ -1,5 +1,8 @@
 package com.dawninfotek.logplus.extension.logback;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
 import com.dawninfotek.logplus.config.LogPlusField;
@@ -7,11 +10,7 @@ import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
@@ -44,13 +43,13 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
     	
 		if(Boolean.valueOf(LogPlusUtils.getLogProperty("logplus.use.jsonobject", "false"))) {
     		
-        	JSONObject json = new JSONObject();
+        	JsonObject json = new JsonObject();
             for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
             	
             	String value = getFieldValue(field, event);  
             	// display if mandatory or value exist
                 if(field.getDisplay() || !value.isEmpty()) {
-            		json.put(field.getLable(), value);
+            		json.addProperty(field.getLable(), value);
                 }
      
             }

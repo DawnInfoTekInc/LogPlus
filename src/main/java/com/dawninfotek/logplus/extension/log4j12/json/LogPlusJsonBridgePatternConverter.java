@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.log4j.pattern.DatePatternConverter;
 import org.apache.log4j.pattern.LoggingEventPatternConverter;
 import org.apache.log4j.spi.LoggingEvent;
-import org.json.JSONObject;
 
 import com.dawninfotek.logplus.config.JsonField;
 import com.dawninfotek.logplus.config.JsonFieldsConstants;
@@ -15,6 +14,7 @@ import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.extension.log4j12.LogPlusBridgePatternConverter;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
+import com.google.gson.JsonObject;
 
 public class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConverter {
 	
@@ -103,15 +103,21 @@ public class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConve
 		
 		if(Boolean.valueOf(LogPlusUtils.getLogProperty("logplus.use.jsonobject", "false"))) {
 			
-			JSONObject json = new JSONObject();	
+			JsonObject json = new JsonObject();	
 			
 			for(JsonField field:LogPlusContext.configuration().getJsonFields()) {
 				
-				json.put(field.getName(), getFieldValue(field, rsrd));
+				value = getFieldValue(field, rsrd);
+				
+				if(!StringUtils.isEmpty(value) || field.getDisplay()) {
+				
+					json.addProperty(field.getName(), value);
+					
+				}
 				
 			}
 			
-			sbuf.append(json.toString());				
+			sbuf.append(json.toString()).append("\n");				
 			
 		}else {
 		

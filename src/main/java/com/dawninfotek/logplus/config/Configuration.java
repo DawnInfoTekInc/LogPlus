@@ -217,6 +217,7 @@ public class Configuration implements Component {
 			
 			//Sort the List
 			sortJsonFields(fieldsMapping);			
+			System.out.println("Final Json fields configuration:" + fieldsMapping);
 			//finally, create the Configuration instance and return to caller
 			return new Configuration(pm, rules, fieldsMapping, cMap);			
 			
