@@ -48,23 +48,22 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
             	
             	String value = getFieldValue(field, event);  
             	// display if mandatory or value exist
-                if(field.getDisplay() || !value.isEmpty()) {
-            		json.addProperty(field.getLable(), value);
+                if(field.isDisplay() || !value.isEmpty()) {
+            		json.addProperty(field.getLabel(), value);
                 }
      
             }
-            return json.toString();    	
+            return json.toString() + "\n";    	
     		
     	}else {
     		// custom all fields
     		Map<String, String> map = new LinkedHashMap<String, String>();
-    		for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
-        	
-    			String key = field.getLable();
+    		for(JsonField field: LogPlusContext.configuration().getJsonFields()) {        	
+
     			String value = getFieldValue(field, event);
     			// display if mandatory or value exist
-    			if(field.getDisplay() || !value.isEmpty()) {
-    				map.put(key, value);
+    			if(field.isDisplay() || !value.isEmpty()) {
+    				map.put(field.getLabel(), value);
     			}
   
     		}
@@ -129,7 +128,7 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
     			value = "";
     		}
     		// shrink value to format size
-    		if(!format.isEmpty() && format.startsWith("X")) {
+    		if(format != null && format.startsWith("X")) {
     			int charNumber = Integer.parseInt(format.substring(1));
     			if(charNumber < value.length()) {
         			value = value.substring(0, charNumber);

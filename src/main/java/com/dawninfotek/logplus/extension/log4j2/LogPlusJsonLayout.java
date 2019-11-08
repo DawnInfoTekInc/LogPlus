@@ -4,6 +4,8 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.annotation.Generated;
+
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 
@@ -45,8 +47,7 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
      // custom all fields
  		for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
          	try {
-         		String searchName = field.getName();
-         		String key = field.getLable();
+         		String searchName = field.getName(); 
          		String format = field.getFormat();
          		String value = "";
 
@@ -96,8 +97,8 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
         			}
         		}
         		// display if mandatory or value exist
-            	if(field.getDisplay() || !value.isEmpty()) {
-        			jsonObject.put(key, value);
+            	if(field.isDisplay() || !value.isEmpty()) {
+        			jsonObject.put(field.getLabel(), value);
             	}
         	}catch (Exception e) {
         		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));

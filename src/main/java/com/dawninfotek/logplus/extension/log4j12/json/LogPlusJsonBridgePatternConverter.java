@@ -109,9 +109,9 @@ public class LogPlusJsonBridgePatternConverter extends LogPlusBridgePatternConve
 				
 				value = getFieldValue(field, rsrd);
 				
-				if(!StringUtils.isEmpty(value) || field.getDisplay()) {
+				if(!StringUtils.isEmpty(value) || field.isDisplay()) {
 				
-					json.addProperty(field.getName(), value);
+					json.addProperty(field.getLabel(), value);
 					
 				}
 				
