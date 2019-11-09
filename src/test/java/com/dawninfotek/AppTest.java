@@ -32,7 +32,7 @@ public class AppTest
 
     @Test
     public void logutilsTest(){
-        LogPlusContext.initialize(null);
+        LogPlusContext.initialize("CLASS-PATH:logplus.properties");
 
         LogPlusContext.checkPointService().startCheckPoint("testCheck");
         System.out.println("currId: "+ LogPlusUtils.getLogProperty("uuid.key", ""));
@@ -58,7 +58,7 @@ public class AppTest
 
     @Test
     public void eventTest(){
-    	LogPlusContext.initialize("CLASS_PATH=logplus-default.properties");
+    	LogPlusContext.initialize("CLASS_PATH:logplus.properties");
     	LogPlusContext.eventService().logEventBegin("pay event", LogPlusUtils.getLogProperty(LogPlusConstants.TYPE_A_S_C, ""), logger);
     	LogPlusContext.eventService().logEventEnd("pay event", LogPlusUtils.getLogProperty(LogPlusConstants.TYPE_A_S_C, ""), logger);
     	LogPlusContext.eventService().logBusinessEventBegin("agreement", logger);

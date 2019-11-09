@@ -95,9 +95,10 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
     		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
 				// get log method from logger
 				value = getMethodFromLogger(event);
-			}
-    		// log custom information
-    		else {
+			}else if(searchName.equals(JsonFieldsConstants.LINE)) {
+				value = getLineNumberFromLogger(event);
+			}else {
+    			// log custom information
     			LogPlusField logPlusField = LogPlusContext.getLogPlusField(field.getName());
     			if(logPlusField != null && logPlusField.getScope() == LogPlusField.SCOPE_LINE) {					
 					//this is a log line scope field, generate value here					
@@ -151,7 +152,20 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 		return applicationName;
 	}
 	
-	protected String getMethodFromLogger(ILoggingEvent event) {
+	protected String getMethodFromLogger(ILoggingEvent event) {		
+		
+		StackTraceElement[] sts = event.getCallerData();
+		
+		if(sts != null && sts.length > 0) {
+			
+			return sts[0].getMethodName();			
+			
+		}else {
+		
+			return "";
+		
+		}
+		/*
 		String value = event.getLoggerName();
 		if(value.isEmpty() || value == null) {
 			return "";
@@ -161,6 +175,7 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 			return "";
 		}
 		return result[result.length-1];
+		*/
 	}
 	
 	protected String getThrowableException(ILoggingEvent event) {
@@ -172,5 +187,21 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
             }
         }
         return "";
+	}
+	
+	protected String getLineNumberFromLogger(ILoggingEvent event) {
+		
+		StackTraceElement[] sts = event.getCallerData();
+		
+		if(sts != null && sts.length > 0) {
+			
+			return String.valueOf(sts[0].getLineNumber());			
+			
+		}else {
+		
+			return "";
+		
+		}	
+		
 	}
 }

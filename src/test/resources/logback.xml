@@ -1,31 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="LOG_DIR" value="./log" />
+     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+             <layout class="com.dawninfotek.logplus.extension.logback.LogPlusJsonLayout">
+             </layout>
+         </encoder>
+     </appender>
 
-    <contextName>SafebankingUI</contextName>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>{"date": "%d{yyyy-MM-dd HH:mm:ss.SSS}", "hostname": "${HOSTNAME}", "ip": "%X{remoteIp}", "runningTime": "%r", "applicationName": "%contextName", "level": "%-5p", "fileLine": "%file:%line", "stmStepName": "%X{stm-stepName}", "processId": "%X{processId}", "serviceName": "%X{serviceName}", "UUID": "%X{currId}", "sessionId": "%X{sessionId}", "userId": "%X{userName}", "AQA-STM-ID": "%X{stm-logplusId}", "method": "%M", "exception": "%ex", "thread": "%thread", "log": "%logger{36}:%L", "message": "%msg"}%n</pattern>
-        </encoder>
-    </appender>
-
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/logFile.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>
-                ${LOG_DIR}/logFile.%d{yyyy-MM-dd-HH-mm}.log
-            </fileNamePattern>
-            <maxHistroy>30</maxHistroy>
-        </rollingPolicy>
-        <encoder>
-            <pattern>{"date": "%d{yyyy-MM-dd HH:mm:ss.SSS}", "hostname": "${HOSTNAME}", "ip": "%X{remoteIp}", "runningTime": "%r", "applicationName": "%contextName", "level": "%-5p", "fileLine": "%file:%line", "stmStepName": "%X{stm-stepName}", "processId": "%X{processId}", "serviceName": "%X{serviceName}", "UUID": "%X{currId}", "sessionId": "%X{sessionId}", "userId": "%X{userName}", "AQA-STM-ID": "%X{stm-logplusId}", "method": "%M", "exception": "%ex", "thread": "%thread", "log": "%logger{36}:%L", "message": "%msg"}%n</pattern>
-        </encoder>
-    </appender>
-
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
-    </root>
-
+     <root level="debug">
+         <appender-ref ref="stdout"/>
+     </root>
 </configuration>

@@ -10,5 +10,6 @@ public interface JsonFieldsConstants {
 	public static final String MESSAGE = "MESSAGE";
 	public static final String EXCEPTION = "EXCEPTION";
 	public static final String METHOD = "METHOD";
+	public static final String LINE = "LINE";
 	
 }
