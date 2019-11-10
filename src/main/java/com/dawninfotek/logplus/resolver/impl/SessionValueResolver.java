@@ -18,8 +18,8 @@ public class SessionValueResolver extends AbstractResolver {
 	@Override
 	protected String resolveValueInternal(HttpServletRequest httpRequest, Map<String, Object> parameters) {
 		String result = "";
-		if (parameters == null) {
-			logger.warn("No Session object is defined.");
+		if (parameters == null && logger.isDebugEnabled()) {
+			logger.debug("No Session object is defined.");
 		} else {
 			String[] keyAndPath = ((String) parameters.get(PARAMETERS)).split("\\.", 2);
 			Object sessionObj = null;
@@ -41,12 +41,11 @@ public class SessionValueResolver extends AbstractResolver {
 				}
 
 			} else {
-				logger.info("Session object not found under key:" + keyAndPath[0]);
-
+				if(logger.isDebugEnabled()) {
+					logger.debug("Session object not found under key:" + keyAndPath[0]);
+				}
 			}
 		}
-
 		return result;
 	}
-
 }

@@ -221,7 +221,7 @@ public class LogPlusUtils implements LogPlusConstants {
 		try {
 			return Base64Util.encode(source.getBytes("UTF-8"));
 		}catch(UnsupportedEncodingException ignored) {
-			utilLogger.error("Failed to encode...",ignored);
+			utilLogger.warn("Failed to encode...",ignored);
 		}		
 		return null; 
 		//return Base64.encodeBase64String(source.getBytes());
@@ -242,7 +242,7 @@ public class LogPlusUtils implements LogPlusConstants {
 		try {
 			return new String(Base64Util.decode(source), "UTF-8");
 		}catch (Exception ignored) {
-			utilLogger.error("Failed to decode ...",ignored);
+			utilLogger.warn("Failed to decode ...",ignored);
 		}
 		
 		return "";
@@ -348,7 +348,7 @@ public class LogPlusUtils implements LogPlusConstants {
 		LogPlusField field = LogPlusContext.getLogPlusField(fieldName);
 		
 		if(field == null) {
-			utilLogger.error("The field named as:" + fieldName + " is not defined." );
+			utilLogger.warn("The field named as:" + fieldName + " is not defined." );
 			return null;
 		}
 		
@@ -425,7 +425,7 @@ public class LogPlusUtils implements LogPlusConstants {
 				}
 				result = resolver.resolveValue(httpRequest, parameters);
 			} else {
-				utilLogger.error("unknown resolver keyword: " + value);
+				utilLogger.warn("unknown resolver keyword: " + value);
 			}
 		
 			if(StringUtils.isNotEmpty(result)) {

@@ -7,12 +7,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.dawninfotek.logplus.checkpoint.CheckPointService;
+import com.dawninfotek.logplus.checkpoint.CheckPointServiceBaseImpl;
 import com.dawninfotek.logplus.config.Configuration;
 import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.event.EventService;
+import com.dawninfotek.logplus.event.EventServiceBaseImpl;
 import com.dawninfotek.logplus.resolver.Resolver;
 import com.dawninfotek.logplus.security.HashService;
+import com.dawninfotek.logplus.security.HashServiceBaseImpl;
 import com.dawninfotek.logplus.security.MaskService;
+import com.dawninfotek.logplus.security.MaskServiceBaseImpl;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
 
@@ -31,7 +35,7 @@ public class LogPlusContext {
 		components = new HashMap<String, Component>();
 	}
 	
-	private static LogPlusContext instance;
+	private static LogPlusContext instance = new LogPlusContext();
 	
 	private Configuration configuration;
 	
@@ -55,7 +59,6 @@ public class LogPlusContext {
 		
 		if(!initialized) synchronized (LogPlusContext.class) {		
 		
-			instance = new LogPlusContext();
 			instance.configuration = Configuration.loadFromConfigFile(configFile);
 			//indicate the configuration has been initialized.
 			initialized = true;			
@@ -98,16 +101,21 @@ public class LogPlusContext {
 			
 			LogPlusField field = null;
 			
-			for(String logPlusField:instance.logPlusFields.keySet()) {
-				
-				field = instance.logPlusFields.get(logPlusField);
-				if(field != null && field.getScope() == LogPlusField.SCOPE_CONTEXT) {
-				
-					LogPlusUtils.resolveFieldValue(logPlusField, null, contextFields, false);
-				
+			try {
+				for(String logPlusField:instance.logPlusFields.keySet()) {
+					
+					field = instance.logPlusFields.get(logPlusField);
+					if(field != null && field.getScope() == LogPlusField.SCOPE_CONTEXT) {
+					
+						LogPlusUtils.resolveFieldValue(logPlusField, null, contextFields, false);
+					
+					}
+		
 				}
-	
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
 			}
+			
 			
 			//cache the instance scope fields
 			instance.contextParameters = contextFields;
@@ -153,6 +161,10 @@ public class LogPlusContext {
 	 * @return
 	 */
 	public static CheckPointService checkPointService() {
+		if(!initialized) {
+			System.out.println("Warn: checkPointService not initialized !");
+			return new CheckPointServiceBaseImpl();
+		}
 		return (CheckPointService) instance.components.get(LogPlusConstants.C_NAME_CP);
 	}
 
@@ -161,6 +173,10 @@ public class LogPlusContext {
 	 * @return
 	 */
 	public static EventService eventService() {
+		if(!initialized) {
+			System.out.println("Warn: eventService not initialized !");
+			return new EventServiceBaseImpl();
+		}
 		return (EventService) instance.components.get(LogPlusConstants.C_NAME_EVT);
 	}
 
@@ -169,6 +185,10 @@ public class LogPlusContext {
 	 * @return
 	 */
 	public static HashService hashService() {
+		if(!initialized) {
+			System.out.println("Warn: hashService not initialized !");
+			return new HashServiceBaseImpl();
+		}
 		return (HashService) instance.components.get(LogPlusConstants.C_NAME_HASH);		
 	}
 
@@ -177,6 +197,10 @@ public class LogPlusContext {
 	 * @return
 	 */
 	public static MaskService maskService() {
+		if(!initialized) {
+			System.out.println("Warn: maskService not initialized !");
+			return new MaskServiceBaseImpl();
+		}
 		return (MaskService) instance.components.get(LogPlusConstants.C_NAME_MASK);
 	}
 
@@ -234,5 +258,9 @@ public class LogPlusContext {
 	
 	public static Set<String> notEventScopeFields(){
 		return instance.getNotEventScopeFields();
+	}
+	
+	public static Boolean isInitialized() {
+		return initialized;
 	}
 }

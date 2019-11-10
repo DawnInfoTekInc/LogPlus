@@ -67,17 +67,15 @@ public class LogPlusFieldsInjector {
 			if (logger.isTraceEnabled()) {
 				traceRequest(httpRequest);
 			}			
-			
 			try {
 				// need to make sure any error in LogPlus will not impact the application in the run time.	
 				prepareLogPlusFields(httpRequest, httpResponse);
 				String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 				if (transactionPath != null) {
 					LogPlusContext.checkPointService().startCheckPoint(transactionPath);
-					LogPlusContext.eventService().logServiceEventBegin(transactionPath, logger);
 				}
 			} catch (Exception e) {
-				logger.error("Error occured during processing LogPlus functions.", e);
+				logger.warn("Error occured during processing LogPlus functions.", e);
 			}
 			return true;
 		} else {
@@ -93,11 +91,10 @@ public class LogPlusFieldsInjector {
 			String transactionPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
 			
 			if (transactionPath != null) {
-				LogPlusContext.eventService().logServiceEventEnd(transactionPath, logger);
 				LogPlusContext.checkPointService().endCheckPoint(logger);
 			}
 		} catch (Exception e) {
-			logger.error("Error occured during processing LogPlus functions.", e);
+			logger.warn("Error occured during processing LogPlus functions.", e);
 		}finally {				
 			LogPlusUtils.clearThreadContext();
 		}
@@ -128,14 +125,10 @@ public class LogPlusFieldsInjector {
 
 		// Need to be able to create new fields which not be defined in the previous tier.
 		for (String fieldName : this.fieldNmaes) {
-			
 			//only resolve not event scope fields
 			if(LogPlusContext.getLogPlusField(fieldName).getScope() != LogPlusField.SCOPE_EVENT) {
-			
 				LogPlusUtils.resolveFieldValue(fieldName, httpRequest, fieldsMap, true);
-			
 			}
-
 		}
 
 		String path = httpRequest.getPathInfo();
@@ -143,7 +136,9 @@ public class LogPlusFieldsInjector {
 			path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
 			fieldsMap.put(LogPlusConstants.PATH, path);
 		}
-		logger.info("request path: " + path);
+		if (logger.isDebugEnabled()) {
+			logger.debug("request path: " + path);
+		}
 		
 		//store the values into thread local. ready to use after this point ...
 		LogPlusUtils.initThreadContext(httpRequest, httpResponse, fieldsMap);

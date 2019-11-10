@@ -50,7 +50,7 @@ public class MaskServiceBaseImpl implements MaskService {
 					}
 					else sourceString.replace(Integer.parseInt(range[0]), Integer.parseInt(range[1]), StringUtils.repeat("*", Integer.parseInt(range[1]) - Integer.parseInt(range[0])));
 				}else {
-					logger.error("incorrect range format " + one);
+					logger.warn("incorrect range format " + one);
 				}
 			}
 		}

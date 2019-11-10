@@ -54,7 +54,7 @@ public class RequestHeaderResolver extends AbstractResolver {
 			}
 
 		} catch (Exception e) {
-			logger.error("value not exist, " + e.getMessage());
+			logger.warn("value not exist, " + e.getMessage());
 		}
 
 		return result;

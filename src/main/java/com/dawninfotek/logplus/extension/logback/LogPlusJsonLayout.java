@@ -13,6 +13,7 @@ import java.util.Map;
 
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
+import ch.qos.logback.classic.spi.CallerData;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.LayoutBase;
@@ -78,13 +79,12 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
     							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getLoggerName(), getThrowableException(event));
     						}
     					}else {
-    						value = null;
+    						value = "";
     					}
-    					
     				}
-        			if (value.isEmpty()){
+        			if (StringUtils.isEmpty(value)){
                 		value = JsonField.getFromMDC(searchName);
-                		if(value.isEmpty()) {
+                		if(StringUtils.isEmpty(value)) {
                 			// get applicationName from context
                 			if(searchName.equals(LogPlusConstants.APPLICATION_NAME)) {
                 				value = getApplicationName(event);
@@ -100,7 +100,7 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
         			}
         		}
         		// display if mandatory or value exist
-            	if(field.getDisplay() || !value.isEmpty()) {
+            	if(field.getDisplay() || !StringUtils.isEmpty(value)) {
         			map.put(key, value);
             	}
         	}catch (Exception e) {
@@ -119,15 +119,12 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 	}
 	
 	protected String getMethodFromLogger(ILoggingEvent event) {
-		String value = event.getLoggerName();
-		if(value.isEmpty() || value == null) {
-			return "";
-		}
-		String[] result = event.getLoggerName().split("\\.");
-		if(result == null) {
-			return "";
-		}
-		return result[result.length-1];
+		StackTraceElement[] cda = event.getCallerData();
+        if (cda != null && cda.length > 0) {
+            return cda[0].getMethodName();
+        } else {
+            return CallerData.NA;
+        }
 	}
 	
 	protected String getThrowableException(ILoggingEvent event) {

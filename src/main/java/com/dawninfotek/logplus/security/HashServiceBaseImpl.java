@@ -30,7 +30,7 @@ public class HashServiceBaseImpl implements HashService {
 			sha.update(string.getBytes(Charset.forName("UTF8")));
 			return String.format("%064x", new BigInteger(1, sha.digest()));
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.warn(e.getMessage(), e);
 		}
 		return "";
 	}

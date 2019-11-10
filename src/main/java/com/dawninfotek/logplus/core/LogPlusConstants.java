@@ -17,6 +17,7 @@ public interface LogPlusConstants {
 	public static final String REMOTEADDR = "REMOTEADDR";	
 	public static final String URL_MAPPINGS_INCLUDES = "logplus.urlmapping.includes";
 	public static final String URL_MAPPINGS_EXCLUDES = "logplus.urlmapping.excludes";
+	public static final String URL_MAPPINGS_CONFIGS = "logplus.urlmapping.configs";
 	
     public static final String MASK_NAME = "userName";
     public static final String UUID = "uuid";
@@ -35,6 +36,8 @@ public interface LogPlusConstants {
 	
 	public static final String CHECKPOINT_DSP = "checkpointForDisplay";
 	public static final String ELAPSED_TIME = "elapsedTime";
+	public static final String START_TIME = "startTime";
+	public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
     
     public static final String LOG_MSG_EVENT_BEGIN = "message.event.begin";
     public static final String LOG_MSG_EVENT_END = "message.event.end";    

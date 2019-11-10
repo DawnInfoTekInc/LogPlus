@@ -21,7 +21,6 @@ import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
 
-// currently support log4j2.3
 
 @Plugin(name = "LogPlusJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class LogPlusJsonLayout extends AbstractStringLayout {
@@ -80,10 +79,10 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
     							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getSource().getClassName(), getException(event));
     						}
     					}else {
-    						value = null;
+    						value = "";
     					}
     				}
-        			if (value.isEmpty()) {
+        			if (StringUtils.isEmpty(value)) {
             			value = JsonField.getFromMDC(searchName);
     				}
         		}
@@ -96,7 +95,7 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
         			}
         		}
         		// display if mandatory or value exist
-            	if(field.getDisplay() || !value.isEmpty()) {
+            	if(field.getDisplay() || !StringUtils.isEmpty(value)) {
         			jsonObject.put(key, value);
             	}
         	}catch (Exception e) {
