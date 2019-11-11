@@ -23,8 +23,9 @@ public class JsonField implements Comparable<JsonField> {
 	private boolean display;
 	private String format;
 	private String displayValue;
+	private boolean enabled;
 
-	public static final int UN_DEFINED = Integer.MAX_VALUE - 1;
+	public static final int UN_DEFINED = Integer.MAX_VALUE - 1000;
 	/**
 	 * default value means any position is good for this field.
 	 */
@@ -153,6 +154,15 @@ public class JsonField implements Comparable<JsonField> {
 		this.label = label;
 	}
 	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	
 	public static JsonField fromString(String field) {
 		String key = field;
 		if (key.indexOf("[") > 0) {
@@ -185,7 +195,7 @@ public class JsonField implements Comparable<JsonField> {
 						if (value.equalsIgnoreCase("first")) {
 							newField.setPosition(-1);
 						} else if (value.equalsIgnoreCase("last")) {
-							newField.setPosition(Integer.MAX_VALUE);
+							newField.setPosition(Integer.MAX_VALUE-1);
 						} else {
 							try {
 								newField.setPosition(Integer.valueOf(value).intValue());
@@ -256,9 +266,9 @@ public class JsonField implements Comparable<JsonField> {
 		StringBuffer sb = new StringBuffer("{");
 		sb.append("\"name\":\"").append(getName()).append("\"").append(",");
 		sb.append("\"lable\":\"").append(getLabel()).append("\"").append(",");
-		sb.append("\"display\":\"").append(isDisplay()).append("\"").append(",");
+		sb.append("\"display\":").append(isDisplay()).append(",");
 		sb.append("\"format\":\"").append(getFormat()).append("\"").append(",");
-		sb.append("\"position\":\"").append(getPosition()).append("\"").append("}");
+		sb.append("\"position\":").append(getPosition()).append("}");
 
 		return sb.toString();
 	}

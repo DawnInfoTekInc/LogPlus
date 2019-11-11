@@ -4,11 +4,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -173,8 +173,6 @@ public class Configuration implements Component {
 			
 			TransactionPathMappingRule rule = null;
 			
-			List<String> jsonFields = new ArrayList<String>();
-			
 			for(String name:pm.keySet()) {
 				
 				if(name.startsWith(LogPlusConstants.TX_PATH_PREFIX)) {
@@ -184,10 +182,12 @@ public class Configuration implements Component {
 						rules.add(rule);
 					}
 				}
+				/*
 				if(name.equals(LogPlusConstants.JSON_LAYOUT_DEFAULT) || name.equals(LogPlusConstants.JSON_LAYOUT_CUSTOM)) {
 					jsonFields.addAll(Arrays.asList(pm.get(name).split(",")));
 				}
-			}
+				*/
+			}	
 			
 			if(!rules.isEmpty()) {
 				//sort the list
@@ -196,24 +196,19 @@ public class Configuration implements Component {
 			
 			System.out.println("LogPlus system was inittialized successefully, " + pm.size() + " of properties were loaded, " + rules.size() + " of TransactionPath Mapping Rules were creared ...");
 			
+			Map<String, JsonField> fromDefs = new HashMap<String, JsonField>();
+			
+			addJsonFields(fromDefs, pm.get(LogPlusConstants.JSON_LAYOUT_DEFAULT));
+			
+			addJsonFields(fromDefs, pm.get(LogPlusConstants.JSON_LAYOUT_CUSTOM));
+			
 			List<JsonField> fieldsMapping = new ArrayList<JsonField>();
 			
-			JsonField fieldObj = null;
-			
-			if(jsonFields != null && jsonFields.size() > 0) {
-				
-				for(int i=0; i<jsonFields.size(); i++) {					
-					fieldObj = JsonField.fromString(jsonFields.get(i));
-					if(fieldObj != null) {
-						//Still want to sort the un-position by the original order
-						if(fieldObj.getPosition() == JsonField.UN_DEFINED) {
-							//set the position
-							fieldObj.setPosition(JsonField.UN_DEFINED - jsonFields.size() + i);
-						}
-						fieldsMapping.add(fieldObj);
-					}
+			for(Entry<String, JsonField> entry:fromDefs.entrySet()) {
+				if(entry.getValue().isEnabled()) {
+					fieldsMapping.add(entry.getValue());
 				}
-			}
+			}		
 			
 			//Sort the List
 			sortJsonFields(fieldsMapping);			
@@ -235,6 +230,52 @@ public class Configuration implements Component {
 				}
 			}
 		}		
+	}
+	
+	/**
+	 * Create json fields and add to given Map
+	 */
+	private static void addJsonFields(Map<String, JsonField> map, String fieldsDef) {
+		
+		if(fieldsDef == null || fieldsDef.length() == 0 || map == null) {
+			return;
+		}
+		
+		JsonField fieldObj = null;
+		
+		for(String def:fieldsDef.split(",")) {
+			
+			boolean remove = false;
+			if(def.startsWith("-")) {
+				remove = true;
+				def = def.substring(1);
+			}
+			
+			fieldObj = JsonField.fromString(def);
+						
+			int i = 1;
+			
+			if(fieldObj != null) {
+				if(remove) {
+					if(map.get(fieldObj.getName()) != null) {
+						map.get(fieldObj.getName()).setEnabled(false);
+					}
+					
+				}else {
+					//Still want to sort the un-position by the original order
+					if(fieldObj.getPosition() == JsonField.UN_DEFINED) {
+						//set the position
+						fieldObj.setPosition(JsonField.UN_DEFINED - map.size() + i);
+						i++;
+					}
+					fieldObj.setEnabled(true);
+					//this will make sure the custom overrides the default
+					map.put(fieldObj.getName(),fieldObj);
+				}
+			}
+			
+		}
+		
 	}
 	
 	private static void sortJsonFields(List<JsonField> jsonFields) {

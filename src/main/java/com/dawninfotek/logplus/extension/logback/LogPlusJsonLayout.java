@@ -165,17 +165,7 @@ public class LogPlusJsonLayout extends LayoutBase<ILoggingEvent> {
 			return "";
 		
 		}
-		/*
-		String value = event.getLoggerName();
-		if(value.isEmpty() || value == null) {
-			return "";
-		}
-		String[] result = event.getLoggerName().split("\\.");
-		if(result == null) {
-			return "";
-		}
-		return result[result.length-1];
-		*/
+
 	}
 	
 	protected String getThrowableException(ILoggingEvent event) {
