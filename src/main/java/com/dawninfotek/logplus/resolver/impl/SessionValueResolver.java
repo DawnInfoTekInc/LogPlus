@@ -41,7 +41,9 @@ public class SessionValueResolver extends AbstractResolver {
 				}
 
 			} else {
-				logger.debug("Session object not found under key:" + keyAndPath[0]);
+				if(logger.isDebugEnabled()) {
+					logger.debug("Session object not found under key:" + keyAndPath[0]);
+				}
 
 			}
 		}

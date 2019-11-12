@@ -98,15 +98,31 @@ public class LogPlusContext {
 			
 			LogPlusField field = null;
 			
+			RuntimeException aException = null;
+			
 			for(String logPlusField:instance.logPlusFields.keySet()) {
 				
 				field = instance.logPlusFields.get(logPlusField);
 				if(field != null && field.getScope() == LogPlusField.SCOPE_CONTEXT) {
+					
+					try {
 				
-					LogPlusUtils.resolveFieldValue(logPlusField, null, contextFields, false);
+						LogPlusUtils.resolveFieldValue(logPlusField, null, contextFields, false);
+					
+					}catch (RuntimeException e) {
+						//We want to see the exceptions of each field if they have
+						System.out.println("Error when resolving Context scope field:" + field.getName());
+						e.printStackTrace();
+						aException = e;
+					}
 				
 				}
 	
+			}
+			
+			if(aException != null) {
+				initialized = false;
+				throw aException;
 			}
 			
 			//cache the instance scope fields

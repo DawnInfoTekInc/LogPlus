@@ -143,8 +143,9 @@ public class LogPlusFieldsInjector {
 			path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
 			fieldsMap.put(LogPlusConstants.PATH, path);
 		}
-		logger.debug("request path: " + path);
-		
+		if(logger.isDebugEnabled()) {
+			logger.debug("request path: " + path);
+		}
 		//store the values into thread local. ready to use after this point ...
 		LogPlusUtils.initThreadContext(httpRequest, httpResponse, fieldsMap);
 		

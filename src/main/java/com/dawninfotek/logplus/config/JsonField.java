@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import com.dawninfotek.logplus.core.LogPlusConstants;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
 
@@ -16,7 +17,7 @@ public class JsonField implements Comparable<JsonField> {
 	public static final String C = ":";
 	public static final String X = "X";
 
-	public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
+	//public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
 
 	private String name;
 	private String label;
@@ -226,7 +227,7 @@ public class JsonField implements Comparable<JsonField> {
 	public static String getTimestampValue(long millionSeconds, String format) {
 		String value = "";
 		if (format == null || format.isEmpty()) {
-			value = TimestampToString(millionSeconds, DefaultTimestampFormat);
+			value = TimestampToString(millionSeconds, LogPlusConstants.DefaultTimestampFormat);
 		} else {
 			value = TimestampToString(millionSeconds, format);
 		}

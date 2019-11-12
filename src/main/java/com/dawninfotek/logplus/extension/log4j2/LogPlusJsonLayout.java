@@ -19,6 +19,7 @@ import com.dawninfotek.logplus.config.LogPlusField;
 import com.dawninfotek.logplus.core.LogPlusContext;
 import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
+import com.google.gson.JsonObject;
 
 // currently support log4j2.3
 
@@ -37,72 +38,101 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
         return new LogPlusJsonLayout(config, charset);
     }
     
+    protected String getFieldValue(JsonField field, LogEvent event) {
+  
+   		String value = "";
+   		
+       	try {
+     		String searchName = field.getName(); 
+     		String format = field.getFormat();
+  
+
+            // Log default Information
+     		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
+    			value = JsonField.getTimestampValue(event.getTimeMillis(), format);
+    		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
+    			value = event.getLevel().name();
+    		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
+    			value = event.getThreadName();
+    		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
+    			final StackTraceElement source = event.getSource();
+    			value = source.getClassName() + " " + source.getFileName() + ":" + source.getLineNumber();
+    		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
+    			value = getMessage(event);
+    		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
+    			value = getException(event);
+    		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
+				value = event.getSource().getMethodName();
+			}
+     		// log custom information
+    		else {
+    			LogPlusField logPlusField = LogPlusContext.getLogPlusField(field.getName());
+    			if(logPlusField != null && logPlusField.getScope() == LogPlusField.SCOPE_LINE) {					
+					//this is a log line scope field, generate value here					
+					if(LogPlusUtils.resolveFieldValueRequired(logPlusField, event.getLevel().name())) {
+						//need to resolve the value for this log level for this field
+						value = LogPlusUtils.resolveFieldValue(logPlusField, event.getSource().getClassName(), getMessage(event));
+						if(StringUtils.isEmpty(value)) {
+							//try resolve from exception body
+							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getSource().getClassName(), getException(event));
+						}
+  					}else {
+						value = "";
+					}
+				}
+    			if (StringUtils.isEmpty(value)) {
+        			value = JsonField.getFromMDC(searchName);
+				}
+    		}
+     		
+     		// shrink value to format size
+    		if(!format.isEmpty() && format.startsWith("X")) {
+    			int charNumber = Integer.parseInt(format.substring(1));
+    			if(charNumber < value.length()) {
+        			value = value.substring(0, charNumber);
+    			}
+    		}
+    		
+       	}catch (Exception e) {
+    		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
+    	}
+    		
+    	return value;
+    	
+    }
+    
     @Override
     public String toSerializable(LogEvent event) {
+    	
+		if(Boolean.valueOf(LogPlusUtils.getLogProperty("logplus.use.jsonobject", "false"))) {
+			
+	       	JsonObject json = new JsonObject();
+            for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
+            	
+            	String value = getFieldValue(field, event);  
+            	// display if mandatory or value exist
+                if(field.isDisplay() || !value.isEmpty()) {
+            		json.addProperty(field.getLabel(), value);
+                }
+     
+            }
+            
+            return json.toString() + "\n";    	
+    		
+		}else {
 
-    	Map<String, String> jsonObject = new LinkedHashMap<String, String>();
-     // custom all fields
- 		for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
-         	try {
-         		String searchName = field.getName(); 
-         		String format = field.getFormat();
-         		String value = "";
-
-                // Log default Information
-         		if(searchName.equals(JsonFieldsConstants.TIMESTAMP)) {
-        			value = JsonField.getTimestampValue(event.getTimeMillis(), format);
-        		}else if(searchName.equals(JsonFieldsConstants.LEVEL)) {
-        			value = event.getLevel().name();
-        		}else if(searchName.equals(JsonFieldsConstants.THREAD)) {
-        			value = event.getThreadName();
-        		}else if(searchName.equals(JsonFieldsConstants.LOGGER)) {
-        			final StackTraceElement source = event.getSource();
-        			value = source.getClassName() + " " + source.getFileName() + ":" + source.getLineNumber();
-        		}else if(searchName.equals(JsonFieldsConstants.MESSAGE)) {
-        			value = getMessage(event);
-        		}else if(searchName.equals(JsonFieldsConstants.EXCEPTION)) {
-        			value = getException(event);
-        		}else if(searchName.equals(JsonFieldsConstants.METHOD)) {
-    				value = event.getSource().getMethodName();
-    			}
-         		// log custom information
-        		else {
-        			LogPlusField logPlusField = LogPlusContext.getLogPlusField(field.getName());
-        			if(logPlusField != null && logPlusField.getScope() == LogPlusField.SCOPE_LINE) {					
-    					//this is a log line scope field, generate value here					
-    					if(LogPlusUtils.resolveFieldValueRequired(logPlusField, event.getLevel().name())) {
-    						//need to resolve the value for this log level for this field
-    						value = LogPlusUtils.resolveFieldValue(logPlusField, event.getSource().getClassName(), getMessage(event));
-    						if(StringUtils.isEmpty(value)) {
-    							//try resolve from exception body
-    							value = LogPlusUtils.resolveFieldValue(logPlusField, event.getSource().getClassName(), getException(event));
-    						}
-    					}else {
-    						value = null;
-    					}
-    				}
-        			if (value.isEmpty()) {
-            			value = JsonField.getFromMDC(searchName);
-    				}
-        		}
-         		
-         		// shrink value to format size
-        		if(!format.isEmpty() && format.startsWith("X")) {
-        			int charNumber = Integer.parseInt(format.substring(1));
-        			if(charNumber < value.length()) {
-            			value = value.substring(0, charNumber);
-        			}
-        		}
-        		// display if mandatory or value exist
+			Map<String, String> jsonObject = new LinkedHashMap<String, String>();
+			// custom all fields
+			String value = null;
+			for(JsonField field: LogPlusContext.configuration().getJsonFields()) {
+				value = getFieldValue(field, event);
+				// display if mandatory or value exist
             	if(field.isDisplay() || !value.isEmpty()) {
         			jsonObject.put(field.getLabel(), value);
             	}
-        	}catch (Exception e) {
-        		System.out.println(e.getMessage() + JsonField.stackTraceToString(e));
-        	}
-        }
-
- 		return JsonField.convertMapToJsonString(jsonObject);
+            }  
+            return JsonField.convertMapToJsonString(jsonObject); 		
+		}
     }
     
     protected String getMessage(LogEvent event) {

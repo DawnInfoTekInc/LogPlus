@@ -15,7 +15,7 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 
 	@Override
 	public void startCheckPoint(String checkName) {
-//		String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
+
 		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT);
 		if (checkPointName == null || checkPointName.length() == 0) {
 			checkPointName = checkName;
@@ -25,11 +25,9 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("CheckPoint as name '" + checkPointName + "' is created ...");
-		}
-		
-		//MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		}		
+	
 		LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
-		//MDC.put(checkPointName, String.valueOf(System.currentTimeMillis()));
 		LogPlusUtils.saveFieldValue(checkPointName, String.valueOf(System.currentTimeMillis()));
 		if(logCheckPointEvent) {			
 			logger.info("CheckPoint as name '" + checkPointName + "' started.");
@@ -40,7 +38,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 	public void endCheckPoint(Object aLogger) {
 		long executionTime = 0;
 		long end = System.currentTimeMillis();
-		//String checkPointName = MDC.get(LogPlusConstants.CURR_CHECKPOINT);
 		String checkPointName = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.CURR_CHECKPOINT);
 		String checkName = checkPointName;
 		
@@ -48,11 +45,9 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			String start = LogPlusUtils.getLogPlusFieldValue(checkPointName);
 			if (start != null) {
 				executionTime = end - Long.parseLong(start);
-			}
-		
-			//String transPath = MDC.get(LogPlusConstants.TRANSACTION_PATH);
+			}		
+
 			String transPath = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.TRANSACTION_PATH);
-			//String path = MDC.get(LogPlusConstants.PATH);
 			String path = LogPlusUtils.getLogPlusFieldValue(LogPlusConstants.PATH);
 			
 			String p = "";
@@ -65,19 +60,13 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 
 
 			String message = String.format(LogPlusUtils.getLogProperty(LogPlusConstants.LOG_MSG_PFM_METRIC, ""), checkName, executionTime, p);
-		
-			//MDC.put(LogPlusConstants.CHECKPOINT_DSP, checkName);
 			LogPlusUtils.saveFieldValue(LogPlusConstants.CHECKPOINT_DSP, checkName);
-			//MDC.put(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));		
 			LogPlusUtils.saveFieldValue(LogPlusConstants.ELAPSED_TIME, String.valueOf(executionTime));	
 			LogPlusUtils.logTextMessage(aLogger, message, "info");
 		
-		}finally {
-			//MDC.remove(LogPlusConstants.CHECKPOINT_DSP);
-			LogPlusUtils.removeField(LogPlusConstants.CHECKPOINT_DSP);
-			//MDC.remove(LogPlusConstants.ELAPSED_TIME);
+		}finally {	
+			LogPlusUtils.removeField(LogPlusConstants.CHECKPOINT_DSP);	
 			LogPlusUtils.removeField(LogPlusConstants.ELAPSED_TIME);
-			//MDC.remove(checkName);
 			LogPlusUtils.removeField(checkName);
 		}
 		
@@ -89,9 +78,8 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 			checkPointName = "";			
 		}else {			
 			checkPointName = checkPointName.substring(0, checkPointName.lastIndexOf("::"));			
-		}
-		
-		//MDC.put(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
+		}		
+	
 		LogPlusUtils.saveFieldValue(LogPlusConstants.CURR_CHECKPOINT, checkPointName);
 		
 		if(logger.isTraceEnabled()) {
@@ -102,7 +90,6 @@ public class CheckPointServiceBaseImpl implements CheckPointService {
 
 	@Override
 	public String getCurrentCheckPoint() {
-		//return MDC.get(CURR_CHECKPOINT);
 		return LogPlusUtils.getLogPlusFieldValue(CURR_CHECKPOINT);
 	}
 

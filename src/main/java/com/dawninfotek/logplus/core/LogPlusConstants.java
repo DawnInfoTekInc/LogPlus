@@ -52,5 +52,7 @@ public interface LogPlusConstants {
     public static final String C_NAME_CFG = "Configuration";    
     public static final String C_NAME_EVT = "EventService";
     public static final String C_NAME_HASH = "HashService";
-    public static final String C_NAME_MASK = "MaskService";    
+    public static final String C_NAME_MASK = "MaskService"; 
+    
+    public static final String DefaultTimestampFormat = "yyyy-MM-dd HH:mm:ss.SSS zzz";
 }
