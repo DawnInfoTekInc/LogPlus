@@ -28,7 +28,8 @@ public class HashServiceBaseImpl implements HashService {
 		try {
 			MessageDigest sha = MessageDigest.getInstance("SHA-256");
 			sha.update(string.getBytes(Charset.forName("UTF8")));
-			return String.format("%064x", new BigInteger(1, sha.digest()));
+			//return String.format("%064x", new BigInteger(1, sha.digest()));
+			return new BigInteger(1, sha.digest()).toString();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

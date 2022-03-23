@@ -21,12 +21,10 @@ import com.dawninfotek.logplus.util.LogPlusUtils;
 import com.dawninfotek.logplus.util.StringUtils;
 import com.google.gson.JsonObject;
 
-// currently support log4j2.3
-
 @Plugin(name = "LogPlusJsonLayout", category = "Core", elementType = "layout", printObject = true)
 public class LogPlusJsonLayout extends AbstractStringLayout {
 	
-	private static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
     
     protected LogPlusJsonLayout(Configuration config, Charset aCharset) {
         super(aCharset);
@@ -86,7 +84,7 @@ public class LogPlusJsonLayout extends AbstractStringLayout {
     		}
      		
      		// shrink value to format size
-    		if(!format.isEmpty() && format.startsWith("X")) {
+    		if(!StringUtils.isEmpty(format) && format.startsWith("X")) {
     			int charNumber = Integer.parseInt(format.substring(1));
     			if(charNumber < value.length()) {
         			value = value.substring(0, charNumber);

@@ -251,6 +251,11 @@ public class LogPlusUtils implements LogPlusConstants {
 
 	}
 	
+	/**
+	 * Retrieve field value from ThreadContext
+	 * @param fieldName
+	 * @return
+	 */
 	public static String getLogPlusFieldValue(String fieldName) {
 		
 		String result = null;

@@ -1,26 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- <Configuration  status="DEBUG" packages="com.test">   -->
-<Configuration  status="TRACE" packages="com.dawninfotek.logplus.extension.log4j2">
+<Configuration>
+	<Properties>
+		<Property name="log_path">C:/tmp/logs/logx-tutorials-2.0</Property>
+	</Properties>
 	<Appenders>
-        <RollingFile name="json_file_appender" fileName="D:\jsonlogger.json"
-                     filePattern="${log-path}/%d{yyyyMMdd}_jsonlogger-%i.json" >
+        <RollingFile name="jsonFileAppender" fileName="${log_path}\logjsonlogger.json"
+                     filePattern="${log_path}\%d{yyyyMMdd}_jsonlogger-%i.json" >
             <LogPlusJsonLayout/>
             <Policies>
-                <SizeBasedTriggeringPolicy size="1 KB" />
+                <SizeBasedTriggeringPolicy size="10 KB" /> 
             </Policies>
-            <DefaultRolloverStrategy max="4"/>
+            <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-    </Appenders>
-    
-    <Appenders>
+        <RollingFile name="patternFileAppender" fileName="${log_path}\patternlogger.log"
+                     filePattern="${log_path}\%d{yyyyMMdd}_patternlogger-%i.log" >
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/> 
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10 KB" /> 
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
 	    <Console name="ConsoleJSONAppender" target="SYSTEM_OUT">
 	    	<LogPlusJsonLayout/>
 	    </Console>
-	</Appenders>
-
+    </Appenders>   
+ 
     <Loggers>
-        <root level="debug" additivity="false">
+        <Logger name="com.dawninfotek" additivity="true" level="trace">
+            <AppenderRef ref="jsonFileAppender" />
+        </Logger>
+        <Logger name="com.pattern" additivity="true" level="trace">
+            <AppenderRef ref="patternFileAppender" />
+        </Logger>       
+        <Root level="error" additivity="true">
             <AppenderRef ref="ConsoleJSONAppender"/>
-        </root>
+        </Root>
     </Loggers>
 </Configuration>
